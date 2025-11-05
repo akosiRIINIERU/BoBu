@@ -8,7 +8,6 @@ import {
   Image,
   Keyboard,
   Alert,
-  Linking,
 } from "react-native";
 
 function Login({ navigation }) {
@@ -21,23 +20,26 @@ function Login({ navigation }) {
       Alert.alert("Error", "Username and password cannot be empty!");
       return;
     }
-    if (username !== "admin" || password !== "admin") {
-      Alert.alert("Error", "Invalid username or password.");
+
+    if (password !== "admin") {
+      Alert.alert("Error", "Invalid password.");
       return;
     }
-    navigation.navigate("Dashboard");
-  };
 
-  // Social link openers
-  const openLink = (url) => {
-    Linking.openURL(url).catch(() => Alert.alert("Error", "Failed to open link"));
+    if (username === "admin" || username === "tenant") {
+      navigation.navigate("Dashboard");
+    } else if (username === "landlord") {
+      navigation.navigate("Landlord");
+    } else {
+      Alert.alert("Error", "Invalid username or password.");
+    }
   };
 
   return (
     <View style={styles.container}>
       <View style={styles.logoContainer}>
         <Image
-          source={require("../assets/logo.png")} // your logo PNG here
+          source={require("../assets/logo.png")}
           resizeMode="contain"
           style={styles.image}
         />
