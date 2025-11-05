@@ -11,31 +11,52 @@ import {
 } from "react-native";
 
 function SignUp({ navigation }) {
-  const [username, setUsername] = useState("");
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
+  const [mobile, setMobile] = useState("");
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
 
-  const emailInputRef = useRef(null);
-  const passwordInputRef = useRef(null);
-  const confirmPasswordInputRef = useRef(null);
+  // refs for inputs so "Next" focuses the next field nicely
+  const lastNameRef = useRef(null);
+  const emailRef = useRef(null);
+  const mobileRef = useRef(null);
+  const usernameRef = useRef(null);
+  const passwordRef = useRef(null);
+  const confirmPasswordRef = useRef(null);
 
   const handleSignUp = () => {
-    if (!username.trim() || !email.trim() || !password || !confirmPassword) {
+    if (
+      !firstName.trim() ||
+      !lastName.trim() ||
+      !email.trim() ||
+      !mobile.trim() ||
+      !username.trim() ||
+      !password ||
+      !confirmPassword
+    ) {
       Alert.alert("Error", "Please fill in all fields.");
       return;
     }
-    // Simple email regex check
+    // Email validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
       Alert.alert("Error", "Please enter a valid email address.");
+      return;
+    }
+    // Mobile number basic validation (digits only, 7-15 chars)
+    const mobileRegex = /^[0-9]{7,15}$/;
+    if (!mobileRegex.test(mobile)) {
+      Alert.alert("Error", "Please enter a valid mobile number.");
       return;
     }
     if (password !== confirmPassword) {
       Alert.alert("Error", "Passwords do not match.");
       return;
     }
-    // TODO: Add your sign-up logic here (API call, etc)
+    // TODO: Add your sign-up logic here
     Alert.alert("Success", "Account created! Please log in.");
     navigation.navigate("Login");
   };
@@ -44,7 +65,7 @@ function SignUp({ navigation }) {
     <View style={styles.container}>
       <View style={styles.logoContainer}>
         <Image
-          source={require("../assets/logo.png")} // Same logo as Login
+          source={require("../assets/logo.png")}
           resizeMode="contain"
           style={styles.image}
         />
@@ -56,14 +77,27 @@ function SignUp({ navigation }) {
 
         <TextInput
           style={styles.input}
-          placeholder="Username"
+          placeholder="First Name"
           placeholderTextColor="#999"
-          value={username}
-          onChangeText={setUsername}
+          value={firstName}
+          onChangeText={setFirstName}
           returnKeyType="next"
-          onSubmitEditing={() => emailInputRef.current && emailInputRef.current.focus()}
+          onSubmitEditing={() => lastNameRef.current && lastNameRef.current.focus()}
           blurOnSubmit={false}
-          autoCapitalize="none"
+          autoCapitalize="words"
+        />
+
+        <TextInput
+          style={styles.input}
+          placeholder="Last Name"
+          placeholderTextColor="#999"
+          value={lastName}
+          onChangeText={setLastName}
+          returnKeyType="next"
+          ref={lastNameRef}
+          onSubmitEditing={() => emailRef.current && emailRef.current.focus()}
+          blurOnSubmit={false}
+          autoCapitalize="words"
         />
 
         <TextInput
@@ -74,8 +108,34 @@ function SignUp({ navigation }) {
           onChangeText={setEmail}
           keyboardType="email-address"
           returnKeyType="next"
-          ref={emailInputRef}
-          onSubmitEditing={() => passwordInputRef.current && passwordInputRef.current.focus()}
+          ref={emailRef}
+          onSubmitEditing={() => mobileRef.current && mobileRef.current.focus()}
+          blurOnSubmit={false}
+          autoCapitalize="none"
+        />
+
+        <TextInput
+          style={styles.input}
+          placeholder="Mobile Number"
+          placeholderTextColor="#999"
+          value={mobile}
+          onChangeText={setMobile}
+          keyboardType="phone-pad"
+          returnKeyType="next"
+          ref={mobileRef}
+          onSubmitEditing={() => usernameRef.current && usernameRef.current.focus()}
+          blurOnSubmit={false}
+        />
+
+        <TextInput
+          style={styles.input}
+          placeholder="Username"
+          placeholderTextColor="#999"
+          value={username}
+          onChangeText={setUsername}
+          returnKeyType="next"
+          ref={usernameRef}
+          onSubmitEditing={() => passwordRef.current && passwordRef.current.focus()}
           blurOnSubmit={false}
           autoCapitalize="none"
         />
@@ -88,8 +148,8 @@ function SignUp({ navigation }) {
           onChangeText={setPassword}
           secureTextEntry
           returnKeyType="next"
-          ref={passwordInputRef}
-          onSubmitEditing={() => confirmPasswordInputRef.current && confirmPasswordInputRef.current.focus()}
+          ref={passwordRef}
+          onSubmitEditing={() => confirmPasswordRef.current && confirmPasswordRef.current.focus()}
           blurOnSubmit={false}
           autoCapitalize="none"
         />
@@ -102,7 +162,7 @@ function SignUp({ navigation }) {
           onChangeText={setConfirmPassword}
           secureTextEntry
           returnKeyType="done"
-          ref={confirmPasswordInputRef}
+          ref={confirmPasswordRef}
           onSubmitEditing={() => {
             Keyboard.dismiss();
             handleSignUp();
