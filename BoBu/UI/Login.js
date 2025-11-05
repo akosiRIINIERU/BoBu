@@ -83,27 +83,27 @@ function Login({ navigation }) {
 
         <View style={styles.button1Row}>
           <TouchableOpacity
-            onPress={() => openLink("https://www.facebook.com/yourprofile")}
+            onPress={() => openLink("https://www.facebook.com/marheanb")}
             style={styles.socialButton}
           >
             <Image
-              source={require("../assets/facebook.png")}
+              source={require("../assets/Facebook.png")}
               style={styles.socialIcon}
             />
           </TouchableOpacity>
 
           <TouchableOpacity
-            onPress={() => openLink("https://www.instagram.com/yourprofile")}
+            onPress={() => openLink("https://www.instagram.com/oompa.lumpia69")}
             style={styles.socialButton}
           >
             <Image
-              source={require("../assets/instagram.png")}
+              source={require("../assets/Insta.png")}
               style={styles.socialIcon}
             />
           </TouchableOpacity>
 
           <TouchableOpacity
-            onPress={() => openLink("https://github.com/yourprofile")}
+            onPress={() => openLink("https://github.com/akosiRIINIERU")}
             style={styles.socialButton}
           >
             <Image
@@ -113,7 +113,7 @@ function Login({ navigation }) {
           </TouchableOpacity>
 
           <TouchableOpacity
-            onPress={() => openLink("https://www.reddit.com/user/yourprofile")}
+            onPress={() => openLink("https://https://www.reddit.com/user/shinjikisushi")}
             style={styles.socialButton}
           >
             <Image
