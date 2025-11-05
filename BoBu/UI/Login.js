@@ -115,7 +115,7 @@ function Login({ navigation }) {
           </TouchableOpacity>
 
           <TouchableOpacity
-            onPress={() => openLink("https://https://www.reddit.com/user/shinjikisushi")}
+            onPress={() => openLink("https://www.reddit.com/user/shinjikisushi")}
             style={styles.socialButton}
           >
             <Image
