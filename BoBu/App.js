@@ -6,6 +6,7 @@ import Login from "./UI/Login";
 import Dashboard from "./UI/Dashboard";
 import SignUp from "./UI/SignUp";
 import AboutUs from "./UI/AboutUs";
+import Landlord from "./UI/Landlord";
 
 const Stack = createNativeStackNavigator();
 
@@ -22,6 +23,7 @@ export default function App() {
         <Stack.Screen name="Dashboard" component={Dashboard} />
         <Stack.Screen name="SignUp" component={SignUp} />
         <Stack.Screen name="AboutUs" component={AboutUs} />
+        <Stack.Screen name="Landlord" component={Landlord} />
       </Stack.Navigator>
     </NavigationContainer>
   );
