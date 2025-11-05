@@ -40,13 +40,13 @@ function SignUp({ navigation }) {
       Alert.alert("Error", "Please fill in all fields.");
       return;
     }
-    // Email validation
+ 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
       Alert.alert("Error", "Please enter a valid email address.");
       return;
     }
-    // Mobile number basic validation (digits only, 7-15 chars)
+
     const mobileRegex = /^[0-9]{7,15}$/;
     if (!mobileRegex.test(mobile)) {
       Alert.alert("Error", "Please enter a valid mobile number.");
@@ -56,7 +56,7 @@ function SignUp({ navigation }) {
       Alert.alert("Error", "Passwords do not match.");
       return;
     }
-    // TODO: Add your sign-up logic here
+   
     Alert.alert("Success", "Account created! Please log in.");
     navigation.navigate("Login");
   };
