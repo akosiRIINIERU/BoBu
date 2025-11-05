@@ -20,6 +20,7 @@ function AboutUs({ navigation }) {
       id: 1,
       name: "Marhean Buhisan",
       role: "Jungler",
+      quote: "ganking",
       image: require("../assets/marhean.png"),
       facebook: "https://www.facebook.com/marheanb",
       github: "https://github.com/marheanb",
@@ -28,6 +29,7 @@ function AboutUs({ navigation }) {
       id: 2,
       name: "Renhiel Maghanoy",
       role: "Pancit Canton and Gold Laner",
+      quote: "stuck Iron sa Valorant",
       image: require("../assets/ako.jpg"),
       facebook: "https://www.facebook.com/akosi.ulan23",
       github: "https://github.com/akosiRIINIERU",
@@ -36,6 +38,7 @@ function AboutUs({ navigation }) {
       id: 3,
       name: "John Rosmar Suico",
       role: "Top Laner",
+      quote: "*/nibalos ug ratrat ug mga trashtalk si janna",
       image: require("../assets/Suico.png"),
       facebook: "https://www.facebook.com/johndoe",
       github: "https://github.com/johndoe",
@@ -44,14 +47,16 @@ function AboutUs({ navigation }) {
       id: 4,
       name: "Kyle Jumilla",
       role: "Support and Tank",
-      image: require("../assets/kyle.png"),
+      quote: "papasara mi sir plssss :(",
+      image: require("../assets/kyle.jpg"),
       facebook: "https://www.facebook.com/mariel",
       github: "https://github.com/kakaylx",
     },
     {
       id: 5,
-      name: "Janna Sumalpon",
+      name: "Janna Sumalpong",
       role: "Mage",
+      quote: "*/giratratan ug trashtalk si suico",
       image: require("../assets/Jana.jpg"),
       facebook: "https://www.facebook.com/kevinp",
       github: "https://github.com/kakaylx",
@@ -72,6 +77,7 @@ function AboutUs({ navigation }) {
             <Image source={member.image} style={styles.avatar} />
             <Text style={styles.name}>{member.name}</Text>
             <Text style={styles.role}>{member.role}</Text>
+            <Text style={styles.quote}>"{member.quote}"</Text>
 
             <View style={styles.socialRow}>
               <TouchableOpacity
@@ -161,6 +167,14 @@ const styles = StyleSheet.create({
     color: "#ddd",
     fontSize: 16,
     marginTop: 5,
+  },
+  quote: {
+    color: "#b3b3ff",
+    fontSize: 14,
+    fontStyle: "italic",
+    textAlign: "center",
+    marginTop: 5,
+    paddingHorizontal: 10,
   },
   socialRow: {
     flexDirection: "row",
