@@ -79,6 +79,6 @@ const styles = StyleSheet.create({
   },
   logoutText: {
     color: "#1d1d82",
-    fontWeight: "bol",
+    fontWeight: "bold",
   },
 });
