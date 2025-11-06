@@ -12,7 +12,9 @@ import {
 
 function AboutUs({ navigation }) {
   const openLink = (url) => {
-    Linking.openURL(url).catch(() => Alert.alert("Error", "Failed to open link"));
+    Linking.openURL(url).catch(() =>
+      Alert.alert("Error", "Failed to open link")
+    );
   };
 
   const members = [
@@ -28,8 +30,8 @@ function AboutUs({ navigation }) {
     {
       id: 2,
       name: "Renhiel Maghanoy",
-      role: "Pancit Canton and Gold Laner",
-      quote: "*/wana kabakod sa ratrat ni janna ug stuck iron sa valorant",
+      role: "Pancit Canton / Gold Laner",
+      quote: "wana kabakod sa ratrat ni Janna ug stuck iron sa Valorant",
       image: require("../assets/ako.jpg"),
       facebook: "https://www.facebook.com/akosi.ulan23",
       github: "https://github.com/akosiRIINIERU",
@@ -38,7 +40,7 @@ function AboutUs({ navigation }) {
       id: 3,
       name: "John Rosmar Suico",
       role: "Top Laner",
-      quote: "*/nibalos ug ratrat ug mga trashtalk kang janna",
+      quote: "nibalos ug ratrat ug mga trashtalk kang Janna",
       image: require("../assets/Suico.png"),
       facebook: "https://www.facebook.com/johndoe",
       github: "https://github.com/johndoe",
@@ -46,7 +48,7 @@ function AboutUs({ navigation }) {
     {
       id: 4,
       name: "Kyle Jumilla",
-      role: "Support and Tank",
+      role: "Support / Tank",
       quote: "papasara mi sir plssss :(",
       image: require("../assets/kyle.jpg"),
       facebook: "https://www.facebook.com/mariel",
@@ -56,7 +58,7 @@ function AboutUs({ navigation }) {
       id: 5,
       name: "Janna Sumalpong",
       role: "Mage",
-      quote: "*/giratratan ug trashtalk si suico ug renhiel",
+      quote: "giratratan ug trashtalk si Suico ug Renhiel",
       image: require("../assets/Jana.jpg"),
       facebook: "https://www.facebook.com/kevinp",
       github: "https://github.com/kakaylx",
@@ -66,7 +68,7 @@ function AboutUs({ navigation }) {
   return (
     <View style={styles.container}>
       <Text style={styles.header}>About Us</Text>
-      <Text style={styles.subtitle}>Meet the BoardBuddy Team 💙</Text>
+      <Text style={styles.subtitle}>Meet the BoardBuddy Team 💙 </Text>
 
       <ScrollView
         contentContainerStyle={styles.scrollContainer}
@@ -83,6 +85,7 @@ function AboutUs({ navigation }) {
               <TouchableOpacity
                 onPress={() => openLink(member.facebook)}
                 style={styles.socialButton}
+                activeOpacity={0.7}
               >
                 <Image
                   source={require("../assets/Facebook.png")}
@@ -93,6 +96,7 @@ function AboutUs({ navigation }) {
               <TouchableOpacity
                 onPress={() => openLink(member.github)}
                 style={styles.socialButton}
+                activeOpacity={0.7}
               >
                 <Image
                   source={require("../assets/github.png")}
@@ -106,8 +110,9 @@ function AboutUs({ navigation }) {
         <TouchableOpacity
           style={styles.backButton}
           onPress={() => navigation.navigate("Login")}
+          activeOpacity={0.8}
         >
-          <Text style={styles.backText}>Back to Login</Text>
+          <Text style={styles.backText}>← Back to Login</Text>
         </TouchableOpacity>
       </ScrollView>
     </View>
@@ -115,72 +120,88 @@ function AboutUs({ navigation }) {
 }
 
 const styles = StyleSheet.create({
+  // Container layout
   container: {
     flex: 1,
-    backgroundColor: "rgba(141,157,246,1)",
+    backgroundColor: "#8D9DF6",
     alignItems: "center",
-    justifyContent: "center",
     paddingTop: 60,
-  },
-  header: {
-    fontSize: 42,
-    color: "#fff",
-    fontWeight: "bold",
-    marginBottom: 5,
-  },
-  subtitle: {
-    color: "#f2f2f2",
-    fontSize: 18,
-    marginBottom: 30,
-    fontStyle: "italic",
   },
   scrollContainer: {
     alignItems: "center",
     paddingBottom: 60,
   },
+
+  // Header
+  header: {
+    fontSize: 42,
+    color: "#fff",
+    fontWeight: "bold",
+    marginBottom: 5,
+    textShadowColor: "rgba(0,0,0,0.2)",
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 3,
+  },
+  subtitle: {
+    color: "#f9f9f9",
+    fontSize: 18,
+    marginBottom: 30,
+    fontStyle: "italic",
+    lineHeight: 24,
+    opacity: 0.9,
+    textAlign: "center",
+  },
+
+  // Member card
   card: {
-    width: 300,
-    backgroundColor: "rgba(29,29,130,1)",
+    width: 310,
+    backgroundColor: "#1D1D82",
     borderRadius: 25,
     paddingVertical: 25,
-    paddingHorizontal: 15,
-    marginBottom: 20,
+    paddingHorizontal: 20,
+    marginBottom: 22,
     alignItems: "center",
     shadowColor: "#000",
-    shadowOpacity: 0.3,
+    shadowOpacity: 0.25,
     shadowRadius: 10,
-    elevation: 5,
+    shadowOffset: { width: 0, height: 3 },
+    elevation: 6,
   },
   avatar: {
-    width: 100,
-    height: 100,
-    borderRadius: 50,
-    marginBottom: 10,
+    width: 110,
+    height: 110,
+    borderRadius: 55,
+    marginBottom: 12,
     backgroundColor: "#E6E6E6",
   },
   name: {
     color: "#fff",
     fontSize: 20,
     fontWeight: "bold",
+    textAlign: "center",
   },
   role: {
-    color: "#ddd",
-    fontSize: 16,
-    marginTop: 5,
+    color: "#d6d6ff",
+    fontSize: 15,
+    marginTop: 4,
+    textAlign: "center",
   },
   quote: {
     color: "#b3b3ff",
     fontSize: 14,
     fontStyle: "italic",
     textAlign: "center",
-    marginTop: 5,
+    marginTop: 8,
     paddingHorizontal: 10,
   },
+
+  // Social buttons
   socialRow: {
     flexDirection: "row",
     justifyContent: "center",
+    alignItems: "center",
     marginTop: 15,
-    gap: 20,
+    gap: 20, // consistent spacing
   },
   socialButton: {
     width: 45,
@@ -193,16 +214,19 @@ const styles = StyleSheet.create({
   socialIcon: {
     width: 25,
     height: 25,
+    
   },
+
+  // Back button
   backButton: {
-    marginTop: 30,
+    marginTop: 25,
     backgroundColor: "#E6E6E6",
-    borderRadius: 20,
-    paddingVertical: 10,
+    borderRadius: 25,
+    paddingVertical: 12,
     paddingHorizontal: 30,
   },
   backText: {
-    color: "#1d1d82",
+    color: "#1D1D82",
     fontWeight: "bold",
     fontSize: 16,
   },

@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import {
   StyleSheet,
   View,
@@ -8,221 +8,351 @@ import {
   Image,
   Keyboard,
   Alert,
+  Linking,
+  ScrollView,
+  KeyboardAvoidingView,
+  Platform,
+  Animated,
+  Easing,
 } from "react-native";
 
 function Login({ navigation }) {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const passwordInputRef = useRef(null);
 
-  const handleLogin = () => {
-    if (!username.trim() || !password.trim()) {
-      Alert.alert("Error", "Username and password cannot be empty!");
-      return;
-    }
+  // ✨ Animation states
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+  const slideAnim = useRef(new Animated.Value(50)).current;
 
-    if (password !== "admin") {
-      Alert.alert("Error", "Invalid password.");
-      return;
-    }
+  useEffect(() => {
+    Animated.timing(fadeAnim, {
+      toValue: 1,
+      duration: 700,
+      useNativeDriver: true,
+      easing: Easing.out(Easing.ease),
+    }).start();
 
-    if (username === "admin" || username === "tenant") {
-      navigation.navigate("Dashboard");
-    } else if (username === "landlord") {
+    Animated.timing(slideAnim, {
+      toValue: 0,
+      duration: 700,
+      useNativeDriver: true,
+      easing: Easing.out(Easing.ease),
+    }).start();
+  }, []);
+
+ const handleLogin = () => {
+  if (!username.trim() || !password.trim()) {
+    Alert.alert("Login Error", "Please enter both username and password.");
+    return;
+  }
+
+  const user = username.toLowerCase();
+  const pass = password.trim();
+
+  if (pass !== "admin") {
+    Alert.alert("Invalid Password", "Please check your password and try again.");
+    return;
+  }
+
+  // Role-based navigation
+  switch (user) {
+    case "landlord":
       navigation.navigate("Landlord");
-    } else {
-      Alert.alert("Error", "Invalid username or password.");
+      break;
+    case "admin":
+      navigation.navigate("Dashboard");
+      break;
+    case "tenant":
+      navigation.navigate("Dashboard");
+      break;
+    default:
+      Alert.alert("Invalid Username", "Username not recognized.");
+      break;
+  }
+};
+
+
+
+  const openLink = async (url) => {
+    try {
+      const supported = await Linking.canOpenURL(url);
+      if (supported) await Linking.openURL(url);
+      else Alert.alert("Error", "Cannot open the provided link.");
+    } catch (err) {
+      console.error("Failed to open link:", err);
     }
   };
 
   return (
-    <View style={styles.container}>
-      <View style={styles.logoContainer}>
-        <Image
-          source={require("../assets/logo.png")}
-          resizeMode="contain"
-          style={styles.image}
-        />
-      </View>
-
-      <View style={styles.rect}>
-        <Text style={styles.hello}>HELLO!</Text>
-        <Text style={styles.hello1}>Log in to get started!</Text>
-
-        <TextInput
-          style={styles.input}
-          placeholder="Username"
-          placeholderTextColor="#999"
-          value={username}
-          onChangeText={setUsername}
-          returnKeyType="next"
-          onSubmitEditing={() => passwordInputRef.current && passwordInputRef.current.focus()}
-          blurOnSubmit={false}
-          autoCapitalize="none"
-        />
-
-        <TextInput
-          style={styles.input}
-          placeholder="Password"
-          placeholderTextColor="#999"
-          value={password}
-          onChangeText={setPassword}
-          secureTextEntry
-          returnKeyType="done"
-          ref={passwordInputRef}
-          onSubmitEditing={() => {
-            Keyboard.dismiss();
-            handleLogin();
-          }}
-          autoCapitalize="none"
-        />
-
-        <TouchableOpacity style={styles.button} onPress={handleLogin}>
-          <Text style={styles.btnText}>Login</Text>
-        </TouchableOpacity>
-
-        <Text style={styles.or}>or</Text>
-
-        <View style={styles.button1Row}>
-          <TouchableOpacity
-            onPress={() => openLink("https://www.facebook.com/marheanb")}
-            style={styles.socialButton}
-          >
+    <KeyboardAvoidingView
+      style={styles.avoidingView}
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+    >
+      <ScrollView
+        contentContainerStyle={styles.scrollContainer}
+        showsVerticalScrollIndicator={false}
+        keyboardShouldPersistTaps="handled"
+      >
+        <View style={styles.container}>
+          {/* Logo */}
+          <View style={styles.logoContainer}>
             <Image
-              source={require("../assets/Facebook.png")}
-              style={styles.socialIcon}
+              source={require("../assets/logo.png")}
+              resizeMode="contain"
+              style={styles.image}
             />
-          </TouchableOpacity>
+          </View>
 
-          <TouchableOpacity
-            onPress={() => openLink("https://www.instagram.com/oompa.lumpia69")}
-            style={styles.socialButton}
+          {/* Animated Card */}
+          <Animated.View
+            style={[
+              styles.card,
+              {
+                opacity: fadeAnim,
+                transform: [{ translateY: slideAnim }],
+              },
+            ]}
           >
-            <Image
-              source={require("../assets/Insta.png")}
-              style={styles.socialIcon}
-            />
-          </TouchableOpacity>
+            <Text style={styles.title}>HELLO!</Text>
+            <Text style={styles.subtitle}>Log in to get started</Text>
 
-          <TouchableOpacity
-            onPress={() => openLink("https://github.com/akosiRIINIERU")}
-            style={styles.socialButton}
-          >
-            <Image
-              source={require("../assets/github.png")}
-              style={styles.socialIcon}
+            {/* Username Input */}
+            <TextInput
+              style={styles.input}
+              placeholder="Username"
+              placeholderTextColor="#999"
+              value={username}
+              onChangeText={setUsername}
+              returnKeyType="next"
+              onSubmitEditing={() =>
+                passwordInputRef.current && passwordInputRef.current.focus()
+              }
+              blurOnSubmit={false}
+              autoCapitalize="none"
             />
-          </TouchableOpacity>
 
-          <TouchableOpacity
-            onPress={() => openLink("https://www.reddit.com/user/shinjikisushi")}
-            style={styles.socialButton}
-          >
-            <Image
-              source={require("../assets/reddit.png")}
-              style={styles.socialIcon}
+                      {/* Password Input */}
+          <View style={styles.passwordContainer}>
+            <TextInput
+              style={styles.passwordInput}
+              placeholder="Password"
+              placeholderTextColor="#999"
+              value={password}
+              onChangeText={setPassword}
+              secureTextEntry={!showPassword}
+              returnKeyType="done"
+              ref={passwordInputRef}
+              onSubmitEditing={() => {
+                Keyboard.dismiss();
+                handleLogin();
+              }}
+              autoCapitalize="none"
             />
-          </TouchableOpacity>
+            <TouchableOpacity
+              onPress={() => setShowPassword(!showPassword)}
+              style={styles.eyeButton}
+              activeOpacity={0.6}
+            >
+              <Image
+                source={
+                  showPassword
+                    ? require("../assets/eye-open.png")
+                    : require("../assets/eye-closed.png")
+                }
+                style={styles.eyeIcon}
+              />
+            </TouchableOpacity>
+          </View>
+
+            {/* Login Button */}
+            <TouchableOpacity
+              style={styles.button}
+              onPress={handleLogin}
+              activeOpacity={0.8}
+            >
+              <Text style={styles.btnText}>Login</Text> 
+            </TouchableOpacity>
+
+            <Text style={styles.or}>or</Text>
+
+            {/* Social Icons */}
+            <View style={styles.socialRow}>
+              {[
+                {
+                  src: require("../assets/Facebook.png"),
+                  url: "https://www.facebook.com/marheanb",
+                },
+                {
+                  src: require("../assets/Insta.png"),
+                  url: "https://www.instagram.com/oompa.lumpia69",
+                },
+                {
+                  src: require("../assets/github.png"),
+                  url: "https://github.com/akosiRIINIERU",
+                },
+                {
+                  src: require("../assets/reddit.png"),
+                  url: "https://www.reddit.com/user/shinjikisushi",
+                },
+              ].map((icon, index) => (
+                <TouchableOpacity
+                  key={index}
+                  onPress={() => openLink(icon.url)}
+                  style={styles.socialButton}
+                  activeOpacity={0.7}
+                >
+                  <Image source={icon.src} style={styles.socialIcon} />
+                </TouchableOpacity>
+              ))}
+            </View>
+
+            {/* Footer Buttons */}
+            <View style={styles.footerRow}>
+              <TouchableOpacity
+                onPress={() => navigation.navigate("AboutUs")}
+                style={styles.smallButton}
+                activeOpacity={0.7}
+              >
+                <Text style={styles.btnTextSmall}>About</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                onPress={() => navigation.navigate("SignUp")}
+                style={styles.smallButton}
+                activeOpacity={0.7}
+              >
+                <Text style={styles.btnTextSmall}>Sign Up</Text>
+              </TouchableOpacity>
+            </View>
+          </Animated.View>
         </View>
-
-        <View style={styles.button5Row}>
-          <TouchableOpacity
-            onPress={() => navigation.navigate("AboutUs")}
-            style={styles.button5}
-          >
-            <Text style={styles.btnTextSmall}>About</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            onPress={() => navigation.navigate("SignUp")}
-            style={styles.button6}
-          >
-            <Text style={styles.btnTextSmall}>Sign Up</Text>
-          </TouchableOpacity>
-        </View>
-      </View>
-    </View>
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
+  avoidingView: {
     flex: 1,
-    backgroundColor: "rgba(141,157,246,1)",
+    backgroundColor: "#8D9DF6",
+  },
+  scrollContainer: {
+    flexGrow: 1,
     justifyContent: "center",
     alignItems: "center",
+    paddingVertical: 30,
     paddingHorizontal: 20,
   },
-  logoContainer: {
-    width: 226,
-    height: 236,
-    marginBottom: 20,
-    justifyContent: "center",
+  container: {
+    width: "100%",
     alignItems: "center",
+  },
+  logoContainer: {
+    width: 300,
+    height: 200,
+    
   },
   image: {
     width: "100%",
-    height: "100%",
+    height: "110%",
   },
-  rect: {
+  card: {
     width: "100%",
-    backgroundColor: "rgba(29,29,130,1)",
-    borderRadius: 50,
+    backgroundColor: "#1D1D82",
+    borderRadius: 40,
     paddingHorizontal: 36,
     paddingVertical: 40,
     alignItems: "center",
+    shadowColor: "#000",
+    shadowOpacity: 0.25,
+    shadowOffset: { width: 0, height: 3 },
+    shadowRadius: 6,
+    elevation: 6,
   },
-  hello: {
+  title: {
     color: "#fff",
-    fontSize: 48,
-    fontWeight: "700",
+    fontSize: 46,
+    fontWeight: "800",
     fontStyle: "italic",
-    marginBottom: 10,
+    marginBottom: 8,
     textAlign: "center",
   },
-  hello1: {
-    color: "#fbf8f8",
-    fontSize: 24,
+  subtitle: {
+    color: "#f9f9f9",
+    fontSize: 22,
     fontStyle: "italic",
-    marginBottom: 30,
+    marginBottom: 28,
     textAlign: "center",
+    opacity: 0.9,
   },
   input: {
     width: "100%",
+    height: 48,
+    backgroundColor: "#E6E6E6",
+    borderRadius: 25,
+    paddingHorizontal: 18,
+    flexDirection: "row",
+    alignItems: "center",
+    fontSize: 16,
+    color: "#1D1D82",
+    marginBottom: 15,
+  },
+ passwordContainer: {
+  width: "100%",
+  position: "relative",
+  marginBottom: 15,
+},
+passwordInput: {
+  width: "100%",
+  height: 48,
+  backgroundColor: "#E6E6E6",
+  borderRadius: 25,
+  paddingHorizontal: 18,
+  fontSize: 16,
+  color: "#1D1D82",
+  paddingRight: 35, // space for the eye icon
+},
+eyeButton: {
+  position: "absolute",
+  right: 10,
+  top: "40%",
+  transform: [{ translateY: -12 }],
+  padding: 4,
+},
+eyeIcon: {
+  width: 24,
+  height: 24,
+  resizeMode: "contain",
+},
+
+  button: {
+    width: 120,
     height: 45,
     backgroundColor: "#E6E6E6",
-    borderRadius: 27,
-    paddingHorizontal: 20,
-    fontSize: 16,
-    marginBottom: 15,
-    color: "#1d1d82",
-  },
-  button: {
-    width: 100,
-    height: 40,
-    backgroundColor: "#E6E6E6",
-    borderRadius: 21,
-    marginTop: 20,
+    borderRadius: 25,
     justifyContent: "center",
     alignItems: "center",
+    marginTop: 15,
   },
   btnText: {
     fontWeight: "bold",
-    color: "#1d1d82",
+    color: "#1D1D82",
+    fontSize: 16,
   },
   or: {
-    color: "rgba(251,248,248,1)",
-    fontSize: 24,
-    opacity: 0.6,
-    marginTop: 33,
-    textAlign: "center",
+    color: "#fff",
+    fontSize: 20,
+    marginTop: 28,
+    opacity: 0.7,
   },
-  button1Row: {
-    height: 60,
+  socialRow: {
     flexDirection: "row",
-    marginTop: 34,
     justifyContent: "space-around",
     width: "80%",
+    marginTop: 25,
+    gap: 5,
   },
   socialButton: {
     width: 50,
@@ -233,36 +363,27 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   socialIcon: {
-    width: 30,
-    height: 30,
-  },
-  button5: {
-    width: 80,
-    height: 35,
-    backgroundColor: "#E6E6E6",
-    borderRadius: 10,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  button6: {
-    width: 80,
-    height: 35,
-    backgroundColor: "#E6E6E6",
-    marginLeft: 120,
-    borderRadius: 10,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  button5Row: {
+    width: 28,
     height: 28,
+  },
+  footerRow: {
     flexDirection: "row",
-    marginTop: 88,
-    marginLeft: 53,
-    marginRight: 50,
+    justifyContent: "center",
+    marginTop: 70,
+  },
+  smallButton: {
+    width: 90,
+    height: 36,
+    backgroundColor: "#E6E6E6",
+    borderRadius: 12,
+    justifyContent: "center",
+    alignItems: "center",
+    marginHorizontal: 20,
   },
   btnTextSmall: {
-    color: "#1d1d82",
+    color: "#1D1D82",
     fontWeight: "bold",
+    fontSize: 14,
   },
 });
 
