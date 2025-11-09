@@ -47,6 +47,8 @@ export default function App() {
         <Stack.Screen name="Payments" component={Payments} />
         <Stack.Screen name="Notificationll" component={Notificationll} />
 
+        
+
         {/* Navigation Screens */}
         <Stack.Screen name="Chat" component={Chat} />
         <Stack.Screen name="Profile" component={Profile} />

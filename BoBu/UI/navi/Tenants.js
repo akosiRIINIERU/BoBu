@@ -1,60 +1,166 @@
-// screens/Tenants.js
-import React, { useState } from "react";
-import { View, Text, StyleSheet, FlatList, TouchableOpacity } from "react-native";
+import React from "react";
+import {
+  View,
+  Text,
+  StyleSheet,
+  FlatList,
+  TouchableOpacity,
+  Platform,
+} from "react-native";
 
-export default function Tenants() {
-  const [selectedTenant, setSelectedTenant] = useState(null);
-
+export default function Tenants({ navigation }) {
   const tenants = [
-    { id: 1, name: "Juan Dela Cruz", status: "Paid", unit: "Unit 101" },
-    { id: 2, name: "Maria Santos", status: "Unpaid", unit: "Unit 102" },
-    { id: 3, name: "Carlos Reyes", status: "Paid", unit: "Unit 103" },
+    {
+      id: 1,
+      name: "Renhiel Maghanoy",
+      status: "Paid",
+      room: "Room 505",
+      email: "renhiel@example.com",
+      phone: "0917-123-4567",
+      rent: "₱12,000",
+      leaseStart: "Nov 1, 2025",
+      leaseEnd: "Oct 31, 2026",
+      notes: "Prefers online payment",
+    },
+    {
+      id: 2,
+      name: "Maria Santos",
+      status: "Unpaid",
+      room: "Room 102",
+      email: "maria@example.com",
+      phone: "0918-987-6543",
+      rent: "₱12,000",
+      leaseStart: "Nov 1, 2025",
+      leaseEnd: "Oct 31, 2026",
+      notes: "Late payments last month",
+    },
+    {
+      id: 3,
+      name: "Carlos Reyes",
+      status: "Paid",
+      room: "Room 103",
+      email: "carlos@example.com",
+      phone: "0920-555-1212",
+      rent: "₱12,000",
+      leaseStart: "Nov 1, 2025",
+      leaseEnd: "Oct 31, 2026",
+      notes: "No issues",
+    },
   ];
+
+  const handleTenantPress = (tenant) => {
+    navigation.navigate("Payments", { tenant });
+  };
+
+  const renderTenant = ({ item }) => (
+    <TouchableOpacity
+      style={[
+        styles.card,
+        item.status === "Paid" ? styles.paid : styles.unpaid,
+        Platform.OS === "ios" ? styles.cardShadowIOS : styles.cardShadowAndroid,
+      ]}
+      onPress={() => handleTenantPress(item)}
+      activeOpacity={0.85}
+    >
+      <Text style={styles.name}>👤 {item.name}</Text>
+      <View style={styles.detailBlock}>
+        <Text style={styles.details}>🏠 {item.room}</Text>
+        <Text style={styles.details}>📧 {item.email}</Text>
+        <Text style={styles.details}>📞 {item.phone}</Text>
+        <Text style={styles.details}>💰 {item.rent}</Text>
+        <Text style={styles.details}>
+          📅 {item.leaseStart} - {item.leaseEnd}
+        </Text>
+        <Text style={styles.details}>📝 {item.notes}</Text>
+      </View>
+      <View style={styles.statusBadge}>
+        <Text style={styles.statusText}>
+          {item.status === "Paid" ? "✅ Paid" : "⚠️ Unpaid"}
+        </Text>
+      </View>
+    </TouchableOpacity>
+  );
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Tenants Overview</Text>
+      <View style={styles.headerContainer}>
+        <Text style={styles.headerText}>Tenants Overview</Text>
+      </View>
+
       <FlatList
         data={tenants}
         keyExtractor={(item) => item.id.toString()}
-        renderItem={({ item }) => (
-          <TouchableOpacity
-            style={[styles.card, item.status === "Paid" ? styles.paid : styles.unpaid]}
-            onPress={() => setSelectedTenant(item)}
-          >
-            <Text style={styles.name}>{item.name}</Text>
-            <Text style={styles.details}>{item.unit}</Text>
-            <Text style={styles.status}>Status: {item.status}</Text>
-          </TouchableOpacity>
-        )}
+        renderItem={renderTenant}
+        contentContainerStyle={styles.listSpacing}
+        showsVerticalScrollIndicator={false}
       />
-
-      {selectedTenant && (
-        <View style={styles.chatBox}>
-          <Text style={styles.chatTitle}>Chat with {selectedTenant.name}</Text>
-          <View style={styles.chatBubble}>
-            <Text>Hi {selectedTenant.name}, your rent status is {selectedTenant.status}.</Text>
-          </View>
-          <View style={[styles.chatBubble, styles.reply]}>
-            <Text>{selectedTenant.name}: Thanks, noted!</Text>
-          </View>
-        </View>
-      )}
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#8D9DF6", padding: 20 },
-  title: { fontSize: 22, fontWeight: "bold", color: "#1D1D82", marginBottom: 10, textAlign: "center" },
-  card: { padding: 15, borderRadius: 15, marginVertical: 8 },
-  paid: { backgroundColor: "#b0ffb0" },
-  unpaid: { backgroundColor: "#ffb0b0" },
-  name: { fontSize: 18, fontWeight: "bold" },
-  details: { fontSize: 14, color: "#333" },
-  status: { marginTop: 5, fontWeight: "bold" },
-  chatBox: { backgroundColor: "#fff", padding: 15, borderRadius: 15, marginTop: 20 },
-  chatTitle: { fontWeight: "bold", color: "#1D1D82", marginBottom: 10 },
-  chatBubble: { backgroundColor: "#E6E6E6", padding: 10, borderRadius: 10, marginBottom: 5 },
-  reply: { alignSelf: "flex-end", backgroundColor: "#FFD700" },
+  container: {
+    flex: 1,
+    backgroundColor: "#8D9DF6",
+    paddingVertical: 30,
+    paddingHorizontal: 20,
+  },
+  headerContainer: {
+    marginBottom: 25,
+  },
+  headerText: {
+    fontSize: 22,
+    fontWeight: "700",
+    color: "#FFD700",
+  },
+  listSpacing: {
+    paddingBottom: 40,
+  },
+  card: {
+    borderRadius: 20,
+    paddingVertical: 24,
+    paddingHorizontal: 22,
+    marginBottom: 24,
+  },
+  cardShadowIOS: {
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+  },
+  cardShadowAndroid: {
+    elevation: 6,
+  },
+  paid: {
+    backgroundColor: "#1D1D82",
+  },
+  unpaid: {
+    backgroundColor: "#FF4D4D",
+  },
+  name: {
+    color: "#FFD700",
+    fontSize: 22,
+    fontWeight: "bold",
+    marginBottom: 14,
+  },
+  detailBlock: {
+    marginBottom: 14,
+  },
+  details: {
+    color: "#fff",
+    fontSize: 16,
+    marginBottom: 6,
+  },
+  statusBadge: {
+    backgroundColor: "#fff",
+    paddingVertical: 6,
+    paddingHorizontal: 14,
+    borderRadius: 14,
+    alignSelf: "flex-start",
+  },
+  statusText: {
+    fontWeight: "700",
+    color: "#1D1D82",
+    fontSize: 14,
+  },
 });

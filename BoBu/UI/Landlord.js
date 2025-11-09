@@ -1,3 +1,4 @@
+// screens/Landlord.js
 import React, { useState } from "react";
 import {
   View,
@@ -7,10 +8,11 @@ import {
   ScrollView,
   Image,
   Modal,
+  Platform,
 } from "react-native";
 
 export default function Landlord({ navigation }) {
-  const [activeTab, setActiveTab] = useState("Home");
+  const [activeTab, setActiveTab] = useState("Dashboard");
   const [logoutVisible, setLogoutVisible] = useState(false);
 
   const handleLogout = () => {
@@ -19,7 +21,7 @@ export default function Landlord({ navigation }) {
   };
 
   return (
-    <View style={styles.mainContainer}>
+    <View style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollContainer}>
         {/* Header */}
         <View style={styles.header}>
@@ -29,61 +31,74 @@ export default function Landlord({ navigation }) {
           />
           <View style={{ flex: 1 }}>
             <Text style={styles.welcome}>Welcome back,</Text>
-            <Text style={styles.name}>Lord Farquad👋</Text>
+            <Text style={styles.name}>Marhean langTOH</Text>
           </View>
-
-          {/* Logout Icon Button */}
           <TouchableOpacity
             style={styles.logoutButton}
             onPress={() => setLogoutVisible(true)}
+            activeOpacity={0.7}
           >
-            <Text style={styles.logoutIcon}>🚪</Text>
+            <Text style={styles.logoutIcon}>⎋</Text>
           </TouchableOpacity>
         </View>
 
-        {/* Dashboard Summary Cards */}
+        {/* Dashboard Cards */}
         <View style={styles.cardRow}>
-          <View style={styles.card}>
-            <Text style={styles.cardNumber}>5</Text>
+          <TouchableOpacity
+            style={styles.infoCard}
+            onPress={() => navigation.navigate("Listings")}
+            activeOpacity={0.8}
+          >
+            <Text style={styles.cardNumber}>3</Text>
             <Text style={styles.cardLabel}>Properties</Text>
-          </View>
-          <View style={styles.card}>
-            <Text style={styles.cardNumber}>12</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.infoCard}
+            onPress={() => navigation.navigate("Tenants")}
+            activeOpacity={0.8}
+          >
+            <Text style={styles.cardNumber}>3</Text>
             <Text style={styles.cardLabel}>Tenants</Text>
-          </View>
+          </TouchableOpacity>
         </View>
 
         <View style={styles.cardRow}>
-          <View style={styles.card}>
-            <Text style={styles.cardNumber}>3</Text>
+          {/* Pending Requests card */}
+          <TouchableOpacity
+            style={styles.infoCard}
+            onPress={() => navigation.navigate("Notificationll")}
+            activeOpacity={0.8}
+          ><Text style={styles.cardNumber}>3</Text>
             <Text style={styles.cardLabel}>Pending Requests</Text>
-          </View>
-          <View style={styles.card}>
+
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.infoCard}
+            onPress={() => navigation.navigate("Payments")}
+            activeOpacity={0.8}
+          >
             <Text style={styles.cardNumber}>₱48,500</Text>
             <Text style={styles.cardLabel}>Total Rent</Text>
-          </View>
+          </TouchableOpacity>
         </View>
       </ScrollView>
 
-      {/* Bottom Navigation Bar */}
+      {/* Bottom Navigation */}
       <View style={styles.navBar}>
         {[
-          { label: "Dashboard", icon: "🏠" },
-          { label: "Listings", icon: "📋" },
-          { label: "Tenants", icon: "👥" },
-          { label: "Payments", icon: "💰" },
-          { label: "Notifications", icon: "🔔" },
+          { icon: "📋", screen: "Listings", label: "Listings" },
+          { icon: "👥", screen: "Tenants", label: "Tenants" },
+          { icon: "💰", screen: "Payments", label: "Payments" },
+          { icon: "🔔", screen: "Notificationll", label: "Notifications" },
         ].map((tab) => (
           <TouchableOpacity
             key={tab.label}
             style={styles.navItem}
             onPress={() => {
               setActiveTab(tab.label);
-              if (tab.label === "Home") navigation.navigate("Landlord");
-              if (tab.label === "Listings") navigation.navigate("Listings");
-              if (tab.label === "Tenants") navigation.navigate("Tenants");
-              if (tab.label === "Payments") navigation.navigate("Payments");
-              if (tab.label === "Notifications") navigation.navigate("Notificationll");
+              navigation.navigate(tab.screen);
             }}
             activeOpacity={0.7}
           >
@@ -95,19 +110,11 @@ export default function Landlord({ navigation }) {
             >
               {tab.icon}
             </Text>
-            <Text
-              style={[
-                styles.navLabel,
-                activeTab === tab.label && styles.navLabelActive,
-              ]}
-            >
-              {tab.label}
-            </Text>
           </TouchableOpacity>
         ))}
       </View>
 
-      {/* Logout Confirmation Modal */}
+      {/* Logout Modal */}
       <Modal transparent visible={logoutVisible} animationType="fade">
         <View style={styles.modalOverlay}>
           <View style={styles.modalBox}>
@@ -115,7 +122,6 @@ export default function Landlord({ navigation }) {
             <Text style={styles.modalText}>
               Are you sure you want to log out?
             </Text>
-
             <View style={styles.modalButtons}>
               <TouchableOpacity
                 style={[styles.modalButton, styles.cancelButton]}
@@ -139,80 +145,62 @@ export default function Landlord({ navigation }) {
 }
 
 const styles = StyleSheet.create({
-  mainContainer: {
-    flex: 1,
-    backgroundColor: "#8D9DF6",
-  },
-  scrollContainer: {
-    flexGrow: 1,
-    alignItems: "center",
-    paddingVertical: 40,
-    paddingHorizontal: 20,
-  },
+  container: { flex: 1, backgroundColor: "#8D9DF6" },
+  scrollContainer: { flexGrow: 1, alignItems: "center", padding: 20 },
   header: {
     flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: "#1D1D82",
     width: "100%",
-    padding: 20,
-    borderRadius: 15,
+    backgroundColor: "#1D1D82",
+    borderRadius: 25,
     marginBottom: 25,
+    alignItems: "center",
+    padding: 15,
   },
-  avatar: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    marginRight: 15,
-  },
-  welcome: {
-    color: "#fff",
-    fontSize: 16,
-    opacity: 0.8,
-  },
-  name: {
-    color: "#fff",
-    fontSize: 22,
-    fontWeight: "700",
-  },
+  avatar: { width: 70, height: 70, borderRadius: 35, marginRight: 15 },
+  welcome: { color: "#fff", fontSize: 16, opacity: 0.85 },
+  name: { color: "#fff", fontSize: 22, fontWeight: "700" },
   logoutButton: {
     backgroundColor: "#FFD700",
-    paddingVertical: 8,
-    paddingHorizontal: 10,
-    borderRadius: 12,
-    alignItems: "center",
+    padding: 8,
+    borderRadius: 15,
     justifyContent: "center",
   },
-  logoutIcon: {
-    fontSize: 20,
-    color: "#1D1D82",
-    fontWeight: "bold",
-  },
+  logoutIcon: { fontSize: 20, color: "#1D1D82", fontWeight: "bold" },
   cardRow: {
     flexDirection: "row",
     justifyContent: "space-between",
     width: "100%",
     marginBottom: 15,
   },
-  card: {
+  infoCard: {
     flex: 1,
-    backgroundColor: "#E6E6E6",
-    borderRadius: 20,
+    backgroundColor: "#1D1D82",
+    borderRadius: 25,
     paddingVertical: 25,
     marginHorizontal: 5,
     alignItems: "center",
-    justifyContent: "center",
+    ...Platform.select({
+      ios: {
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 3 },
+        shadowOpacity: 0.3,
+        shadowRadius: 4,
+      },
+      android: { elevation: 6 },
+    }),
   },
-  cardNumber: {
-    color: "#1D1D82",
-    fontSize: 28,
-    fontWeight: "bold",
+  cardNumber: { color: "#FFD700", fontSize: 28, fontWeight: "bold" },
+  cardLabel: { color: "#fff", fontSize: 14, marginTop: 6 },
+  badge: {
+    position: "absolute",
+    top: 10,
+    right: 15,
+    backgroundColor: "#FF4D4D",
+    borderRadius: 12,
+    paddingHorizontal: 8,
+    paddingVertical: 2,
   },
-  cardLabel: {
-    color: "#1D1D82",
-    fontSize: 14,
-    marginTop: 6,
-  },
-  // Bottom Navigation
+  badgeText: { color: "#fff", fontSize: 12, fontWeight: "bold" },
   navBar: {
     flexDirection: "row",
     justifyContent: "space-around",
@@ -222,26 +210,9 @@ const styles = StyleSheet.create({
     borderTopRightRadius: 25,
     elevation: 8,
   },
-  navItem: {
-    alignItems: "center",
-  },
-  navIcon: {
-    fontSize: 22,
-    color: "#E6E6E6",
-    marginBottom: 3,
-  },
-  navLabel: {
-    fontSize: 12,
-    color: "#E6E6E6",
-  },
-  navIconActive: {
-    color: "#FFD700",
-  },
-  navLabelActive: {
-    color: "#FFD700",
-    fontWeight: "bold",
-  },
-  // Modal styles
+  navItem: { alignItems: "center" },
+  navIcon: { fontSize: 26, color: "#E6E6E6" },
+  navIconActive: { color: "#FFD700" },
   modalOverlay: {
     flex: 1,
     justifyContent: "center",
@@ -255,42 +226,12 @@ const styles = StyleSheet.create({
     width: "80%",
     alignItems: "center",
   },
-  modalTitle: {
-    fontSize: 20,
-    fontWeight: "700",
-    color: "#1D1D82",
-    marginBottom: 10,
-  },
-  modalText: {
-    fontSize: 15,
-    color: "#333",
-    textAlign: "center",
-    marginBottom: 20,
-  },
-  modalButtons: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    width: "100%",
-  },
-  modalButton: {
-    flex: 1,
-    marginHorizontal: 8,
-    paddingVertical: 10,
-    borderRadius: 12,
-    alignItems: "center",
-  },
-  cancelButton: {
-    backgroundColor: "#ccc",
-  },
-  confirmButton: {
-    backgroundColor: "#FFD700",
-  },
-  cancelText: {
-    color: "#333",
-    fontWeight: "bold",
-  },
-  confirmText: {
-    color: "#1D1D82",
-    fontWeight: "bold",
-  },
+  modalTitle: { fontSize: 20, fontWeight: "700", color: "#1D1D82", marginBottom: 10 },
+  modalText: { fontSize: 15, color: "#333", textAlign: "center", marginBottom: 20 },
+  modalButtons: { flexDirection: "row", justifyContent: "space-between", width: "100%" },
+  modalButton: { flex: 1, marginHorizontal: 8, paddingVertical: 10, borderRadius: 12, alignItems: "center" },
+  cancelButton: { backgroundColor: "#ccc" },
+  confirmButton: { backgroundColor: "#FFD700" },
+  cancelText: { color: "#333", fontWeight: "bold" },
+  confirmText: { color: "#1D1D82", fontWeight: "bold" },
 });

@@ -7,9 +7,9 @@ export default function Notificationll() {
   const navigation = useNavigation();
 
   const notifications = [
-    { id: 1, text: "New maintenance request from Unit 102", type: "info" },
-    { id: 2, text: "Payment received from Carlos Reyes", type: "info" },
-    { id: 3, text: "New message from Landlord Farquad", type: "chat" },
+    { id: 1, text: "New maintenance request from Unit 505", type: "info" },
+    { id: 2, text: "Payment received from Renhiel Maghanoy", type: "info" },
+    { id: 3, text: "New message from Renhiel Maghanoy", type: "chat" },
   ];
 
   const handlePress = (notification) => {

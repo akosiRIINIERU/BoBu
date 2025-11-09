@@ -209,6 +209,8 @@ export default function Dashboard() {
   );
 }
 
+
+
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: "#E8F0F2", paddingHorizontal: 20, paddingTop: 40 },
   header: { fontSize: 26, fontWeight: "bold", marginBottom: 15, color: "#003366", textAlign: "center" },
