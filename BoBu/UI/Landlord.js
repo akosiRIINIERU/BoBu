@@ -29,7 +29,7 @@ export default function Landlord({ navigation }) {
           />
           <View style={{ flex: 1 }}>
             <Text style={styles.welcome}>Welcome back,</Text>
-            <Text style={styles.name}>Landlord 👋</Text>
+            <Text style={styles.name}>Lord Farquad👋</Text>
           </View>
 
           {/* Logout Icon Button */}
@@ -68,7 +68,7 @@ export default function Landlord({ navigation }) {
       {/* Bottom Navigation Bar */}
       <View style={styles.navBar}>
         {[
-          { label: "Home", icon: "🏠" },
+          { label: "Dashboard", icon: "🏠" },
           { label: "Listings", icon: "📋" },
           { label: "Tenants", icon: "👥" },
           { label: "Payments", icon: "💰" },
@@ -81,6 +81,9 @@ export default function Landlord({ navigation }) {
               setActiveTab(tab.label);
               if (tab.label === "Home") navigation.navigate("Landlord");
               if (tab.label === "Listings") navigation.navigate("Listings");
+              if (tab.label === "Tenants") navigation.navigate("Tenants");
+              if (tab.label === "Payments") navigation.navigate("Payments");
+              if (tab.label === "Notifications") navigation.navigate("Notificationll");
             }}
             activeOpacity={0.7}
           >

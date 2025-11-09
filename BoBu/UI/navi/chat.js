@@ -3,8 +3,8 @@ import { View, Text, StyleSheet, TextInput, TouchableOpacity, FlatList } from "r
 
 export default function Chat() {
   const [messages, setMessages] = React.useState([
-    { id: "1", sender: "Landlord", text: "Hi there! Is the rent due this week?" },
-    { id: "2", sender: "You", text: "Yes, I’ll send it tomorrow!" },
+    { id: "1", sender: "Landlord Farquad", text: "HI UTANG NIMO BAYRI NA OR IPABLATER TIKA" },
+    { id: "2", sender: "You", text: "s1g3 Ph0E!" },
   ]);
   const [input, setInput] = React.useState("");
 
