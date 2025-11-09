@@ -215,7 +215,7 @@ function Login({ navigation }) {
                 style={styles.smallButton}
                 activeOpacity={0.7}
               >
-                <Text style={styles.btnTextSmall}>About</Text>
+                <Text style={styles.btnTextSmall}>About Us</Text>
               </TouchableOpacity>
 
               <TouchableOpacity
