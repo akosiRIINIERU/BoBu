@@ -1,21 +1,36 @@
 // screens/Notifications.js
 import React from "react";
-import { View, Text, StyleSheet } from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
+import { useNavigation } from "@react-navigation/native";
 
 export default function Notificationll() {
+  const navigation = useNavigation();
+
   const notifications = [
-    "New maintenance request from Unit 102",
-    "Payment received from Carlos Reyes",
-    "New tenant inquiry: Makati Apartment",
+    { id: 1, text: "New maintenance request from Unit 102", type: "info" },
+    { id: 2, text: "Payment received from Carlos Reyes", type: "info" },
+    { id: 3, text: "New message from Landlord Farquad", type: "chat" },
   ];
+
+  const handlePress = (notification) => {
+    if (notification.type === "chat") {
+      navigation.navigate("Chat"); // Navigate to Chat screen
+    } else {
+      alert(notification.text);
+    }
+  };
 
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Notifications</Text>
-      {notifications.map((note, i) => (
-        <View key={i} style={styles.card}>
-          <Text style={styles.text}>🔔 {note}</Text>
-        </View>
+      {notifications.map((note) => (
+        <TouchableOpacity
+          key={note.id}
+          style={styles.card}
+          onPress={() => handlePress(note)}
+        >
+          <Text style={styles.text}>🔔 {note.text}</Text>
+        </TouchableOpacity>
       ))}
     </View>
   );

@@ -50,6 +50,7 @@ export default function App() {
         {/* Navigation Screens */}
         <Stack.Screen name="Chat" component={Chat} />
         <Stack.Screen name="Profile" component={Profile} />
+        
       </Stack.Navigator>
     </NavigationContainer>
   );

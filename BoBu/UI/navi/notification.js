@@ -1,23 +1,45 @@
 import React from "react";
-import { View, Text, StyleSheet, FlatList } from "react-native";
+import { View, Text, StyleSheet, FlatList, TouchableOpacity } from "react-native";
 
-export default function Notifications() {
+export default function Notifications({ navigation, route }) {
+  const isPaid = route.params?.isPaid || false;
+
   const notifications = [
-    { id: "1", message: "Your rent is due next week." },
-    { id: "2", message: "New message from Landlord." },
+    { id: "1", message: "Your rent is due next week.", screen: "Profile" },
+    { id: "2", message: "New message from Landlord.", screen: "Chat" },
     { id: "3", message: "Maintenance request approved." },
   ];
 
+  // Filter out rent notification if paid
+  const filteredNotifications = notifications.filter(
+    (item) => !(isPaid && item.id === "1")
+  );
+
+  const handlePress = (screen) => {
+    if (screen) {
+      navigation.navigate(screen);
+    } else {
+      alert("No screen linked!");
+    }
+  };
+
   return (
     <View style={styles.container}>
-      <Text style={styles.header}>Notifications 🔔</Text>
+
+       <TouchableOpacity onPress={() => navigation.navigate("Dashboard")}>
+          <Text style={styles.header}>Notifications 🔔</Text>
+        </TouchableOpacity>
+  
       <FlatList
-        data={notifications}
+        data={filteredNotifications}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
-          <View style={styles.card}>
+          <TouchableOpacity
+            style={styles.card}
+            onPress={() => handlePress(item.screen)}
+          >
             <Text style={styles.text}>{item.message}</Text>
-          </View>
+          </TouchableOpacity>
         )}
       />
     </View>
