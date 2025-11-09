@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import {
   View,
   Text,
@@ -19,9 +19,10 @@ export default function Dashboard() {
   const [ratingVisible, setRatingVisible] = useState(false);
   const [historyVisible, setHistoryVisible] = useState(false);
   const [tempRating, setTempRating] = useState(0);
-
-  // Track history of ratings for each place
   const [ratingHistory, setRatingHistory] = useState({});
+  const [highlightedPlaceId, setHighlightedPlaceId] = useState(null);
+
+  const flatListRef = useRef(null);
 
   const places = [
     { id: "1", name: "Lapas sa San, CDO", rent: "₱15,000/month" },
@@ -44,6 +45,7 @@ export default function Dashboard() {
       alert("Please select a rating first!");
       return;
     }
+
     const tenant = "You"; // Replace with actual tenant name
     const date = new Date().toLocaleDateString();
 
@@ -55,21 +57,85 @@ export default function Dashboard() {
       ],
     }));
 
+    // Highlight the rated place
+    setHighlightedPlaceId(selectedPlace.id);
+
     setTempRating(0);
     setRatingVisible(false);
     setSelectedPlace(null);
+
+    // Remove highlight after 2 seconds
+    setTimeout(() => setHighlightedPlaceId(null), 2000);
+
     alert("Thank you for rating your stay!");
   };
 
   const renderStars = (currentRating, setRating) => (
-    <View style={{ flexDirection: "row", justifyContent: "center", marginVertical: 10 }}>
+    <View
+      style={{ flexDirection: "row", justifyContent: "center", marginVertical: 10 }}
+    >
       {[1, 2, 3, 4, 5].map((star) => (
         <TouchableOpacity key={star} onPress={() => setRating(star)}>
-          <Text style={{ fontSize: 28, color: star <= currentRating ? "#FFD700" : "#ccc" }}>★</Text>
+          <Text style={{ fontSize: 28, color: star <= currentRating ? "#FFD700" : "#ccc" }}>
+            ★
+          </Text>
         </TouchableOpacity>
       ))}
     </View>
   );
+
+  const renderPlaceItem = ({ item }) => {
+    const ratings = ratingHistory[item.id] || [];
+    const avgRating =
+      ratings.length > 0
+        ? (ratings.reduce((sum, r) => sum + r.rating, 0) / ratings.length).toFixed(1)
+        : null;
+
+    const isHighlighted = highlightedPlaceId === item.id;
+
+    return (
+      <View
+        style={[
+          styles.card,
+          isHighlighted && { borderColor: "#FFD700", borderWidth: 2 },
+        ]}
+      >
+        <Image source={require("../assets/listing1.jpeg")} style={styles.placeImage} />
+        <View style={{ flex: 1 }}>
+          <Text style={styles.placeName}>{item.name}</Text>
+          <Text style={styles.placeRent}>{item.rent}</Text>
+          {avgRating ? (
+            <Text style={styles.ratingText}>
+              ⭐ {avgRating} / 5 ({ratings.length})
+            </Text>
+          ) : (
+            <Text style={styles.ratingText}>No ratings yet</Text>
+          )}
+
+          {ratings.length > 0 && (
+            <TouchableOpacity
+              onPress={() => {
+                setSelectedPlace(item);
+                setHistoryVisible(true);
+              }}
+            >
+              <Text style={styles.historyLink}>View Rating History</Text>
+            </TouchableOpacity>
+          )}
+
+          <TouchableOpacity
+            style={styles.rentButton}
+            onPress={() => {
+              setSelectedPlace(item);
+              handleRent();
+            }}
+          >
+            <Text style={styles.rentText}>Rent</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+    );
+  };
 
   return (
     <View style={styles.container}>
@@ -83,69 +149,34 @@ export default function Dashboard() {
       />
 
       <FlatList
+        ref={flatListRef}
         data={filteredPlaces}
         keyExtractor={(item) => item.id}
-        renderItem={({ item }) => {
-          const ratings = ratingHistory[item.id] || [];
-          const avgRating =
-            ratings.length > 0
-              ? (ratings.reduce((sum, r) => sum + r.rating, 0) / ratings.length).toFixed(1)
-              : null;
-
-          return (
-            <View style={styles.card}>
-              <Image source={require("../assets/listing1.jpeg")} style={styles.placeImage} />
-              <View style={{ flex: 1 }}>
-                <Text style={styles.placeName}>{item.name}</Text>
-                <Text style={styles.placeRent}>{item.rent}</Text>
-                {avgRating ? (
-                  <Text style={styles.ratingText}>
-                    ⭐ {avgRating} / 5 ({ratings.length})
-                  </Text>
-                ) : (
-                  <Text style={styles.ratingText}>No ratings yet</Text>
-                )}
-
-                {ratings.length > 0 && (
-                  <TouchableOpacity
-                    onPress={() => {
-                      setSelectedPlace(item);
-                      setHistoryVisible(true);
-                    }}
-                  >
-                    <Text style={styles.historyLink}>View Rating History</Text>
-                  </TouchableOpacity>
-                )}
-
-                <TouchableOpacity
-                  style={styles.rentButton}
-                  onPress={() => setSelectedPlace(item) || handleRent()}
-                >
-                  <Text style={styles.rentText}>Rent</Text>
-                </TouchableOpacity>
-              </View>
-            </View>
-          );
-        }}
+        renderItem={renderPlaceItem}
       />
 
       {/* Rent Modal */}
-      <Modal visible={!!selectedPlace && !ratingVisible && !historyVisible} transparent animationType="fade">
-        <View style={styles.modalContainer}>
-          <View style={styles.modalBox}>
-            <Text style={styles.modalTitle}>{selectedPlace?.name}</Text>
-            <Text style={styles.modalText}>{selectedPlace?.rent}</Text>
+      {selectedPlace && !ratingVisible && !historyVisible && (
+        <Modal visible={true} transparent animationType="fade">
+          <View style={styles.modalContainer}>
+            <View style={styles.modalBox}>
+              <Text style={styles.modalTitle}>{selectedPlace.name}</Text>
+              <Text style={styles.modalText}>{selectedPlace.rent}</Text>
 
-            <TouchableOpacity style={styles.rentButton} onPress={handleRent}>
-              <Text style={styles.rentText}>Rent</Text>
-            </TouchableOpacity>
+              <TouchableOpacity style={styles.rentButton} onPress={handleRent}>
+                <Text style={styles.rentText}>Rent</Text>
+              </TouchableOpacity>
 
-            <TouchableOpacity style={styles.closeButton} onPress={() => setSelectedPlace(null)}>
-              <Text style={styles.closeText}>Close</Text>
-            </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.closeButton}
+                onPress={() => setSelectedPlace(null)}
+              >
+                <Text style={styles.closeText}>Close</Text>
+              </TouchableOpacity>
+            </View>
           </View>
-        </View>
-      </Modal>
+        </Modal>
+      )}
 
       {/* Rating Modal */}
       <Modal visible={ratingVisible} transparent animationType="fade">
@@ -173,22 +204,35 @@ export default function Dashboard() {
       </Modal>
 
       {/* Rating History Modal */}
-      <Modal visible={historyVisible} transparent animationType="fade">
-        <ScrollView style={styles.modalContainer}>
-          <View style={styles.modalBox}>
-            <Text style={styles.modalTitle}>Rating History</Text>
-            {ratingHistory[selectedPlace?.id]?.map((r, i) => (
-              <Text key={i} style={styles.historyText}>
-                {r.tenant} rated {r.rating} ⭐ on {r.date}
-              </Text>
-            ))}
+      {selectedPlace && historyVisible && (
+        <Modal visible={true} transparent animationType="fade">
+          <View style={styles.modalContainer}>
+            <ScrollView
+              contentContainerStyle={{
+                flexGrow: 1,
+                justifyContent: "center",
+                alignItems: "center",
+              }}
+            >
+              <View style={styles.modalBox}>
+                <Text style={styles.modalTitle}>Rating History</Text>
+                {ratingHistory[selectedPlace.id]?.map((r, i) => (
+                  <Text key={i} style={styles.historyText}>
+                    {r.tenant} rated {r.rating} ⭐ on {r.date}
+                  </Text>
+                ))}
 
-            <TouchableOpacity style={styles.closeButton} onPress={() => setHistoryVisible(false)}>
-              <Text style={styles.closeText}>Close</Text>
-            </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.closeButton}
+                  onPress={() => setHistoryVisible(false)}
+                >
+                  <Text style={styles.closeText}>Close</Text>
+                </TouchableOpacity>
+              </View>
+            </ScrollView>
           </View>
-        </ScrollView>
-      </Modal>
+        </Modal>
+      )}
 
       {/* Bottom Navigation */}
       <View style={styles.navbar}>
@@ -208,8 +252,6 @@ export default function Dashboard() {
     </View>
   );
 }
-
-
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: "#E8F0F2", paddingHorizontal: 20, paddingTop: 40 },
