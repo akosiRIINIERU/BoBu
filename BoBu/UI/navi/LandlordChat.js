@@ -32,7 +32,7 @@ export default function LandlordChat() {
     setTimeout(() => {
       const tenantReplies = [
         "Bayad na lagi ko samoka",
-        "Pwede nextyear te.",
+        "Pwede nextyear te. sige na te, pleaze UwU",
         "I love you",
         "gUd eVe poh lAndLurDzz 😚✌️ uhhhmm pAsEnxa na poh ha, lahi2 najud ang vibes sa kwrto rn 😭 mura mang naay multo gahapon, nagTiktok mn gud ko, kalit lng nig-off ang ilawz 😭😭 nAhadlok ko so ako g-yakapan ang electric fan 😩❄️ bwahahah. btw lAndlurdzz, kanus-a btaw nimu ma-ayo ang cr? ky murag g-emo2x na ang flush 😭😭 dli na kasabot sa life 😭. ehehe char lang lods 😚, ayaw lng ko pa-layas ha ky ma-miss tika charrr 🤭",
         "hEy lAndlUrdzz 🥺👉👈 gUd eVe poHzz 😚✨ ahhh btw poh, naa lang koy gamayng prOblemaH 🥺😩 ang gripo sa kusina murag naay rabies 😭 kay pirmi magwanta ug tagaktak 😭💦 HAHAHA pero ayaw kabalaka lodss ky ako rang gi-tapalan ug bubblegum 😎✌️ innovat!ve tenant ni 😎🔥 charrr HAHAHA. btw basin naa ka’y extra wifi password 🥺 ky akong ML gahapon nag lag ug kalit 😭 gipatay kos Franco 😭😭. ayaw lng ko bayri og penalty ha lAndlurdzz ky wa koy kwarta rn 😩 pero naa koy love 😚 (jk charrrr) 🤣🤣",
