@@ -19,6 +19,8 @@ import Listings from "./UI/navi/Listings";
 import Tenants from "./UI/navi/Tenants";
 import Payments from "./UI/navi/Payments";
 import Notificationll from "./UI/navi/notificationll";
+import TenantProfile from "./UI/TenantProfile";
+import LandlordChat from "./UI/navi/LandlordChat";
 
 const Stack = createStackNavigator();
 
@@ -46,6 +48,8 @@ export default function App() {
         <Stack.Screen name="Tenants" component={Tenants} />
         <Stack.Screen name="Payments" component={Payments} />
         <Stack.Screen name="Notificationll" component={Notificationll} />
+        <Stack.Screen name="TenantProfile" component={TenantProfile} />
+        <Stack.Screen name="LandlordChat" component={LandlordChat} />
 
         
 

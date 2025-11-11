@@ -49,7 +49,8 @@ export default function Tenants({ navigation }) {
   ];
 
   const handleTenantPress = (tenant) => {
-    navigation.navigate("Payments", { tenant });
+    // Navigate to profile screen instead of Payments
+    navigation.navigate("TenantProfile", { tenant });
   };
 
   const renderTenant = ({ item }) => (

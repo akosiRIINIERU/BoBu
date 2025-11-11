@@ -11,33 +11,42 @@ import {
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 
-export default function Chat() {
+export default function chat() {
   const navigation = useNavigation();
   const [messages, setMessages] = useState([
-    { id: "1", sender: "Landlord Farquad", text: "HI UTANG NIMO BAYRI NA OR IPABLATER TIKA" },
-    { id: "2", sender: "You", text: "s1g3 Ph0E!" },
+    { id: "1", sender: "Landlord Farquad", text: "Bayri Imong Utang" },
   ]);
   const [input, setInput] = useState("");
   const flatListRef = useRef(null);
   const inputRef = useRef(null);
 
   useEffect(() => {
-    const timeout = setTimeout(() => {
-      inputRef.current?.focus();
-    }, 200);
+    const timeout = setTimeout(() => inputRef.current?.focus(), 200);
     return () => clearTimeout(timeout);
   }, []);
 
   const sendMessage = () => {
-    if (input.trim()) {
-      const newMessage = {
-        id: Date.now().toString(),
-        sender: "You",
-        text: input,
-      };
-      setMessages((prev) => [...prev, newMessage]);
-      setInput("");
-    }
+    if (!input.trim()) return;
+    const newMessage = { id: Date.now().toString(), sender: "You", text: input };
+    setMessages((prev) => [...prev, newMessage]);
+    setInput("");
+
+    // Simulate landlord auto-reply
+    setTimeout(() => {
+      const landlordReplies = [
+        "Badiya.",
+        "pagtarong diha, ipablater tika ron waa ka.",
+        "You can't reply this Conversation.",
+        "Hello, sorry but the landlord is currently unavailable. Please leave a message and they will get back to you as soon as possible.",
+        "k.",
+      ];
+      const reply =
+        landlordReplies[Math.floor(Math.random() * landlordReplies.length)];
+      setMessages((prev) => [
+        ...prev,
+        { id: (Date.now() + 1).toString(), sender: "Landlord Farquad", text: reply },
+      ]);
+    }, 1000);
   };
 
   return (
@@ -45,9 +54,8 @@ export default function Chat() {
       style={styles.container}
       behavior={Platform.OS === "ios" ? "padding" : "height"}
     >
-      {/* Clickable Chat Header */}
-      <TouchableOpacity onPress={() => navigation.navigate("Dashboard")}>
-        <Text style={styles.header}>Chat 💬</Text>
+      <TouchableOpacity onPress={() => navigation.goBack()}>
+        <Text style={styles.header}>Chat with Landlord 💬</Text>
       </TouchableOpacity>
 
       <FlatList
