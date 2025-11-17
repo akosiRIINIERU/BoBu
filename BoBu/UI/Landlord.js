@@ -10,6 +10,7 @@ import {
   Modal,
   Platform,
   Pressable,
+  ImageBackground,
 } from "react-native";
 
 export default function Landlord({ navigation }) {
@@ -22,12 +23,16 @@ export default function Landlord({ navigation }) {
   };
 
   return (
-    <View style={styles.container}>
+    <ImageBackground
+      source={require("../../assets/bg.jpg")} 
+      style={styles.background}
+      resizeMode="cover"
+    >
       <ScrollView contentContainerStyle={styles.scrollContainer}>
         {/* Header */}
         <View style={styles.header}>
           <Pressable
-            onPress={() => navigation.navigate("Profile")}
+            onPress={() => navigation.navigate("LandlordProfile")}
             android_ripple={{ color: "#FFD700" }}
             style={({ pressed }) => [
               styles.avatarWrapper,
@@ -35,7 +40,7 @@ export default function Landlord({ navigation }) {
             ]}
           >
             <Image
-              source={require("../assets/marhean.png")}
+              source={require("../../assets/marhean.png")}
               style={styles.avatar}
             />
           </Pressable>
@@ -151,12 +156,14 @@ export default function Landlord({ navigation }) {
           </View>
         </View>
       </Modal>
-    </View>
+    </ImageBackground>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#8D9DF6" },
+  background: {
+    flex: 1, // fill entire screen
+  },
   scrollContainer: { flexGrow: 1, alignItems: "center", padding: 20 },
   header: {
     flexDirection: "row",
@@ -173,7 +180,6 @@ const styles = StyleSheet.create({
     marginRight: 15,
   },
   avatarPressed: {
-    // shadow/highlight effect when pressed
     shadowColor: "#FFD700",
     shadowOffset: { width: 0, height: 0 },
     shadowOpacity: 0.6,

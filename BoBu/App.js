@@ -10,7 +10,7 @@ import Landlord from "./UI/Landlord";
 import AboutUs from "./UI/AboutUs";
 
 // Navi screens
-import Chat from "./UI/navi/chat";
+import Chat from "./UI/navi/Chat";
 import Notifications from "./UI/navi/notification";
 import Profile from "./UI/navi/Profile";
 
