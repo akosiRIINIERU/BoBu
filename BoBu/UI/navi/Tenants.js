@@ -6,50 +6,12 @@ import {
   FlatList,
   TouchableOpacity,
   Platform,
+  ImageBackground,
 } from "react-native";
 
-export default function Tenants({ navigation }) {
-  const tenants = [
-    {
-      id: 1,
-      name: "Renhiel Maghanoy",
-      status: "Paid",
-      room: "Room 505",
-      email: "renhiel@example.com",
-      phone: "0917-123-4567",
-      rent: "₱12,000",
-      leaseStart: "Nov 1, 2025",
-      leaseEnd: "Oct 31, 2026",
-      notes: "Prefers online payment",
-    },
-    {
-      id: 2,
-      name: "Maria Santos",
-      status: "Unpaid",
-      room: "Room 102",
-      email: "maria@example.com",
-      phone: "0918-987-6543",
-      rent: "₱12,000",
-      leaseStart: "Nov 1, 2025",
-      leaseEnd: "Oct 31, 2026",
-      notes: "Late payments last month",
-    },
-    {
-      id: 3,
-      name: "Carlos Reyes",
-      status: "Paid",
-      room: "Room 103",
-      email: "carlos@example.com",
-      phone: "0920-555-1212",
-      rent: "₱12,000",
-      leaseStart: "Nov 1, 2025",
-      leaseEnd: "Oct 31, 2026",
-      notes: "No issues",
-    },
-  ];
+export default function Tenants({ navigation }) { const tenants = [ { id: 1, name: "Renhiel Maghanoy", status: "Paid", room: "Room 505", email: "renhiel@example.com", phone: "0917-123-4567", rent: "₱12,000", leaseStart: "Nov 1, 2025", leaseEnd: "Oct 31, 2026", notes: "Prefers online payment", }, { id: 2, name: "Maria Santos", status: "Unpaid", room: "Room 102", email: "maria@example.com", phone: "0918-987-6543", rent: "₱12,000", leaseStart: "Nov 1, 2025", leaseEnd: "Oct 31, 2026", notes: "Late payments last month", }, { id: 3, name: "Carlos Reyes", status: "Paid", room: "Room 103", email: "carlos@example.com", phone: "0920-555-1212", rent: "₱12,000", leaseStart: "Nov 1, 2025", leaseEnd: "Oct 31, 2026", notes: "No issues", }, ];
 
   const handleTenantPress = (tenant) => {
-    // Navigate to profile screen instead of Payments
     navigation.navigate("TenantProfile", { tenant });
   };
 
@@ -83,10 +45,12 @@ export default function Tenants({ navigation }) {
   );
 
   return (
-    <View style={styles.container}>
-      <View style={styles.headerContainer}>
-        <Text style={styles.headerText}>Tenants Overview</Text>
-      </View>
+    <ImageBackground
+      source={require("../../assets/bg.png")} // your background image path
+      style={styles.container}
+      resizeMode="cover"
+    >
+    
 
       <FlatList
         data={tenants}
@@ -95,25 +59,20 @@ export default function Tenants({ navigation }) {
         contentContainerStyle={styles.listSpacing}
         showsVerticalScrollIndicator={false}
       />
-    </View>
+    </ImageBackground>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#8D9DF6",
     paddingVertical: 30,
     paddingHorizontal: 20,
   },
   headerContainer: {
     marginBottom: 25,
   },
-  headerText: {
-    fontSize: 22,
-    fontWeight: "700",
-    color: "#FFD700",
-  },
+
   listSpacing: {
     paddingBottom: 40,
   },
@@ -133,13 +92,13 @@ const styles = StyleSheet.create({
     elevation: 6,
   },
   paid: {
-    backgroundColor: "#1D1D82",
+    backgroundColor: "#cedbebcc",
   },
   unpaid: {
     backgroundColor: "#FF4D4D",
   },
   name: {
-    color: "#FFD700",
+    color: "#171733ff",
     fontSize: 22,
     fontWeight: "bold",
     marginBottom: 14,
@@ -148,12 +107,13 @@ const styles = StyleSheet.create({
     marginBottom: 14,
   },
   details: {
-    color: "#fff",
-    fontSize: 16,
+    color: "#000000ff",
+    fontSize: 20,
     marginBottom: 6,
+
   },
   statusBadge: {
-    backgroundColor: "#fff",
+    backgroundColor: "#ffffffff",
     paddingVertical: 6,
     paddingHorizontal: 14,
     borderRadius: 14,

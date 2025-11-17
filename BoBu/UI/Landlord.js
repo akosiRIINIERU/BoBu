@@ -24,7 +24,7 @@ export default function Landlord({ navigation }) {
 
   return (
     <ImageBackground
-      source={require("../assets/bg.png")} 
+      source={require("../assets/bg.png")}
       style={styles.background}
       resizeMode="cover"
     >
@@ -36,7 +36,7 @@ export default function Landlord({ navigation }) {
             android_ripple={{ color: "#FFD700" }}
             style={({ pressed }) => [
               styles.avatarWrapper,
-              pressed ? styles.avatarPressed : null,
+              pressed && styles.avatarPressed,
             ]}
           >
             <Image
@@ -47,7 +47,7 @@ export default function Landlord({ navigation }) {
 
           <View style={{ flex: 1 }}>
             <Text style={styles.welcome}>Welcome back,</Text>
-            <Text style={styles.name}>Marhean langTOH</Text>
+            <Text style={styles.name}>Marhean!</Text>
           </View>
 
           <TouchableOpacity
@@ -87,7 +87,7 @@ export default function Landlord({ navigation }) {
             activeOpacity={0.8}
           >
             <Text style={styles.cardNumber}>3</Text>
-            <Text style={styles.cardLabel}>Pending Requests</Text>
+            <Text style={styles.cardLabel}>Pending Notification</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
@@ -161,24 +161,18 @@ export default function Landlord({ navigation }) {
 }
 
 const styles = StyleSheet.create({
-  background: {
-    flex: 1, // fill entire screen
-  },
+  background: { flex: 1 },
   scrollContainer: { flexGrow: 1, alignItems: "center", padding: 20 },
   header: {
     flexDirection: "row",
     width: "100%",
-    backgroundColor: "#1D1D82",
+    backgroundColor: "#cedbebcc",
     borderRadius: 25,
     marginBottom: 25,
     alignItems: "center",
     padding: 15,
   },
-  avatarWrapper: {
-    borderRadius: 35,
-    overflow: "hidden",
-    marginRight: 15,
-  },
+  avatarWrapper: { borderRadius: 35, overflow: "hidden", marginRight: 15 },
   avatarPressed: {
     shadowColor: "#FFD700",
     shadowOffset: { width: 0, height: 0 },
@@ -187,8 +181,8 @@ const styles = StyleSheet.create({
     elevation: 10,
   },
   avatar: { width: 70, height: 70, borderRadius: 35 },
-  welcome: { color: "#fff", fontSize: 16, opacity: 0.85 },
-  name: { color: "#fff", fontSize: 22, fontWeight: "700" },
+  welcome: { color: "#000000cc", fontSize: 16, opacity: 0.85 },
+  name: { color: "#030303ff", fontSize: 22, fontWeight: "700" },
   logoutButton: {
     backgroundColor: "#FFD700",
     padding: 8,
@@ -196,18 +190,19 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   logoutIcon: { fontSize: 20, color: "#1D1D82", fontWeight: "bold" },
+
   cardRow: {
     flexDirection: "row",
-    justifyContent: "space-between",
+    justifyContent: "center",
     width: "100%",
-    marginBottom: 15,
+    marginBottom: 20,
   },
   infoCard: {
-    flex: 1,
-    backgroundColor: "#1D1D82",
+    width: 150,
+    backgroundColor: "#fff",
     borderRadius: 25,
     paddingVertical: 25,
-    marginHorizontal: 5,
+    marginHorizontal: 10,
     alignItems: "center",
     ...Platform.select({
       ios: {
@@ -219,12 +214,13 @@ const styles = StyleSheet.create({
       android: { elevation: 6 },
     }),
   },
-  cardNumber: { color: "#FFD700", fontSize: 28, fontWeight: "bold" },
-  cardLabel: { color: "#fff", fontSize: 14, marginTop: 6 },
+  cardNumber: { color: "#000000ff", fontSize: 28, fontWeight: "700" },
+  cardLabel: { color: "#000000ff", fontSize: 14, marginTop: 6 },
+
   navBar: {
     flexDirection: "row",
     justifyContent: "space-around",
-    backgroundColor: "#1D1D82",
+    backgroundColor: "#cedbebcc",
     paddingVertical: 12,
     borderTopLeftRadius: 25,
     borderTopRightRadius: 25,
@@ -233,6 +229,7 @@ const styles = StyleSheet.create({
   navItem: { alignItems: "center" },
   navIcon: { fontSize: 26, color: "#E6E6E6" },
   navIconActive: { color: "#FFD700" },
+
   modalOverlay: {
     flex: 1,
     justifyContent: "center",
@@ -246,17 +243,12 @@ const styles = StyleSheet.create({
     width: "80%",
     alignItems: "center",
   },
-  modalTitle: {
-    fontSize: 20,
-    fontWeight: "700",
-    color: "#1D1D82",
-    marginBottom: 10,
-  },
+  modalTitle: { fontSize: 20, fontWeight: "700", color: "#1D1D82", marginBottom: 10 },
   modalText: { fontSize: 15, color: "#333", textAlign: "center", marginBottom: 20 },
   modalButtons: { flexDirection: "row", justifyContent: "space-between", width: "100%" },
   modalButton: { flex: 1, marginHorizontal: 8, paddingVertical: 10, borderRadius: 12, alignItems: "center" },
   cancelButton: { backgroundColor: "#ccc" },
   confirmButton: { backgroundColor: "#FFD700" },
-  cancelText: { color: "#333", fontWeight: "bold" },
-  confirmText: { color: "#1D1D82", fontWeight: "bold" },
+  cancelText: { color: "#333", fontWeight: "700" },
+  confirmText: { color: "#1D1D82", fontWeight: "700" },
 });
