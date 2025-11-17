@@ -24,7 +24,7 @@ export default function Landlord({ navigation }) {
 
   return (
     <ImageBackground
-      source={require("../assets/bg.jpg")} 
+      source={require("../assets/bg.png")} 
       style={styles.background}
       resizeMode="cover"
     >
