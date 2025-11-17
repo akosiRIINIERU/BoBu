@@ -21,6 +21,9 @@ import Payments from "./UI/navi/Payments";
 import Notificationll from "./UI/navi/notificationll";
 import TenantProfile from "./UI/TenantProfile";
 import LandlordChat from "./UI/navi/LandlordChat";
+import LandlordTabs from "./navigation/LandlordTabs";
+
+
 
 const Stack = createStackNavigator();
 
@@ -56,7 +59,10 @@ export default function App() {
         {/* Navigation Screens */}
         <Stack.Screen name="Chat" component={Chat} />
         <Stack.Screen name="Profile" component={Profile} />
-        
+        <Stack.Screen name="LandlordHome" component={LandlordTabs} options={{ headerShown: false }}/>
+        <Tab.Screen name="Landlord" component={Landlord} />
+
+
       </Stack.Navigator>
     </NavigationContainer>
   );
