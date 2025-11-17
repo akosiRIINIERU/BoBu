@@ -9,6 +9,7 @@ import {
   Image,
   Modal,
   Platform,
+  Pressable,
 } from "react-native";
 
 export default function Landlord({ navigation }) {
@@ -25,14 +26,25 @@ export default function Landlord({ navigation }) {
       <ScrollView contentContainerStyle={styles.scrollContainer}>
         {/* Header */}
         <View style={styles.header}>
-          <Image
-            source={require("../assets/landlord-icon.png")}
-            style={styles.avatar}
-          />
+          <Pressable
+            onPress={() => navigation.navigate("Profile")}
+            android_ripple={{ color: "#FFD700" }}
+            style={({ pressed }) => [
+              styles.avatarWrapper,
+              pressed ? styles.avatarPressed : null,
+            ]}
+          >
+            <Image
+              source={require("../assets/marhean.png")}
+              style={styles.avatar}
+            />
+          </Pressable>
+
           <View style={{ flex: 1 }}>
             <Text style={styles.welcome}>Welcome back,</Text>
             <Text style={styles.name}>Marhean langTOH</Text>
           </View>
+
           <TouchableOpacity
             style={styles.logoutButton}
             onPress={() => setLogoutVisible(true)}
@@ -64,14 +76,13 @@ export default function Landlord({ navigation }) {
         </View>
 
         <View style={styles.cardRow}>
-          {/* Pending Requests card */}
           <TouchableOpacity
             style={styles.infoCard}
             onPress={() => navigation.navigate("Notificationll")}
             activeOpacity={0.8}
-          ><Text style={styles.cardNumber}>3</Text>
+          >
+            <Text style={styles.cardNumber}>3</Text>
             <Text style={styles.cardLabel}>Pending Requests</Text>
-
           </TouchableOpacity>
 
           <TouchableOpacity
@@ -156,7 +167,20 @@ const styles = StyleSheet.create({
     alignItems: "center",
     padding: 15,
   },
-  avatar: { width: 70, height: 70, borderRadius: 35, marginRight: 15 },
+  avatarWrapper: {
+    borderRadius: 35,
+    overflow: "hidden",
+    marginRight: 15,
+  },
+  avatarPressed: {
+    // shadow/highlight effect when pressed
+    shadowColor: "#FFD700",
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.6,
+    shadowRadius: 10,
+    elevation: 10,
+  },
+  avatar: { width: 70, height: 70, borderRadius: 35 },
   welcome: { color: "#fff", fontSize: 16, opacity: 0.85 },
   name: { color: "#fff", fontSize: 22, fontWeight: "700" },
   logoutButton: {
@@ -191,16 +215,6 @@ const styles = StyleSheet.create({
   },
   cardNumber: { color: "#FFD700", fontSize: 28, fontWeight: "bold" },
   cardLabel: { color: "#fff", fontSize: 14, marginTop: 6 },
-  badge: {
-    position: "absolute",
-    top: 10,
-    right: 15,
-    backgroundColor: "#FF4D4D",
-    borderRadius: 12,
-    paddingHorizontal: 8,
-    paddingVertical: 2,
-  },
-  badgeText: { color: "#fff", fontSize: 12, fontWeight: "bold" },
   navBar: {
     flexDirection: "row",
     justifyContent: "space-around",
@@ -226,7 +240,12 @@ const styles = StyleSheet.create({
     width: "80%",
     alignItems: "center",
   },
-  modalTitle: { fontSize: 20, fontWeight: "700", color: "#1D1D82", marginBottom: 10 },
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: "700",
+    color: "#1D1D82",
+    marginBottom: 10,
+  },
   modalText: { fontSize: 15, color: "#333", textAlign: "center", marginBottom: 20 },
   modalButtons: { flexDirection: "row", justifyContent: "space-between", width: "100%" },
   modalButton: { flex: 1, marginHorizontal: 8, paddingVertical: 10, borderRadius: 12, alignItems: "center" },
