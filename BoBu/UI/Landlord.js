@@ -24,7 +24,7 @@ export default function Landlord({ navigation }) {
 
   return (
     <ImageBackground
-      source={require("../../assets/bg.jpg")} 
+      source={require("../assets/bg.jpg")} 
       style={styles.background}
       resizeMode="cover"
     >
@@ -40,7 +40,7 @@ export default function Landlord({ navigation }) {
             ]}
           >
             <Image
-              source={require("../../assets/marhean.png")}
+              source={require("../assets/marhean.png")}
               style={styles.avatar}
             />
           </Pressable>
