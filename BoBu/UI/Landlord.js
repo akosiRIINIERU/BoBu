@@ -8,14 +8,26 @@ import {
   ScrollView,
   Image,
   Modal,
+  Platform,
   Pressable,
   ImageBackground,
-  Platform,
 } from "react-native";
 
 export default function Landlord({ navigation }) {
-  const [activeTab, setActiveTab] = useState("Listings");
+  const [activeTab, setActiveTab] = useState("Dashboard");
   const [logoutVisible, setLogoutVisible] = useState(false);
+
+  // Sample payments data
+  const payments = [
+    { id: 1, name: "Renhiel Maghanoy", amount: 12500, status: "Paid" },
+    { id: 2, name: "Janna Baby", amount: 12000, status: "Unpaid" },
+    { id: 3, name: "Kylie Jenner", amount: 12000, status: "Paid" },
+  ];
+
+  // Calculate total rent from paid payments
+  const totalPaid = payments
+    .filter((p) => p.status === "Paid")
+    .reduce((sum, p) => sum + p.amount, 0);
 
   const handleLogout = () => {
     setLogoutVisible(false);
@@ -24,24 +36,22 @@ export default function Landlord({ navigation }) {
 
   const navTabs = [
     { img: require("../assets/bh.png"), screen: "Listings", label: "Listings" },
-    { img: require("../assets/bh.png"), screen: "Tenants", label: "Tenants" },
-    { img: require("../assets/bell.png"), screen: "Payments", label: "Payments" },
+    { img: require("../assets/payment.png"), screen: "Payments", label: "Payments" },
     { img: require("../assets/bell.png"), screen: "Notificationll", label: "Notifications" },
   ];
 
   return (
     <ImageBackground
-      source={require("../assets/bg2.png")}
+      source={require("../assets/bg2.jpg")}
       style={styles.background}
       resizeMode="cover"
     >
-      <View style={styles.overlay} />
-
       <ScrollView contentContainerStyle={styles.scrollContainer}>
-        {/* HEADER */}
+        {/* Header */}
         <View style={styles.header}>
           <Pressable
             onPress={() => navigation.navigate("LandlordProfile")}
+            android_ripple={{ color: "#FFD700" }}
             style={({ pressed }) => [
               styles.avatarWrapper,
               pressed && styles.avatarPressed,
@@ -61,17 +71,18 @@ export default function Landlord({ navigation }) {
           <TouchableOpacity
             style={styles.logoutButton}
             onPress={() => setLogoutVisible(true)}
+            activeOpacity={0.7}
           >
             <Text style={styles.logoutIcon}>⎋</Text>
           </TouchableOpacity>
         </View>
 
-        {/* DASHBOARD CARDS */}
+        {/* Dashboard Cards */}
         <View style={styles.cardRow}>
           <TouchableOpacity
             style={styles.infoCard}
             onPress={() => navigation.navigate("Listings")}
-            activeOpacity={0.85}
+            activeOpacity={0.8}
           >
             <Text style={styles.cardNumber}>3</Text>
             <Text style={styles.cardLabel}>Properties</Text>
@@ -80,7 +91,7 @@ export default function Landlord({ navigation }) {
           <TouchableOpacity
             style={styles.infoCard}
             onPress={() => navigation.navigate("Tenants")}
-            activeOpacity={0.85}
+            activeOpacity={0.8}
           >
             <Text style={styles.cardNumber}>3</Text>
             <Text style={styles.cardLabel}>Tenants</Text>
@@ -91,24 +102,25 @@ export default function Landlord({ navigation }) {
           <TouchableOpacity
             style={styles.infoCard}
             onPress={() => navigation.navigate("Notificationll")}
-            activeOpacity={0.85}
+            activeOpacity={0.8}
           >
             <Text style={styles.cardNumber}>3</Text>
-            <Text style={styles.cardLabel}>Pending Alerts</Text>
+            <Text style={styles.cardLabel}>Pending Notification</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
             style={styles.infoCard}
             onPress={() => navigation.navigate("Payments")}
-            activeOpacity={0.85}
+            activeOpacity={0.8}
           >
-            <Text style={styles.cardNumber}>₱48,500</Text>
+            {/* Dynamic total rent */}
+            <Text style={styles.cardNumber}>₱{totalPaid.toLocaleString()}</Text>
             <Text style={styles.cardLabel}>Total Rent</Text>
           </TouchableOpacity>
         </View>
       </ScrollView>
 
-      {/* BOTTOM NAVIGATION */}
+      {/* Bottom Navigation */}
       <View style={styles.navBar}>
         {navTabs.map((tab) => (
           <TouchableOpacity
@@ -118,6 +130,7 @@ export default function Landlord({ navigation }) {
               setActiveTab(tab.label);
               navigation.navigate(tab.screen);
             }}
+            activeOpacity={0.7}
           >
             <Image
               source={tab.img}
@@ -126,11 +139,19 @@ export default function Landlord({ navigation }) {
                 activeTab === tab.label && styles.navImgActive,
               ]}
             />
+            <Text
+              style={[
+                styles.navLabel,
+                activeTab === tab.label && styles.navLabelActive,
+              ]}
+            >
+              {tab.label}
+            </Text>
           </TouchableOpacity>
         ))}
       </View>
 
-      {/* LOGOUT MODAL */}
+      {/* Logout Modal */}
       <Modal transparent visible={logoutVisible} animationType="fade">
         <View style={styles.modalOverlay}>
           <View style={styles.modalBox}>
@@ -138,7 +159,6 @@ export default function Landlord({ navigation }) {
             <Text style={styles.modalText}>
               Are you sure you want to log out?
             </Text>
-
             <View style={styles.modalButtons}>
               <TouchableOpacity
                 style={[styles.modalButton, styles.cancelButton]}
@@ -161,103 +181,96 @@ export default function Landlord({ navigation }) {
   );
 }
 
-/* =================== STYLES =================== */
 const styles = StyleSheet.create({
   background: { flex: 1 },
-  overlay: { flex: 1, padding: 20, backgroundColor: "rgba(255,255,255,0.15)" },
-  scrollContainer: { flexGrow: 1, paddingBottom: 20 },
+  scrollContainer: { flexGrow: 1, alignItems: "center", padding: 20 },
 
-  /* HEADER */
   header: {
     flexDirection: "row",
+    width: "100%",
+    backgroundColor: "#000000aa",
+    borderRadius: 25,
+    marginBottom: 25,
     alignItems: "center",
-    marginBottom: 20,
     padding: 15,
-    borderRadius: 20,
-    backgroundColor: "rgba(255,255,255,0.2)",
-    borderWidth: 1,
-    borderColor: "rgba(255,255,255,0.3)",
-    ...Platform.select({
-      ios: {
-        shadowColor: "#000",
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.2,
-        shadowRadius: 8,
-      },
-      android: { elevation: 5 },
-    }),
   },
-  avatarWrapper: { borderRadius: 40, overflow: "hidden", marginRight: 15 },
-  avatarPressed: { opacity: 0.8, transform: [{ scale: 0.97 }] },
+  avatarWrapper: { borderRadius: 35, overflow: "hidden", marginRight: 15 },
+  avatarPressed: {
+    shadowColor: "#FFD700",
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.6,
+    shadowRadius: 10,
+    elevation: 10,
+  },
   avatar: { width: 70, height: 70, borderRadius: 35 },
-  welcome: { fontSize: 16, color: "#fff", opacity: 0.9 },
-  name: { fontSize: 22, fontWeight: "700", color: "#fff" },
-  logoutButton: { backgroundColor: "#FFD700", padding: 10, borderRadius: 12 },
-  logoutIcon: { fontSize: 20, fontWeight: "700", color: "#1D1D82" },
+  welcome: { color: "#ffffff", fontSize: 16, opacity: 0.9 },
+  name: { color: "#ffffff", fontSize: 22, fontWeight: "700" },
+  logoutButton: {
+    backgroundColor: "#FFD700",
+    padding: 8,
+    borderRadius: 15,
+    justifyContent: "center",
+  },
+  logoutIcon: { fontSize: 20, fontWeight: "bold", color: "#1D1D82" },
 
-  /* DASHBOARD CARDS */
-  cardRow: { flexDirection: "row", justifyContent: "center", marginBottom: 20 },
+  cardRow: {
+    flexDirection: "row",
+    justifyContent: "center",
+    width: "100%",
+    marginBottom: 20,
+  },
   infoCard: {
-    flex: 1,
-    marginHorizontal: 10,
+    width: 150,
+    backgroundColor: "#222222cc",
+    borderRadius: 25,
     paddingVertical: 25,
-    borderRadius: 20,
-    backgroundColor: "rgba(255,255,255,0.25)",
-    borderWidth: 1,
-    borderColor: "rgba(255,255,255,0.35)",
+    marginHorizontal: 10,
     alignItems: "center",
     ...Platform.select({
       ios: {
         shadowColor: "#000",
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.2,
-        shadowRadius: 8,
+        shadowOffset: { width: 0, height: 3 },
+        shadowOpacity: 0.3,
+        shadowRadius: 4,
       },
-      android: { elevation: 5 },
+      android: { elevation: 6 },
     }),
   },
-  cardNumber: { fontSize: 26, fontWeight: "700", color: "#fff" },
-  cardLabel: { fontSize: 14, color: "#fff", marginTop: 5 },
+  cardNumber: { color: "#faf9f5ff", fontSize: 28, fontWeight: "700" },
+  cardLabel: { color: "#ffffff", fontSize: 14, marginTop: 6 },
 
-  /* BOTTOM NAVIGATION */
   navBar: {
     flexDirection: "row",
     justifyContent: "space-around",
+    backgroundColor: "#000000aa",
     paddingVertical: 12,
-    backgroundColor: "rgba(255,255,255,0.2)",
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
-    borderWidth: 1,
-    borderColor: "rgba(255,255,255,0.3)",
+    borderTopLeftRadius: 25,
+    borderTopRightRadius: 25,
+    elevation: 8,
   },
   navItem: { alignItems: "center" },
   navImg: { width: 28, height: 28, tintColor: "#E6E6E6" },
-  navImgActive: { tintColor: "#FFD700" },
+  navImgActive: { tintColor: "#ffffffff" },
+  navLabel: { fontSize: 10, color: "#E6E6E6" },
+  navLabelActive: { color: "#ffffffff" },
 
-  /* MODAL */
   modalOverlay: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "rgba(0,0,0,0.4)",
+    backgroundColor: "rgba(0,0,0,0.5)",
   },
   modalBox: {
-    backgroundColor: "rgba(255,255,255,0.9)",
+    backgroundColor: "#fff",
+    borderRadius: 20,
     padding: 25,
-    borderRadius: 15,
     width: "80%",
     alignItems: "center",
   },
   modalTitle: { fontSize: 20, fontWeight: "700", color: "#1D1D82", marginBottom: 10 },
-  modalText: { fontSize: 15, color: "#444", textAlign: "center", marginBottom: 15 },
-  modalButtons: { flexDirection: "row", width: "100%", justifyContent: "space-between" },
-  modalButton: {
-    flex: 1,
-    marginHorizontal: 5,
-    paddingVertical: 10,
-    borderRadius: 10,
-    alignItems: "center",
-  },
+  modalText: { fontSize: 15, color: "#333", textAlign: "center", marginBottom: 20 },
+  modalButtons: { flexDirection: "row", justifyContent: "space-between", width: "100%" },
+  modalButton: { flex: 1, marginHorizontal: 8, paddingVertical: 10, borderRadius: 12, alignItems: "center" },
   cancelButton: { backgroundColor: "#ccc" },
   confirmButton: { backgroundColor: "#FFD700" },
   cancelText: { color: "#333", fontWeight: "700" },

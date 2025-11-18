@@ -1,4 +1,3 @@
-// screens/Notifications.js
 import React from "react";
 import {
   View,
@@ -11,20 +10,43 @@ import {
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 
-export default function Notifications() {
+export default function Notificationll() {
   const navigation = useNavigation();
+
+  // Example tenants list (you can fetch from DB/API)
+  const tenants = [
+    { id: 1, name: "Renhiel Maghanoy", room: "Room 505", phone: "0917-123-4567", rent: "₱12,000" },
+    { id: 2, name: "Janna Baby", room: "Room 102", phone: "0918-987-6543", rent: "₱12,000" },
+    { id: 3, name: "Kylie Jenner", room: "Room 103", phone: "0920-555-1212", rent: "₱12,000" },
+  ];
 
   const notifications = [
     { id: "1", text: "New maintenance request from Unit 505", type: "info" },
-    { id: "2", text: "Payment received from Renhiel Maghanoy", type: "info" },
-    { id: "3", text: "New message from Renhiel Maghanoy", type: "chat" },
+    { id: "2", text: "Payment received from Renhiel Maghanoy", type: "payment", tenantId: 1 },
+    { id: "3", text: "New message from Renhiel Maghanoy", type: "chat", tenantId: 1 },
   ];
 
   const handlePress = (notification) => {
-    if (notification.type === "chat") {
-      navigation.navigate("Chat"); // Navigate to Chat screen
-    } else {
-      alert(notification.text);
+    const tenant = tenants.find(t => t.id === notification.tenantId);
+
+    switch (notification.type) {
+      case "chat":
+        if (tenant) {
+          navigation.navigate("LandlordChat", { tenant });
+        } else {
+          alert("Tenant data not found");
+        }
+        break;
+      case "payment":
+        if (tenant) {
+          navigation.navigate("Payments", { tenantId: tenant.id });
+        } else {
+          alert("Tenant data not found");
+        }
+        break;
+      default:
+        alert(notification.text);
+        break;
     }
   };
 
@@ -40,13 +62,12 @@ export default function Notifications() {
 
   return (
     <ImageBackground
-      source={require("../../assets/bg.png")}
+      source={require("../../assets/bg2.jpg")}
       style={styles.background}
       resizeMode="cover"
     >
       <View style={styles.overlay}>
         <Text style={styles.title}>Notifications</Text>
-
         <FlatList
           data={notifications}
           keyExtractor={(item) => item.id}
@@ -60,42 +81,19 @@ export default function Notifications() {
 }
 
 const styles = StyleSheet.create({
-  background: {
-    flex: 1,
-  },
-  overlay: {
-    flex: 1,
-    backgroundColor: "rgba(0,0,0,0.35)", // dark overlay for readability
-    padding: 20,
-  },
-  title: {
-    fontSize: 22,
-    fontWeight: "bold",
-    color: "#FFD700",
-    marginBottom: 15,
-  },
-  listContent: {
-    paddingBottom: 20,
-  },
+  background: { flex: 1 },
+  overlay: { flex: 1, backgroundColor: "rgba(0,0,0,0.35)", padding: 20 },
+  title: { fontSize: 22, fontWeight: "bold", color: "#000", textAlign: "center", marginBottom: 15 },
+  listContent: { paddingBottom: 20 },
   card: {
-    backgroundColor: "#fff", // semi-transparent
+    backgroundColor: "#fff",
     padding: 15,
     borderRadius: 12,
     marginBottom: 10,
     ...Platform.select({
-      ios: {
-        shadowColor: "#000",
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.3,
-        shadowRadius: 3,
-      },
-      android: {
-        elevation: 3,
-      },
+      ios: { shadowColor: "#000", shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.3, shadowRadius: 3 },
+      android: { elevation: 3 },
     }),
   },
-  text: {
-    color: "#1D1D82",
-    fontSize: 16,
-  },
+  text: { color: "#1D1D82", fontSize: 16 },
 });

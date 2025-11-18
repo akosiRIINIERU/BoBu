@@ -17,7 +17,7 @@ export default function LandlordProfile({ navigation }) {
 
   return (
     <ImageBackground
-      source={require("../../assets/bg.png")}
+      source={require("../../assets/bg2.jpg")}
       style={styles.background}
       resizeMode="cover"
     >
@@ -69,7 +69,7 @@ const styles = StyleSheet.create({
   overlay: { flex: 1, backgroundColor: "rgba(0,0,0,0.3)" },
   container: { flexGrow: 1, alignItems: "center", padding: 30 },
   avatar: { width: 120, height: 120, borderRadius: 60, marginBottom: 20 },
-  name: { fontSize: 24, fontWeight: "700", color: "#FFD700", marginBottom: 20 },
+  name: { fontSize: 24, fontWeight: "700", color: "#ffffffff", marginBottom: 20 },
   infoBox: {
     backgroundColor: "#cedbebcc",
     padding: 20,
@@ -97,6 +97,6 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.3,
     shadowRadius: 4,
   },
-  statNumber: { fontSize: 28, fontWeight: "700", color: "#FFD700" },
-  statLabel: { fontSize: 16, fontWeight: "600", color: "#FFD700", marginTop: 5 },
+  statNumber: { fontSize: 28, fontWeight: "700", color: "#ffffffff" },
+  statLabel: { fontSize: 16, fontWeight: "600", color: "#ffffffff", marginTop: 5 },
 });
