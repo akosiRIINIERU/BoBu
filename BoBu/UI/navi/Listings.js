@@ -50,15 +50,21 @@ export default function Listings() {
     },
   ];
 
+  // ⭐ Compute vacant vs occupied
+  const vacantCount = properties.filter(
+    (p) => p.maxRooms - p.tenants.length > 0
+  ).length;
+
+  const occupiedCount = properties.length - vacantCount;
+
   const renderStars = (rating) => "⭐".repeat(rating) + "☆".repeat(5 - rating);
 
   const renderProperty = ({ item }) => {
     const availableRooms = item.maxRooms - item.tenants.length;
     const availabilityText =
       availableRooms > 0 ? `Vacant (${availableRooms})` : "Occupied";
-    const availabilityColor = availableRooms > 0 ? "#28a745" : "#dc3545"; // green or red
+    const availabilityColor = availableRooms > 0 ? "#28a745" : "#dc3545";
 
-    // Get rating from last tenant
     const lastTenant = item.tenants[item.tenants.length - 1];
     const lastRating = lastTenant?.rating || 0;
 
@@ -72,11 +78,15 @@ export default function Listings() {
         <Text style={styles.propertyLocation}>{item.location}</Text>
         <Text style={styles.propertyRent}>{item.rent} / month</Text>
 
-        {/* Last tenant rating */}
-        <Text style={styles.ratingText}>Overall Rating: {renderStars(lastRating)}</Text>
+        <Text style={styles.ratingText}>
+          Overall Rating: {renderStars(lastRating)}
+        </Text>
 
         <View
-          style={[styles.availabilityBadge, { backgroundColor: availabilityColor }]}
+          style={[
+            styles.availabilityBadge,
+            { backgroundColor: availabilityColor },
+          ]}
         >
           <Text style={styles.availabilityText}>{availabilityText}</Text>
         </View>
@@ -91,6 +101,27 @@ export default function Listings() {
       resizeMode="cover"
     >
       <View style={styles.overlay}>
+
+        {/* 🔥 SUMMARY BOX AT TOP */}
+        <TouchableOpacity
+          style={styles.summaryBox}
+          onPress={() => navigation.navigate("BHStatus", { vacantCount, occupiedCount })}
+        >
+          <Text style={styles.summaryTitle}>Boarding House Status</Text>
+
+          <View style={styles.summaryRow}>
+            <View style={styles.summaryItem}>
+              <Text style={styles.vacantNum}>{vacantCount}</Text>
+              <Text style={styles.summaryLabel}>Vacant</Text>
+            </View>
+
+            <View style={styles.summaryItem}>
+              <Text style={styles.occupiedNum}>{occupiedCount}</Text>
+              <Text style={styles.summaryLabel}>Occupied</Text>
+            </View>
+          </View>
+        </TouchableOpacity>
+
         <FlatList
           data={properties}
           keyExtractor={(item) => item.id}
@@ -113,12 +144,49 @@ const styles = StyleSheet.create({
     paddingVertical: 20,
     paddingHorizontal: 15,
   },
+
+  /* 🟦 SUMMARY BOX STYLE */
+  summaryBox: {
+    backgroundColor: "#ffffffff",
+    padding: 20,
+    borderRadius: 18,
+    marginBottom: 15,
+  },
+  summaryTitle: {
+    color: "#0c0c0cff",
+    fontSize: 18,
+    fontWeight: "bold",
+    marginBottom: 12,
+  },
+  summaryRow: {
+    flexDirection: "row",
+    justifyContent: "space-around",
+  },
+  summaryItem: {
+    alignItems: "center",
+  },
+  vacantNum: {
+    color: "#28a745",
+    fontSize: 30,
+    fontWeight: "bold",
+  },
+  occupiedNum: {
+    color: "#dc3545",
+    fontSize: 30,
+    fontWeight: "bold",
+  },
+  summaryLabel: {
+    color: "#000000ff",
+    fontSize: 14,
+    marginTop: 5,
+  },
+
   listContent: {
     paddingBottom: 20,
   },
   card: {
     width: "100%",
-    backgroundColor: "rgba(29,29,130,0.85)",
+    backgroundColor: "#cedbebcc",
     borderRadius: 20,
     padding: 20,
     marginBottom: 15,
@@ -135,18 +203,18 @@ const styles = StyleSheet.create({
     }),
   },
   propertyName: {
-    color: "#FFD700",
+    color: "#000000ff",
     fontSize: 18,
     fontWeight: "bold",
     marginBottom: 5,
   },
   propertyLocation: {
-    color: "#fff",
+    color: "#141414ff",
     fontSize: 14,
     marginBottom: 3,
   },
   propertyRent: {
-    color: "#fff",
+    color: "#000000ff",
     fontSize: 16,
     fontWeight: "500",
   },
