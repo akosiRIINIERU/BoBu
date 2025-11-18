@@ -23,15 +23,15 @@ export default function Landlord({ navigation }) {
   };
 
   const navTabs = [
-    { img: require("../../assets/bh.png"), screen: "Listings", label: "Listings" },
-    { img: require("../../assets/ako.png"), screen: "Tenants", label: "Tenants" },
-    { img: require("../../assets/marhean.png"), screen: "Payments", label: "Payments" },
-    { img: require("../../assets/bell.png"), screen: "Notificationll", label: "Notifications" },
+    { img: require("../assets/bh.png"), screen: "Listings", label: "Listings" },
+    { img: require("../assets/bh.png"), screen: "Tenants", label: "Tenants" },
+    { img: require("../assets/bell.png"), screen: "Payments", label: "Payments" },
+    { img: require("../assets/bell.png"), screen: "Notificationll", label: "Notifications" },
   ];
 
   return (
     <ImageBackground
-      source={require("../assets/bg.png")}
+      source={require("../assets/bg2.png")}
       style={styles.background}
       resizeMode="cover"
     >
