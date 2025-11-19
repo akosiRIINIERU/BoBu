@@ -11,7 +11,7 @@ import {
   SafeAreaView,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
-import { AntDesign, FontAwesome } from "@expo/vector-icons";
+import { FontAwesome } from "@expo/vector-icons";
 
 // Assets
 const PLACEHOLDER_IMAGE = require("../assets/listing1.jpeg");
@@ -23,21 +23,16 @@ const USER_ICON = require("../assets/user.png");
 
 // Colors
 const COLORS = {
-  PRIMARY: "#1D1D82",
-  SECONDARY: "#FFD700",
   BACKGROUND: "#121212",
   CARD_BG: "rgba(0,0,0,0.7)",
   TEXT_LIGHT: "#FFFFFF",
-  TEXT_ACCENT: "#00ccff",
-  STAR: "#FFD700",
+  SECONDARY: "#FFD700",
+  BUTTON_PRIMARY: "#1E90FF",
 };
 
 export default function Dashboard() {
   const navigation = useNavigation();
   const [search, setSearch] = useState("");
-  const [ratingHistory, setRatingHistory] = useState({});
-  const [highlightedPlaceId, setHighlightedPlaceId] = useState(null);
-  const [activeTab, setActiveTab] = useState("Dashboard");
 
   const flatListRef = useRef(null);
 
@@ -50,6 +45,11 @@ export default function Dashboard() {
       amenities: ["Wi-Fi", "AC", "Hot Water"],
       images: [PLACEHOLDER_IMAGE],
       rules: "No pets, No smoking.",
+      rating: 4.5,
+      type: "Private Room",
+      location: "San",
+      landlordId: "101",
+      landlordName: "Landlord Farquad",
     },
     {
       id: "2",
@@ -59,6 +59,11 @@ export default function Dashboard() {
       amenities: ["Wi-Fi", "Laundry"],
       images: [PLACEHOLDER_IMAGE],
       rules: "No parties, quiet hours after 10 PM.",
+      rating: 4,
+      type: "Single Room",
+      location: "Macatambalan",
+      landlordId: "102",
+      landlordName: "Landlord Maria",
     },
     {
       id: "3",
@@ -68,6 +73,11 @@ export default function Dashboard() {
       amenities: ["Wi-Fi", "Balcony"],
       images: [PLACEHOLDER_IMAGE],
       rules: "No pets.",
+      rating: 4.8,
+      type: "Private Room",
+      location: "Cugmo",
+      landlordId: "103",
+      landlordName: "Landlord Pedro",
     },
     {
       id: "4",
@@ -77,6 +87,11 @@ export default function Dashboard() {
       amenities: ["Wi-Fi"],
       images: [PLACEHOLDER_IMAGE],
       rules: "No smoking indoors.",
+      rating: 3.9,
+      type: "Simple Room",
+      location: "Bugo",
+      landlordId: "104",
+      landlordName: "Landlord Juan",
     },
   ];
 
@@ -84,39 +99,35 @@ export default function Dashboard() {
     p.name.toLowerCase().includes(search.toLowerCase())
   );
 
-  const renderPlaceItem = ({ item }) => {
-    const ratings = ratingHistory[item.id] || [];
-    const avgRating = ratings.length
-      ? (ratings.reduce((s, r) => s + r.rating, 0) / ratings.length).toFixed(1)
-      : null;
-    const isHighlighted = highlightedPlaceId === item.id;
-
-    return (
-      <View style={[styles.card, isHighlighted && styles.cardHighlighted]}>
-        <Image source={item.images[0]} style={styles.placeImage} />
-        <View style={styles.cardDetails}>
-          <Text style={styles.placeName}>{item.name}</Text>
-          <Text style={styles.placeRent}>₱{item.rent.toLocaleString()}</Text>
-          <View style={styles.ratingInfo}>
-            {avgRating ? (
-              <Text style={styles.ratingText}>
-                <FontAwesome name="star" size={14} color={COLORS.STAR} /> {avgRating}/5 ({ratings.length})
-              </Text>
-            ) : (
-              <Text style={styles.ratingText}>No ratings yet</Text>
-            )}
-          </View>
-          {/* View Details Button */}
-          <TouchableOpacity
-            style={styles.viewDetailsBtn}
-            onPress={() => navigation.navigate("PlaceDetails", { place: item })}
-          >
-            <Text style={styles.viewDetailsText}>View Details</Text>
-          </TouchableOpacity>
-        </View>
-      </View>
-    );
+  const renderStars = (rating, size = 14) => {
+    const stars = [];
+    const fullStars = Math.floor(rating);
+    const halfStar = rating - fullStars >= 0.5;
+    for (let i = 0; i < fullStars; i++)
+      stars.push(<FontAwesome key={`star-${i}`} name="star" size={size} color={COLORS.SECONDARY} />);
+    if (halfStar)
+      stars.push(<FontAwesome key="star-half" name="star-half-full" size={size} color={COLORS.SECONDARY} />);
+    while (stars.length < 5)
+      stars.push(<FontAwesome key={`star-empty-${stars.length}`} name="star-o" size={size} color={COLORS.SECONDARY} />);
+    return <View style={{ flexDirection: "row", marginTop: 3 }}>{stars}</View>;
   };
+
+  const renderPlaceItem = ({ item }) => (
+    <View style={styles.card}>
+      <Image source={item.images[0]} style={styles.placeImage} />
+      <View style={styles.cardDetails}>
+        <Text style={styles.placeName}>{item.name}</Text>
+        <Text style={styles.placeRent}>₱{item.rent.toLocaleString()}</Text>
+        {renderStars(item.rating)}
+        <TouchableOpacity
+          style={styles.viewDetailsBtn}
+          onPress={() => navigation.navigate("PlaceDetails", { place: item })}
+        >
+          <Text style={styles.viewDetailsText}>View Details</Text>
+        </TouchableOpacity>
+      </View>
+    </View>
+  );
 
   const navTabs = [
     { img: CHAT_ICON, screen: "Chat", label: "Chat" },
@@ -159,18 +170,10 @@ export default function Dashboard() {
             <TouchableOpacity
               key={tab.label}
               style={styles.navItem}
-              onPress={() => {
-                setActiveTab(tab.label);
-                navigation.navigate(tab.screen);
-              }}
+              onPress={() => navigation.navigate(tab.screen)}
             >
-              <Image
-                source={tab.img}
-                style={[styles.navImg, activeTab === tab.label && styles.navImgActive]}
-              />
-              <Text style={[styles.navLabel, activeTab === tab.label && styles.navLabelActive]}>
-                {tab.label}
-              </Text>
+              <Image source={tab.img} style={styles.navImg} />
+              <Text style={styles.navLabel}>{tab.label}</Text>
             </TouchableOpacity>
           ))}
         </View>
@@ -183,7 +186,7 @@ const styles = StyleSheet.create({
   safeArea: { flex: 1 },
   background: { flex: 1 },
   header: { padding: 30, alignItems: "center", marginBottom: 0, borderRadius: 30 },
-  headerTitle: { fontSize: 28, fontWeight: "700", color: COLORS.SECONDARY },
+  headerTitle: { fontSize: 28, fontWeight: "700", color: COLORS.TEXT_LIGHT },
   searchWrapper: {
     marginHorizontal: 20,
     marginBottom: 15,
@@ -194,17 +197,13 @@ const styles = StyleSheet.create({
   },
   search: { color: COLORS.TEXT_LIGHT },
   card: { flexDirection: "row", backgroundColor: COLORS.CARD_BG, padding: 15, marginBottom: 15, borderRadius: 20, alignItems: "center" },
-  cardHighlighted: { borderColor: COLORS.SECONDARY, borderWidth: 3 },
   placeImage: { width: 90, height: 90, borderRadius: 15 },
   cardDetails: { flex: 1, marginLeft: 15 },
   placeName: { color: COLORS.TEXT_LIGHT, fontSize: 16, fontWeight: "700" },
-  placeRent: { color: COLORS.SECONDARY, fontWeight: "bold" },
-  ratingInfo: { marginTop: 5 },
-  ratingText: { color: COLORS.STAR },
-  starContainer: { flexDirection: "row", justifyContent: "center", marginVertical: 10 },
+  placeRent: { color: COLORS.TEXT_LIGHT, fontWeight: "bold", marginTop: 2 },
   viewDetailsBtn: {
     marginTop: 10,
-    backgroundColor: COLORS.SECONDARY,
+    backgroundColor: COLORS.BUTTON_PRIMARY,
     paddingVertical: 6,
     paddingHorizontal: 12,
     borderRadius: 15,
@@ -229,7 +228,5 @@ const styles = StyleSheet.create({
   },
   navItem: { alignItems: "center" },
   navImg: { width: 28, height: 28, tintColor: "#aaa" },
-  navImgActive: { tintColor: COLORS.SECONDARY },
   navLabel: { fontSize: 10, color: "#aaa" },
-  navLabelActive: { color: COLORS.SECONDARY },
 });

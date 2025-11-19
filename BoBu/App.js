@@ -23,6 +23,8 @@ import TenantProfile from "./UI/TenantProfile";
 import LandlordChat from "./UI/navi/LandlordChat";
 import LandlordProfile from "./UI/navi/LandlordProfile";
 
+// tenats 
+import PlaceDetails from "./UI/navi/PlaceDetails";
 
 
 

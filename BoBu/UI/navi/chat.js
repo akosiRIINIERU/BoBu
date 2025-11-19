@@ -21,6 +21,13 @@ export default function ChatScreen() {
   const flatListRef = useRef(null);
   const inputRef = useRef(null);
 
+  // Predefined messages tenants can quickly send
+  const [readyMessages, setReadyMessages] = useState([
+    "Hello, I have a question about my rent.",
+    "Is my room available for inspection?",
+    "I need to report an issue in my room.",
+  ]);
+
   useEffect(() => {
     const timeout = setTimeout(() => inputRef.current?.focus(), 200);
     return () => clearTimeout(timeout);
@@ -95,6 +102,23 @@ export default function ChatScreen() {
           showsVerticalScrollIndicator={false}
         />
 
+        {/* Predefined Ready-to-Send Messages */}
+        <View style={styles.readyMessageRow}>
+          {readyMessages.map((msg, index) => (
+            <TouchableOpacity
+              key={index}
+              style={styles.readyMessageBtn}
+              onPress={() => {
+                setInput(msg); // set message in input
+                // remove clicked message
+                setReadyMessages(prev => prev.filter((_, i) => i !== index));
+              }}
+            >
+              <Text style={styles.readyMessageText}>{msg}</Text>
+            </TouchableOpacity>
+          ))}
+        </View>
+
         <View style={styles.inputRow}>
           <TextInput
             ref={inputRef}
@@ -118,7 +142,7 @@ export default function ChatScreen() {
 const styles = StyleSheet.create({
   container: { flex: 1 },
   background: { flex: 1, padding: 15 },
-  headerRow: { marginTop: 30, marginBottom: 10 }, // added marginTop
+  headerRow: { marginTop: 30, marginBottom: 10 },
   header: {
     fontSize: 26,
     fontWeight: "bold",
@@ -141,6 +165,20 @@ const styles = StyleSheet.create({
   },
   messageText: {
     fontSize: 16,
+  },
+  readyMessageRow: {
+    marginBottom: 10,
+  },
+  readyMessageBtn: {
+    backgroundColor: "#1d1d82",
+    borderRadius: 20,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    marginVertical: 3,
+  },
+  readyMessageText: {
+    color: "#fff",
+    fontSize: 14,
   },
   inputRow: {
     flexDirection: "row",

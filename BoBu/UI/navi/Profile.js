@@ -186,7 +186,7 @@ const styles = StyleSheet.create({
   },
   infoCard: {
     width: "90%",
-    backgroundColor: "rgba(29,29,130,0.9)", // slight transparency to show bg
+    backgroundColor: "#222222cc", // slight transparency to show bg
     borderRadius: 25,
     padding: 20,
     marginBottom: 20,
