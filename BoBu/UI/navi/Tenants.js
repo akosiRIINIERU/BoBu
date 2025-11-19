@@ -9,7 +9,6 @@ import {
   Platform,
   Image,
   ImageBackground,
-  Alert,
   Modal,
   TextInput,
 } from "react-native";
@@ -18,9 +17,11 @@ import { useNavigation } from "@react-navigation/native";
 export default function Tenants() {
   const navigation = useNavigation();
   const [expandedTenantId, setExpandedTenantId] = useState(null);
-  const [noticeModalVisible, setNoticeModalVisible] = useState(false);
+  const [ratingModalVisible, setRatingModalVisible] = useState(false);
   const [currentTenant, setCurrentTenant] = useState(null);
-  const [noticeText, setNoticeText] = useState("");
+  const [selectedRating, setSelectedRating] = useState(0);
+  const [ratingNote, setRatingNote] = useState("");
+  const [tenantRatings, setTenantRatings] = useState({}); // store rating + note per tenant
 
   const tenants = [
     {
@@ -71,22 +72,36 @@ export default function Tenants() {
     setExpandedTenantId(expandedTenantId === id ? null : id);
   };
 
-  // Open notice modal
-  const openNoticeModal = (tenant) => {
+  // Open rating modal
+  const openRatingModal = (tenant) => {
     setCurrentTenant(tenant);
-    setNoticeText(
-      `Dear ${tenant.name},\n\nThis is a friendly reminder regarding your unpaid rent for ${tenant.room}. Please settle the payment at your earliest convenience.\n\nThank you,\nYour Landlord.`
-    );
-    setNoticeModalVisible(true);
+    const existingRating = tenantRatings[tenant.id] || { stars: 0, note: "" };
+    setSelectedRating(existingRating.stars);
+    setRatingNote(existingRating.note);
+    setRatingModalVisible(true);
   };
 
-  const sendProfessionalNotice = () => {
-    Alert.alert("Notice Sent", `Professional notice sent to ${currentTenant.name}`);
-    setNoticeModalVisible(false);
+  const submitRating = () => {
+    setTenantRatings({
+      ...tenantRatings,
+      [currentTenant.id]: { stars: selectedRating, note: ratingNote },
+    });
+    setRatingModalVisible(false);
+  };
+
+  const renderStars = (count) => {
+    return (
+      <Text style={styles.ratingStars}>
+        {"★".repeat(count)}
+        {"☆".repeat(5 - count)}
+      </Text>
+    );
   };
 
   const renderTenant = ({ item }) => {
     const isExpanded = expandedTenantId === item.id;
+    const tenantRating = tenantRatings[item.id]?.stars || 0;
+    const tenantNote = tenantRatings[item.id]?.note || "";
 
     return (
       <TouchableOpacity
@@ -104,6 +119,7 @@ export default function Tenants() {
             <View>
               <Text style={styles.name}>{item.name}</Text>
               <Text style={styles.details}>{item.room}</Text>
+              {tenantRating > 0 && renderStars(tenantRating)}
             </View>
           </View>
           <View
@@ -125,24 +141,27 @@ export default function Tenants() {
               Lease: {item.leaseStart} - {item.leaseEnd}
             </Text>
             <Text style={styles.details}>Notes: {item.notes}</Text>
+            {tenantNote ? (
+              <Text style={styles.details}>Rating Note: {tenantNote}</Text>
+            ) : null}
 
-            {/* CHAT BUTTON */}
-            <TouchableOpacity
-              style={styles.chatButton}
-              onPress={() => navigation.navigate("LandlordChat", { tenant: item })}
-            >
-              <Text style={styles.chatText}>Chat with Tenant</Text>
-            </TouchableOpacity>
-
-            {/* SEND NOTICE BUTTON ONLY IF UNPAID */}
-            {item.status === "Unpaid" && (
+            <View style={styles.buttonRow}>
+              {/* CHAT BUTTON */}
               <TouchableOpacity
-                style={styles.noticeButton}
-                onPress={() => openNoticeModal(item)}
+                style={styles.chatButton}
+                onPress={() => navigation.navigate("LandlordChat", { tenant: item })}
               >
-                <Text style={styles.noticeText}>Send Professional Notice</Text>
+                <Text style={styles.chatText}>Chat with Tenant</Text>
               </TouchableOpacity>
-            )}
+
+              {/* RATE BUTTON */}
+              <TouchableOpacity
+                style={styles.rateButton}
+                onPress={() => openRatingModal(item)}
+              >
+                <Text style={styles.rateText}>Rate Tenant</Text>
+              </TouchableOpacity>
+            </View>
           </View>
         )}
       </TouchableOpacity>
@@ -180,38 +199,38 @@ export default function Tenants() {
           showsVerticalScrollIndicator={false}
         />
 
-        {/* NOTICE MODAL */}
-        <Modal
-          visible={noticeModalVisible}
-          transparent
-          animationType="slide"
-        >
+        {/* RATING MODAL */}
+        <Modal visible={ratingModalVisible} transparent animationType="slide">
           <View style={styles.modalOverlay}>
             <View style={styles.modalContainer}>
-              <Text style={styles.modalTitle}>Send Professional Notice</Text>
-              <TextInput
-                style={styles.modalInput}
-                multiline
-                value={noticeText}
-                onChangeText={setNoticeText}
-              />
-              <View style={styles.modalButtons}>
-                <TouchableOpacity
-                  style={[styles.noticeButton, { flex: 1, marginRight: 5 }]}
-                  onPress={sendProfessionalNotice}
-                >
-                  <Text style={styles.noticeText}>Send</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={[styles.noticeButton, { flex: 1, backgroundColor: "#ccc", marginLeft: 5 }]}
-                  onPress={() => setNoticeModalVisible(false)}
-                >
-                  <Text style={[styles.noticeText, { color: "#000" }]}>Cancel</Text>
-                </TouchableOpacity>
+              <Text style={styles.modalTitle}>Rate Tenant</Text>
+              <View style={styles.ratingRow}>
+                {[1, 2, 3, 4, 5].map((star) => (
+                  <TouchableOpacity key={star} onPress={() => setSelectedRating(star)}>
+                    <Text style={[styles.star, selectedRating >= star && styles.selectedStar]}>★</Text>
+                  </TouchableOpacity>
+                ))}
               </View>
+              <TextInput
+                style={[styles.modalInput, { height: 80 }]}
+                placeholder="Add a note (optional)"
+                multiline
+                value={ratingNote}
+                onChangeText={setRatingNote}
+              />
+              <TouchableOpacity style={[styles.noticeButton, { marginTop: 10 }]} onPress={submitRating}>
+                <Text style={styles.noticeText}>Submit Rating</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.noticeButton, { backgroundColor: "#ccc", marginTop: 8 }]}
+                onPress={() => setRatingModalVisible(false)}
+              >
+                <Text style={[styles.noticeText, { color: "#000" }]}>Cancel</Text>
+              </TouchableOpacity>
             </View>
           </View>
         </Modal>
+
       </View>
     </ImageBackground>
   );
@@ -259,21 +278,31 @@ const styles = StyleSheet.create({
   name: { fontSize: 18, fontWeight: "700", color: "#1D1D82" },
   details: { fontSize: 14, color: "#444", marginTop: 2 },
 
+  ratingStars: { fontSize: 16, color: "#ffcc00", marginTop: 2 },
+
   statusBadge: { paddingVertical: 4, paddingHorizontal: 14, borderRadius: 12 },
   paidBadge: { backgroundColor: "#28a745cc" },
   unpaidBadge: { backgroundColor: "#dc3545cc" },
   statusText: { color: "#fff", fontWeight: "700", fontSize: 12 },
 
   detailBlock: { marginTop: 8 },
+  buttonRow: { flexDirection: "row", alignItems: "center", marginTop: 8 },
   chatButton: {
     backgroundColor: "#1d1d82",
     paddingVertical: 6,
     paddingHorizontal: 12,
     borderRadius: 8,
-    alignSelf: "flex-start",
-    marginTop: 8,
+    marginRight: 10,
   },
   chatText: { color: "#fff", fontWeight: "700" },
+
+  rateButton: {
+    backgroundColor: "#ff8c00",
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    borderRadius: 8,
+  },
+  rateText: { color: "#fff", fontWeight: "700" },
 
   noticeButton: {
     backgroundColor: "#ff8c00",
@@ -298,6 +327,7 @@ const styles = StyleSheet.create({
     width: "100%",
     borderRadius: 12,
     padding: 16,
+    alignItems: "center",
   },
   modalTitle: { fontSize: 16, fontWeight: "700", marginBottom: 10 },
   modalInput: {
@@ -308,6 +338,11 @@ const styles = StyleSheet.create({
     height: 120,
     textAlignVertical: "top",
     marginBottom: 12,
+    width: "100%",
   },
   modalButtons: { flexDirection: "row", justifyContent: "space-between" },
+
+  ratingRow: { flexDirection: "row", justifyContent: "center", marginVertical: 10 },
+  star: { fontSize: 30, color: "#ccc", marginHorizontal: 5 },
+  selectedStar: { color: "#ffcc00" },
 });
