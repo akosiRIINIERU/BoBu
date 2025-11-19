@@ -8,10 +8,11 @@ import {
   FlatList,
   KeyboardAvoidingView,
   Platform,
+  ImageBackground,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 
-export default function chat() {
+export default function ChatScreen() {
   const navigation = useNavigation();
   const [messages, setMessages] = useState([
     { id: "1", sender: "Landlord Farquad", text: "Bayri Imong Utang" },
@@ -31,88 +32,98 @@ export default function chat() {
     setMessages((prev) => [...prev, newMessage]);
     setInput("");
 
-    // Simulate landlord auto-reply
+    // Auto-reply simulation
     setTimeout(() => {
-      const landlordReplies = [
+      const replies = [
         "Badiya.",
         "pagtarong diha, ipablater tika ron waa ka.",
         "You can't reply this Conversation.",
-        "Hello, sorry but the landlord is currently unavailable. Please leave a message and they will get back to you as soon as possible.",
+        "Hello, sorry but the landlord is currently unavailable. Please leave a message and they will get back to you.",
         "k.",
       ];
-      const reply =
-        landlordReplies[Math.floor(Math.random() * landlordReplies.length)];
+      const reply = replies[Math.floor(Math.random() * replies.length)];
       setMessages((prev) => [
         ...prev,
         { id: (Date.now() + 1).toString(), sender: "Landlord Farquad", text: reply },
       ]);
     }, 1000);
+
+    // Scroll to bottom
+    setTimeout(() => flatListRef.current?.scrollToEnd({ animated: true }), 100);
   };
+
+  const renderItem = ({ item }) => (
+    <View
+      style={[
+        styles.messageBubble,
+        item.sender === "You" ? styles.sent : styles.received,
+      ]}
+    >
+      <Text
+        style={[
+          styles.messageText,
+          item.sender === "You" ? { color: "#fff" } : { color: "#000" },
+        ]}
+      >
+        {item.text}
+      </Text>
+    </View>
+  );
 
   return (
     <KeyboardAvoidingView
       style={styles.container}
       behavior={Platform.OS === "ios" ? "padding" : "height"}
     >
-      <TouchableOpacity onPress={() => navigation.goBack()}>
-        <Text style={styles.header}>Chat with Landlord 💬</Text>
-      </TouchableOpacity>
+      <ImageBackground
+        source={require("../../assets/bg2.jpg")}
+        style={styles.background}
+        resizeMode="cover"
+      >
+        <View style={styles.headerRow}>
+          <TouchableOpacity onPress={() => navigation.goBack()}>
+            <Text style={styles.header}>Chat with Landlord 💬</Text>
+          </TouchableOpacity>
+        </View>
 
-      <FlatList
-        ref={flatListRef}
-        data={messages}
-        keyExtractor={(item) => item.id}
-        renderItem={({ item }) => (
-          <View
-            style={[
-              styles.messageBubble,
-              item.sender === "You" ? styles.sent : styles.received,
-            ]}
-          >
-            <Text
-              style={[
-                styles.messageText,
-                item.sender === "You" ? { color: "#fff" } : { color: "#000" },
-              ]}
-            >
-              {item.text}
-            </Text>
-          </View>
-        )}
-        contentContainerStyle={{ paddingVertical: 10 }}
-        showsVerticalScrollIndicator={false}
-      />
-
-      <View style={styles.inputRow}>
-        <TextInput
-          ref={inputRef}
-          style={styles.input}
-          placeholder="Type a message..."
-          placeholderTextColor="#aaa"
-          value={input}
-          onChangeText={setInput}
-          returnKeyType="send"
-          onSubmitEditing={sendMessage}
+        <FlatList
+          ref={flatListRef}
+          data={messages}
+          keyExtractor={(item) => item.id}
+          renderItem={renderItem}
+          contentContainerStyle={{ paddingVertical: 10 }}
+          showsVerticalScrollIndicator={false}
         />
-        <TouchableOpacity style={styles.sendButton} onPress={sendMessage}>
-          <Text style={{ color: "#fff", fontWeight: "bold" }}>Send</Text>
-        </TouchableOpacity>
-      </View>
+
+        <View style={styles.inputRow}>
+          <TextInput
+            ref={inputRef}
+            style={styles.input}
+            placeholder="Type a message..."
+            placeholderTextColor="#aaa"
+            value={input}
+            onChangeText={setInput}
+            returnKeyType="send"
+            onSubmitEditing={sendMessage}
+          />
+          <TouchableOpacity style={styles.sendButton} onPress={sendMessage}>
+            <Text style={{ color: "#fff", fontWeight: "bold" }}>Send</Text>
+          </TouchableOpacity>
+        </View>
+      </ImageBackground>
     </KeyboardAvoidingView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "rgba(141,157,246,1)",
-    padding: 20,
-  },
+  container: { flex: 1 },
+  background: { flex: 1, padding: 15 },
+  headerRow: { marginTop: 30, marginBottom: 10 }, // added marginTop
   header: {
-    fontSize: 28,
+    fontSize: 26,
     fontWeight: "bold",
+    justifyContent: "center",
     color: "#fff",
-    marginBottom: 10,
   },
   messageBubble: {
     maxWidth: "75%",

@@ -4,274 +4,232 @@ import {
   Text,
   TextInput,
   TouchableOpacity,
-  Modal,
   FlatList,
   Image,
   StyleSheet,
-  ScrollView,
+  ImageBackground,
+  SafeAreaView,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
+import { AntDesign, FontAwesome } from "@expo/vector-icons";
+
+// Assets
+const PLACEHOLDER_IMAGE = require("../assets/listing1.jpeg");
+const BG_IMAGE = require("../assets/bg2.jpg");
+const HOME_ICON = require("../assets/home.png");
+const CHAT_ICON = require("../assets/chat.png");
+const BELL_ICON = require("../assets/bell.png");
+const USER_ICON = require("../assets/user.png");
+
+// Colors
+const COLORS = {
+  PRIMARY: "#1D1D82",
+  SECONDARY: "#FFD700",
+  BACKGROUND: "#121212",
+  CARD_BG: "rgba(0,0,0,0.7)",
+  TEXT_LIGHT: "#FFFFFF",
+  TEXT_ACCENT: "#00ccff",
+  STAR: "#FFD700",
+};
 
 export default function Dashboard() {
   const navigation = useNavigation();
   const [search, setSearch] = useState("");
-  const [selectedPlace, setSelectedPlace] = useState(null);
-  const [ratingVisible, setRatingVisible] = useState(false);
-  const [historyVisible, setHistoryVisible] = useState(false);
-  const [tempRating, setTempRating] = useState(0);
   const [ratingHistory, setRatingHistory] = useState({});
   const [highlightedPlaceId, setHighlightedPlaceId] = useState(null);
+  const [activeTab, setActiveTab] = useState("Dashboard");
 
   const flatListRef = useRef(null);
 
   const places = [
-    { id: "1", name: "Lapas sa San, CDO", rent: "₱15,000/month" },
-    { id: "2", name: "Macatambalan, CDO", rent: "₱10,500/month" },
-    { id: "3", name: "Cugmo, CDO", rent: "₱25,000/month" },
-    { id: "4", name: "Bugo ka, CDO", rent: "₱8,000/month" },
+    {
+      id: "1",
+      name: "Lapas sa San Boarding House",
+      rent: 15000,
+      details: "Private room with shared bathroom. Free Wi-Fi, clean linens included.",
+      amenities: ["Wi-Fi", "AC", "Hot Water"],
+      images: [PLACEHOLDER_IMAGE],
+      rules: "No pets, No smoking.",
+    },
+    {
+      id: "2",
+      name: "Macatambalan Boarding House",
+      rent: 10500,
+      details: "Affordable single room.",
+      amenities: ["Wi-Fi", "Laundry"],
+      images: [PLACEHOLDER_IMAGE],
+      rules: "No parties, quiet hours after 10 PM.",
+    },
+    {
+      id: "3",
+      name: "Cugmo Boarding House",
+      rent: 25000,
+      details: "Spacious private room.",
+      amenities: ["Wi-Fi", "Balcony"],
+      images: [PLACEHOLDER_IMAGE],
+      rules: "No pets.",
+    },
+    {
+      id: "4",
+      name: "Bugo ka Boarding House",
+      rent: 8000,
+      details: "Simple boarding house.",
+      amenities: ["Wi-Fi"],
+      images: [PLACEHOLDER_IMAGE],
+      rules: "No smoking indoors.",
+    },
   ];
 
-  const filteredPlaces = places.filter((place) =>
-    place.name.toLowerCase().includes(search.toLowerCase())
-  );
-
-  const handleRent = () => {
-    if (!selectedPlace) return;
-    setRatingVisible(true);
-  };
-
-  const submitRating = () => {
-    if (!tempRating) {
-      alert("Please select a rating first!");
-      return;
-    }
-
-    const tenant = "You"; // Replace with actual tenant name
-    const date = new Date().toLocaleDateString();
-
-    setRatingHistory((prev) => ({
-      ...prev,
-      [selectedPlace.id]: [
-        ...(prev[selectedPlace.id] || []),
-        { tenant, rating: tempRating, date },
-      ],
-    }));
-
-    // Highlight the rated place
-    setHighlightedPlaceId(selectedPlace.id);
-
-    setTempRating(0);
-    setRatingVisible(false);
-    setSelectedPlace(null);
-
-    // Remove highlight after 2 seconds
-    setTimeout(() => setHighlightedPlaceId(null), 2000);
-
-    alert("Thank you for rating your stay!");
-  };
-
-  const renderStars = (currentRating, setRating) => (
-    <View
-      style={{ flexDirection: "row", justifyContent: "center", marginVertical: 10 }}
-    >
-      {[1, 2, 3, 4, 5].map((star) => (
-        <TouchableOpacity key={star} onPress={() => setRating(star)}>
-          <Text style={{ fontSize: 28, color: star <= currentRating ? "#FFD700" : "#ccc" }}>
-            ★
-          </Text>
-        </TouchableOpacity>
-      ))}
-    </View>
+  const filteredPlaces = places.filter((p) =>
+    p.name.toLowerCase().includes(search.toLowerCase())
   );
 
   const renderPlaceItem = ({ item }) => {
     const ratings = ratingHistory[item.id] || [];
-    const avgRating =
-      ratings.length > 0
-        ? (ratings.reduce((sum, r) => sum + r.rating, 0) / ratings.length).toFixed(1)
-        : null;
-
+    const avgRating = ratings.length
+      ? (ratings.reduce((s, r) => s + r.rating, 0) / ratings.length).toFixed(1)
+      : null;
     const isHighlighted = highlightedPlaceId === item.id;
 
     return (
-      <View
-        style={[
-          styles.card,
-          isHighlighted && { borderColor: "#FFD700", borderWidth: 2 },
-        ]}
-      >
-        <Image source={require("../assets/listing1.jpeg")} style={styles.placeImage} />
-        <View style={{ flex: 1 }}>
+      <View style={[styles.card, isHighlighted && styles.cardHighlighted]}>
+        <Image source={item.images[0]} style={styles.placeImage} />
+        <View style={styles.cardDetails}>
           <Text style={styles.placeName}>{item.name}</Text>
-          <Text style={styles.placeRent}>{item.rent}</Text>
-          {avgRating ? (
-            <Text style={styles.ratingText}>
-              ⭐ {avgRating} / 5 ({ratings.length})
-            </Text>
-          ) : (
-            <Text style={styles.ratingText}>No ratings yet</Text>
-          )}
-
-          {ratings.length > 0 && (
-            <TouchableOpacity
-              onPress={() => {
-                setSelectedPlace(item);
-                setHistoryVisible(true);
-              }}
-            >
-              <Text style={styles.historyLink}>View Rating History</Text>
-            </TouchableOpacity>
-          )}
-
+          <Text style={styles.placeRent}>₱{item.rent.toLocaleString()}</Text>
+          <View style={styles.ratingInfo}>
+            {avgRating ? (
+              <Text style={styles.ratingText}>
+                <FontAwesome name="star" size={14} color={COLORS.STAR} /> {avgRating}/5 ({ratings.length})
+              </Text>
+            ) : (
+              <Text style={styles.ratingText}>No ratings yet</Text>
+            )}
+          </View>
+          {/* View Details Button */}
           <TouchableOpacity
-            style={styles.rentButton}
-            onPress={() => {
-              setSelectedPlace(item);
-              handleRent();
-            }}
+            style={styles.viewDetailsBtn}
+            onPress={() => navigation.navigate("PlaceDetails", { place: item })}
           >
-            <Text style={styles.rentText}>Rent</Text>
+            <Text style={styles.viewDetailsText}>View Details</Text>
           </TouchableOpacity>
         </View>
       </View>
     );
   };
 
+  const navTabs = [
+    { img: CHAT_ICON, screen: "Chat", label: "Chat" },
+    { img: HOME_ICON, screen: "Dashboard", label: "Dashboard" },
+    { img: BELL_ICON, screen: "Notifications", label: "Notifications" },
+    { img: USER_ICON, screen: "Profile", label: "Profile" },
+  ];
+
   return (
-    <View style={styles.container}>
-      <Text style={styles.header}>Dashboard</Text>
-
-      <TextInput
-        style={styles.search}
-        placeholder="Search for places..."
-        value={search}
-        onChangeText={setSearch}
-      />
-
-      <FlatList
-        ref={flatListRef}
-        data={filteredPlaces}
-        keyExtractor={(item) => item.id}
-        renderItem={renderPlaceItem}
-      />
-
-      {/* Rent Modal */}
-      {selectedPlace && !ratingVisible && !historyVisible && (
-        <Modal visible={true} transparent animationType="fade">
-          <View style={styles.modalContainer}>
-            <View style={styles.modalBox}>
-              <Text style={styles.modalTitle}>{selectedPlace.name}</Text>
-              <Text style={styles.modalText}>{selectedPlace.rent}</Text>
-
-              <TouchableOpacity style={styles.rentButton} onPress={handleRent}>
-                <Text style={styles.rentText}>Rent</Text>
-              </TouchableOpacity>
-
-              <TouchableOpacity
-                style={styles.closeButton}
-                onPress={() => setSelectedPlace(null)}
-              >
-                <Text style={styles.closeText}>Close</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-        </Modal>
-      )}
-
-      {/* Rating Modal */}
-      <Modal visible={ratingVisible} transparent animationType="fade">
-        <View style={styles.modalContainer}>
-          <View style={styles.modalBox}>
-            <Text style={styles.modalTitle}>Rate Your Stay</Text>
-            {renderStars(tempRating, setTempRating)}
-
-            <TouchableOpacity style={styles.rentButton} onPress={submitRating}>
-              <Text style={styles.rentText}>Submit Rating</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={styles.closeButton}
-              onPress={() => {
-                setTempRating(0);
-                setRatingVisible(false);
-                setSelectedPlace(null);
-              }}
-            >
-              <Text style={styles.closeText}>Skip</Text>
-            </TouchableOpacity>
-          </View>
+    <ImageBackground source={BG_IMAGE} style={styles.background}>
+      <SafeAreaView style={styles.safeArea}>
+        {/* Header */}
+        <View style={styles.header}>
+          <Text style={styles.headerTitle}>BoardBuddy</Text>
         </View>
-      </Modal>
 
-      {/* Rating History Modal */}
-      {selectedPlace && historyVisible && (
-        <Modal visible={true} transparent animationType="fade">
-          <View style={styles.modalContainer}>
-            <ScrollView
-              contentContainerStyle={{
-                flexGrow: 1,
-                justifyContent: "center",
-                alignItems: "center",
+        {/* Search */}
+        <View style={styles.searchWrapper}>
+          <TextInput
+            placeholder="Search..."
+            placeholderTextColor="#bbb"
+            style={styles.search}
+            value={search}
+            onChangeText={setSearch}
+          />
+        </View>
+
+        {/* Boarding Places */}
+        <FlatList
+          ref={flatListRef}
+          data={filteredPlaces}
+          keyExtractor={(item) => item.id}
+          renderItem={renderPlaceItem}
+          contentContainerStyle={{ paddingBottom: 120, paddingHorizontal: 15 }}
+        />
+
+        {/* Bottom Nav */}
+        <View style={styles.navBar}>
+          {navTabs.map((tab) => (
+            <TouchableOpacity
+              key={tab.label}
+              style={styles.navItem}
+              onPress={() => {
+                setActiveTab(tab.label);
+                navigation.navigate(tab.screen);
               }}
             >
-              <View style={styles.modalBox}>
-                <Text style={styles.modalTitle}>Rating History</Text>
-                {ratingHistory[selectedPlace.id]?.map((r, i) => (
-                  <Text key={i} style={styles.historyText}>
-                    {r.tenant} rated {r.rating} ⭐ on {r.date}
-                  </Text>
-                ))}
-
-                <TouchableOpacity
-                  style={styles.closeButton}
-                  onPress={() => setHistoryVisible(false)}
-                >
-                  <Text style={styles.closeText}>Close</Text>
-                </TouchableOpacity>
-              </View>
-            </ScrollView>
-          </View>
-        </Modal>
-      )}
-
-      {/* Bottom Navigation */}
-      <View style={styles.navbar}>
-        <TouchableOpacity onPress={() => navigation.navigate("Chat")}>
-          <Image source={require("../assets/chat.png")} style={styles.icon} />
-        </TouchableOpacity>
-        <TouchableOpacity onPress={() => navigation.navigate("Dashboard")}>
-          <Image source={require("../assets/home.png")} style={styles.icon} />
-        </TouchableOpacity>
-        <TouchableOpacity onPress={() => navigation.navigate("Notifications")}>
-          <Image source={require("../assets/bell.png")} style={styles.icon} />
-        </TouchableOpacity>
-        <TouchableOpacity onPress={() => navigation.navigate("Profile")}>
-          <Image source={require("../assets/user.png")} style={styles.icon} />
-        </TouchableOpacity>
-      </View>
-    </View>
+              <Image
+                source={tab.img}
+                style={[styles.navImg, activeTab === tab.label && styles.navImgActive]}
+              />
+              <Text style={[styles.navLabel, activeTab === tab.label && styles.navLabelActive]}>
+                {tab.label}
+              </Text>
+            </TouchableOpacity>
+          ))}
+        </View>
+      </SafeAreaView>
+    </ImageBackground>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#E8F0F2", paddingHorizontal: 20, paddingTop: 40 },
-  header: { fontSize: 26, fontWeight: "bold", marginBottom: 15, color: "#003366", textAlign: "center" },
-  search: { backgroundColor: "#fff", borderRadius: 10, paddingHorizontal: 15, paddingVertical: 10, marginBottom: 20, fontSize: 16, borderWidth: 1, borderColor: "#ccc" },
-  card: { backgroundColor: "#fff", borderRadius: 15, padding: 15, marginBottom: 10, flexDirection: "row", alignItems: "center", elevation: 3 },
-  placeImage: { width: 50, height: 50, marginRight: 15, borderRadius: 10 },
-  placeName: { fontSize: 18, fontWeight: "600", color: "#333" },
-  placeRent: { fontSize: 14, color: "#666", marginTop: 3 },
-  ratingText: { color: "#FFB800", fontWeight: "bold", fontSize: 16, marginTop: 3 },
-  historyLink: { fontSize: 14, color: "#0066cc", textDecorationLine: "underline", marginTop: 5 },
-  modalContainer: { flex: 1, backgroundColor: "rgba(0,0,0,0.4)", justifyContent: "center", alignItems: "center" },
-  modalBox: { backgroundColor: "#fff", borderRadius: 15, padding: 25, width: "80%", alignItems: "center", maxHeight: "80%" },
-  modalTitle: { fontSize: 22, fontWeight: "bold", color: "#003366", marginBottom: 10 },
-  modalText: { fontSize: 18, marginBottom: 20, color: "#444" },
-  rentButton: { backgroundColor: "#0066cc", padding: 12, borderRadius: 10, width: "60%", alignItems: "center", marginTop: 10 },
-  rentText: { color: "#fff", fontWeight: "bold" },
-  closeButton: { padding: 8, marginTop: 10 },
-  closeText: { color: "#0066cc" },
-  historyText: { fontSize: 16, color: "#333", marginVertical: 3 },
-  navbar: { flexDirection: "row", justifyContent: "space-around", backgroundColor: "#003366", paddingVertical: 12, borderTopLeftRadius: 20, borderTopRightRadius: 20 },
-  icon: { width: 28, height: 28 },
+  safeArea: { flex: 1 },
+  background: { flex: 1 },
+  header: { padding: 30, alignItems: "center", marginBottom: 0, borderRadius: 30 },
+  headerTitle: { fontSize: 28, fontWeight: "700", color: COLORS.SECONDARY },
+  searchWrapper: {
+    marginHorizontal: 20,
+    marginBottom: 15,
+    backgroundColor: "rgba(0,0,0,0.7)",
+    borderRadius: 30,
+    paddingHorizontal: 15,
+    paddingVertical: 10,
+  },
+  search: { color: COLORS.TEXT_LIGHT },
+  card: { flexDirection: "row", backgroundColor: COLORS.CARD_BG, padding: 15, marginBottom: 15, borderRadius: 20, alignItems: "center" },
+  cardHighlighted: { borderColor: COLORS.SECONDARY, borderWidth: 3 },
+  placeImage: { width: 90, height: 90, borderRadius: 15 },
+  cardDetails: { flex: 1, marginLeft: 15 },
+  placeName: { color: COLORS.TEXT_LIGHT, fontSize: 16, fontWeight: "700" },
+  placeRent: { color: COLORS.SECONDARY, fontWeight: "bold" },
+  ratingInfo: { marginTop: 5 },
+  ratingText: { color: COLORS.STAR },
+  starContainer: { flexDirection: "row", justifyContent: "center", marginVertical: 10 },
+  viewDetailsBtn: {
+    marginTop: 10,
+    backgroundColor: COLORS.SECONDARY,
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    borderRadius: 15,
+    alignSelf: "flex-start",
+  },
+  viewDetailsText: {
+    color: COLORS.TEXT_LIGHT,
+    fontWeight: "bold",
+    fontSize: 14,
+  },
+  navBar: {
+    flexDirection: "row",
+    justifyContent: "space-around",
+    paddingVertical: 12,
+    backgroundColor: "rgba(0,0,0,0.7)",
+    borderTopLeftRadius: 25,
+    borderTopRightRadius: 25,
+    position: "absolute",
+    bottom: 0,
+    left: 0,
+    right: 0,
+  },
+  navItem: { alignItems: "center" },
+  navImg: { width: 28, height: 28, tintColor: "#aaa" },
+  navImgActive: { tintColor: COLORS.SECONDARY },
+  navLabel: { fontSize: 10, color: "#aaa" },
+  navLabelActive: { color: COLORS.SECONDARY },
 });

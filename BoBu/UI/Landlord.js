@@ -81,31 +81,11 @@ export default function Landlord({ navigation }) {
         <View style={styles.cardRow}>
           <TouchableOpacity
             style={styles.infoCard}
-            onPress={() => navigation.navigate("Listings")}
-            activeOpacity={0.8}
-          >
-            <Text style={styles.cardNumber}>3</Text>
-            <Text style={styles.cardLabel}>Properties</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={styles.infoCard}
             onPress={() => navigation.navigate("Tenants")}
             activeOpacity={0.8}
           >
             <Text style={styles.cardNumber}>3</Text>
             <Text style={styles.cardLabel}>Tenants</Text>
-          </TouchableOpacity>
-        </View>
-
-        <View style={styles.cardRow}>
-          <TouchableOpacity
-            style={styles.infoCard}
-            onPress={() => navigation.navigate("Notificationll")}
-            activeOpacity={0.8}
-          >
-            <Text style={styles.cardNumber}>3</Text>
-            <Text style={styles.cardLabel}>Pending Notification</Text>
           </TouchableOpacity>
 
           <TouchableOpacity

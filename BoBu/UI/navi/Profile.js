@@ -9,6 +9,7 @@ import {
   Modal,
   TextInput,
   Alert,
+  ImageBackground,
 } from "react-native";
 
 export default function Profile({ navigation, route }) {
@@ -18,7 +19,6 @@ export default function Profile({ navigation, route }) {
   const [payName, setName] = useState("");
   const [isPaid, setIsPaid] = useState(false);
 
-  // Update isPaid if coming back from Notifications or route
   useEffect(() => {
     if (route.params?.isPaid) {
       setIsPaid(route.params.isPaid);
@@ -36,11 +36,9 @@ export default function Profile({ navigation, route }) {
       return;
     }
 
-    // Mark rent as paid
     setIsPaid(true);
     setModalVisible(false);
 
-    // Update Notifications screen dynamically
     navigation.navigate("Notifications", { isPaid: true });
 
     Alert.alert(
@@ -52,109 +50,117 @@ export default function Profile({ navigation, route }) {
   };
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
-      <Image source={require("../../assets/ako.jpg")} style={styles.avatar} />
-      <Text style={styles.name}>Renhiel Maghanoy</Text>
-      <Text style={styles.role}>Tenant</Text>
-
-      <View style={styles.infoCard}>
-        <Text style={styles.sectionTitle}>Personal Info</Text>
-        <Text style={styles.infoTitle}>Email:</Text>
-        <Text style={styles.infoValue}>renhiel@boardbuddy.com</Text>
-        <Text style={styles.infoTitle}>Phone:</Text>
-        <Text style={styles.infoValue}>+63 912 345 6789</Text>
-        <Text style={styles.infoTitle}>Linked Wallet / Bank:</Text>
-        <Text style={styles.infoValue}>GCash - 0912 345 6789</Text>
-      </View>
-
-      <View style={styles.infoCard}>
-        <Text style={styles.sectionTitle}>Rental Info</Text>
-        <Text style={styles.infoTitle}>Current Landlord:</Text>
-        <Text style={styles.infoValue}>Marhean langTOH</Text>
-        <Text style={styles.infoTitle}>Current Room:</Text>
-        <Text style={styles.infoValue}>Room 505</Text>
-        <Text style={styles.infoTitle}>Current Rent:</Text>
-        <Text style={styles.infoValue}>₱12,500 / month</Text>
-
-        <Text style={isPaid ? styles.paidText : styles.payNotice}>
-          {isPaid ? "✅ Rent Paid" : "💡 Pay notice: Rent due by November 15, 2025"}
-        </Text>
-
-        {!isPaid && (
-          <TouchableOpacity
-            style={styles.payButton}
-            onPress={() => setModalVisible(true)}
-          >
-            <Text style={styles.payButtonText}>Pay Rent</Text>
-          </TouchableOpacity>
-        )}
-
-        <Text style={styles.infoTitle}>Rating:</Text>
-        <Text style={styles.infoValue}>⭐ 4.8 / 5</Text>
-      </View>
-
-      <TouchableOpacity
-        style={styles.logoutButton}
-        onPress={() => navigation.navigate("Login")}
+    <ImageBackground
+      source={require("../../assets/bg2.jpg")}
+      style={styles.background}
+      resizeMode="cover"
+    >
+      <ScrollView
+        style={styles.container}
+        contentContainerStyle={styles.contentContainer}
       >
-        <Text style={styles.logoutText}>Log Out</Text>
-      </TouchableOpacity>
+        <Image source={require("../../assets/ako.jpg")} style={styles.avatar} />
+        <Text style={styles.name}>Renhiel Maghanoy</Text>
+        <Text style={styles.role}>Tenant</Text>
 
-      <Modal
-        animationType="slide"
-        transparent={true}
-        visible={modalVisible}
-        onRequestClose={() => setModalVisible(false)}
-      >
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalContainer}>
-            <Text style={styles.modalTitle}>Pay Rent</Text>
-
-            <TextInput
-              style={styles.input}
-              placeholder="Enter amount"
-              keyboardType="numeric"
-              value={payAmount}
-              onChangeText={setPayAmount}
-            />
-
-            <TextInput
-              style={styles.input}
-              placeholder="Payment Method (e.g., GCash, Bank)"
-              value={paymentMethod}
-              onChangeText={setPaymentMethod}
-            />
-
-            <TextInput
-              style={styles.input}
-              placeholder="Landlord's Name"
-              value={payName}
-              onChangeText={setName}
-            />
-
-            <TouchableOpacity style={styles.modalButton} onPress={handlePayment}>
-              <Text style={styles.modalButtonText}>Send Payment</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={[styles.modalButton, styles.cancelButton]}
-              onPress={() => setModalVisible(false)}
-            >
-              <Text style={styles.modalButtonText}>Cancel</Text>
-            </TouchableOpacity>
-          </View>
+        <View style={styles.infoCard}>
+          <Text style={styles.sectionTitle}>Personal Info</Text>
+          <Text style={styles.infoTitle}>Email:</Text>
+          <Text style={styles.infoValue}>renhiel@boardbuddy.com</Text>
+          <Text style={styles.infoTitle}>Phone:</Text>
+          <Text style={styles.infoValue}>+63 912 345 6789</Text>
+          <Text style={styles.infoTitle}>Linked Wallet / Bank:</Text>
+          <Text style={styles.infoValue}>GCash - 0912 345 6789</Text>
         </View>
-      </Modal>
-    </ScrollView>
+
+        <View style={styles.infoCard}>
+          <Text style={styles.sectionTitle}>Rental Info</Text>
+          <Text style={styles.infoTitle}>Current Landlord:</Text>
+          <Text style={styles.infoValue}>Marhean langTOH</Text>
+          <Text style={styles.infoTitle}>Current Room:</Text>
+          <Text style={styles.infoValue}>Room 505</Text>
+          <Text style={styles.infoTitle}>Current Rent:</Text>
+          <Text style={styles.infoValue}>₱12,500 / month</Text>
+
+          <Text style={isPaid ? styles.paidText : styles.payNotice}>
+            {isPaid
+              ? "✅ Rent Paid"
+              : "💡 Pay notice: Rent due by November 15, 2025"}
+          </Text>
+
+          {!isPaid && (
+            <TouchableOpacity
+              style={styles.payButton}
+              onPress={() => setModalVisible(true)}
+            >
+              <Text style={styles.payButtonText}>Pay Rent</Text>
+            </TouchableOpacity>
+          )}
+
+          <Text style={styles.infoTitle}>Rating:</Text>
+          <Text style={styles.infoValue}>⭐ 4.8 / 5</Text>
+        </View>
+
+        <TouchableOpacity
+          style={styles.logoutButton}
+          onPress={() => navigation.navigate("Login")}
+        >
+          <Text style={styles.logoutText}>Log Out</Text>
+        </TouchableOpacity>
+
+        <Modal
+          animationType="slide"
+          transparent={true}
+          visible={modalVisible}
+          onRequestClose={() => setModalVisible(false)}
+        >
+          <View style={styles.modalOverlay}>
+            <View style={styles.modalContainer}>
+              <Text style={styles.modalTitle}>Pay Rent</Text>
+
+              <TextInput
+                style={styles.input}
+                placeholder="Enter amount"
+                keyboardType="numeric"
+                value={payAmount}
+                onChangeText={setPayAmount}
+              />
+
+              <TextInput
+                style={styles.input}
+                placeholder="Payment Method (e.g., GCash, Bank)"
+                value={paymentMethod}
+                onChangeText={setPaymentMethod}
+              />
+
+              <TextInput
+                style={styles.input}
+                placeholder="Landlord's Name"
+                value={payName}
+                onChangeText={setName}
+              />
+
+              <TouchableOpacity style={styles.modalButton} onPress={handlePayment}>
+                <Text style={styles.modalButtonText}>Send Payment</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={[styles.modalButton, styles.cancelButton]}
+                onPress={() => setModalVisible(false)}
+              >
+                <Text style={styles.modalButtonText}>Cancel</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </Modal>
+      </ScrollView>
+    </ImageBackground>
   );
 }
 
-
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "rgba(141,157,246,1)",
-  },
+  background: { flex: 1 },
+  container: { flex: 1, backgroundColor: "transparent" },
   contentContainer: {
     alignItems: "center",
     padding: 20,
@@ -180,7 +186,7 @@ const styles = StyleSheet.create({
   },
   infoCard: {
     width: "90%",
-    backgroundColor: "rgba(29,29,130,1)",
+    backgroundColor: "rgba(29,29,130,0.9)", // slight transparency to show bg
     borderRadius: 25,
     padding: 20,
     marginBottom: 20,

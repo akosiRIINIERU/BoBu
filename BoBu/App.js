@@ -25,6 +25,8 @@ import LandlordProfile from "./UI/navi/LandlordProfile";
 
 
 
+
+
 const Stack = createStackNavigator();
 
 export default function App() {
@@ -44,6 +46,8 @@ export default function App() {
         <Stack.Screen name="Dashboard" component={Dashboard} />
         <Stack.Screen name="AboutUs" component={AboutUs} />
         <Stack.Screen name="Notifications" component={Notifications} />
+        <Stack.Screen name="PlaceDetails" component={PlaceDetails} />
+
 
         {/* Landlord Screens */}
         <Stack.Screen name="Landlord" component={Landlord} />
