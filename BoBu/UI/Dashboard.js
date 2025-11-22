@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import {
   View,
   Text,
@@ -10,14 +10,14 @@ import {
   ImageBackground,
   SafeAreaView,
 } from "react-native";
-import { useNavigation } from "@react-navigation/native";
+import { useNavigation, useRoute } from "@react-navigation/native";
 import { FontAwesome } from "@expo/vector-icons";
 
 // Assets
 const PLACEHOLDER_IMAGE = require("../assets/listing1.jpeg");
 const BG_IMAGE = require("../assets/bg2.jpg");
 const HOME_ICON = require("../assets/home.png");
-const CHAT_ICON = require("../assets/chat.png");
+const CHAT_ICON = require("../assets/lease.png");
 const BELL_ICON = require("../assets/bell.png");
 const USER_ICON = require("../assets/user.png");
 
@@ -28,15 +28,17 @@ const COLORS = {
   TEXT_LIGHT: "#FFFFFF",
   SECONDARY: "#FFD700",
   BUTTON_PRIMARY: "#1E90FF",
+  BUTTON_CHAT: "#1E90FF",
 };
 
 export default function Dashboard() {
   const navigation = useNavigation();
+  const route = useRoute();
+  const flatListRef = useRef(null);
   const [search, setSearch] = useState("");
 
-  const flatListRef = useRef(null);
-
-  const places = [
+  // Boarding Places
+  const [places, setPlaces] = useState([
     {
       id: "1",
       name: "Lapas sa San Boarding House",
@@ -46,6 +48,7 @@ export default function Dashboard() {
       images: [PLACEHOLDER_IMAGE],
       rules: "No pets, No smoking.",
       rating: 4.5,
+      feedback: "",
       type: "Private Room",
       location: "San",
       landlordId: "101",
@@ -60,6 +63,7 @@ export default function Dashboard() {
       images: [PLACEHOLDER_IMAGE],
       rules: "No parties, quiet hours after 10 PM.",
       rating: 4,
+      feedback: "",
       type: "Single Room",
       location: "Macatambalan",
       landlordId: "102",
@@ -74,6 +78,7 @@ export default function Dashboard() {
       images: [PLACEHOLDER_IMAGE],
       rules: "No pets.",
       rating: 4.8,
+      feedback: "",
       type: "Private Room",
       location: "Cugmo",
       landlordId: "103",
@@ -88,12 +93,25 @@ export default function Dashboard() {
       images: [PLACEHOLDER_IMAGE],
       rules: "No smoking indoors.",
       rating: 3.9,
+      feedback: "",
       type: "Simple Room",
       location: "Bugo",
       landlordId: "104",
       landlordName: "Landlord Juan",
     },
-  ];
+  ]);
+
+  // Update rating if navigated from CurrentRentalScreen
+  useEffect(() => {
+    if (route.params?.newRating && route.params?.rentalId) {
+      const { newRating, feedback, rentalId } = route.params;
+      setPlaces((prev) =>
+        prev.map((r) =>
+          r.id === rentalId ? { ...r, rating: newRating, feedback } : r
+        )
+      );
+    }
+  }, [route.params]);
 
   const filteredPlaces = places.filter((p) =>
     p.name.toLowerCase().includes(search.toLowerCase())
@@ -103,12 +121,20 @@ export default function Dashboard() {
     const stars = [];
     const fullStars = Math.floor(rating);
     const halfStar = rating - fullStars >= 0.5;
+
     for (let i = 0; i < fullStars; i++)
-      stars.push(<FontAwesome key={`star-${i}`} name="star" size={size} color={COLORS.SECONDARY} />);
+      stars.push(
+        <FontAwesome key={`star-${i}`} name="star" size={size} color={COLORS.SECONDARY} />
+      );
     if (halfStar)
-      stars.push(<FontAwesome key="star-half" name="star-half-full" size={size} color={COLORS.SECONDARY} />);
+      stars.push(
+        <FontAwesome key="star-half" name="star-half-full" size={size} color={COLORS.SECONDARY} />
+      );
     while (stars.length < 5)
-      stars.push(<FontAwesome key={`star-empty-${stars.length}`} name="star-o" size={size} color={COLORS.SECONDARY} />);
+      stars.push(
+        <FontAwesome key={`star-empty-${stars.length}`} name="star-o" size={size} color={COLORS.SECONDARY} />
+      );
+
     return <View style={{ flexDirection: "row", marginTop: 3 }}>{stars}</View>;
   };
 
@@ -119,6 +145,7 @@ export default function Dashboard() {
         <Text style={styles.placeName}>{item.name}</Text>
         <Text style={styles.placeRent}>₱{item.rent.toLocaleString()}</Text>
         {renderStars(item.rating)}
+        {item.feedback ? <Text style={{ color: "#ccc", marginTop: 4 }}>Feedback: {item.feedback}</Text> : null}
         <TouchableOpacity
           style={styles.viewDetailsBtn}
           onPress={() => navigation.navigate("PlaceDetails", { place: item })}
@@ -130,7 +157,7 @@ export default function Dashboard() {
   );
 
   const navTabs = [
-    { img: CHAT_ICON, screen: "Chat", label: "Chat" },
+    { img: CHAT_ICON, screen: "CurrentRentalScreen", label: "Lease" },
     { img: HOME_ICON, screen: "Dashboard", label: "Dashboard" },
     { img: BELL_ICON, screen: "Notifications", label: "Notifications" },
     { img: USER_ICON, screen: "Profile", label: "Profile" },
@@ -143,6 +170,14 @@ export default function Dashboard() {
         <View style={styles.header}>
           <Text style={styles.headerTitle}>BoardBuddy</Text>
         </View>
+
+        {/* Floating Chat Button */}
+        <TouchableOpacity
+          style={styles.floatingChatBtn}
+          onPress={() => navigation.navigate("Chat")}
+        >
+          <FontAwesome name="comments" size={24} color="#fff" />
+        </TouchableOpacity>
 
         {/* Search */}
         <View style={styles.searchWrapper}>
@@ -185,7 +220,7 @@ export default function Dashboard() {
 const styles = StyleSheet.create({
   safeArea: { flex: 1 },
   background: { flex: 1 },
-  header: { padding: 30, alignItems: "center", marginBottom: 0, borderRadius: 30 },
+  header: { padding: 30, alignItems: "flex-start", marginBottom: 0, borderRadius: 30 },
   headerTitle: { fontSize: 28, fontWeight: "700", color: COLORS.TEXT_LIGHT },
   searchWrapper: {
     marginHorizontal: 20,
@@ -196,7 +231,14 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
   },
   search: { color: COLORS.TEXT_LIGHT },
-  card: { flexDirection: "row", backgroundColor: COLORS.CARD_BG, padding: 15, marginBottom: 15, borderRadius: 20, alignItems: "center" },
+  card: {
+    flexDirection: "row",
+    backgroundColor: COLORS.CARD_BG,
+    padding: 15,
+    marginBottom: 15,
+    borderRadius: 20,
+    alignItems: "center",
+  },
   placeImage: { width: 90, height: 90, borderRadius: 15 },
   cardDetails: { flex: 1, marginLeft: 15 },
   placeName: { color: COLORS.TEXT_LIGHT, fontSize: 16, fontWeight: "700" },
@@ -209,11 +251,7 @@ const styles = StyleSheet.create({
     borderRadius: 15,
     alignSelf: "flex-start",
   },
-  viewDetailsText: {
-    color: COLORS.TEXT_LIGHT,
-    fontWeight: "bold",
-    fontSize: 14,
-  },
+  viewDetailsText: { color: COLORS.TEXT_LIGHT, fontWeight: "bold", fontSize: 14 },
   navBar: {
     flexDirection: "row",
     justifyContent: "space-around",
@@ -229,4 +267,21 @@ const styles = StyleSheet.create({
   navItem: { alignItems: "center" },
   navImg: { width: 28, height: 28, tintColor: "#aaa" },
   navLabel: { fontSize: 10, color: "#aaa" },
+  floatingChatBtn: {
+    position: "absolute",
+    top: 50,
+    right: 20,
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    backgroundColor: COLORS.BUTTON_CHAT,
+    justifyContent: "center",
+    alignItems: "center",
+    zIndex: 10,
+    elevation: 5,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+  },
 });

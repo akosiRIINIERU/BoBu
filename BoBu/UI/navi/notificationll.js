@@ -21,7 +21,7 @@ export default function Notificationll() {
   ];
 
   const notifications = [
-    { id: "1", text: "New maintenance request from Unit 505", type: "info" },
+    { id: "1", text: "New rent request from Unit 505", type: "info" },
     { id: "2", text: "Payment received from Renhiel Maghanoy", type: "payment", tenantId: 1 },
     { id: "3", text: "New message from Renhiel Maghanoy", type: "chat", tenantId: 1 },
   ];

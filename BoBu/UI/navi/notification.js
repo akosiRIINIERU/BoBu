@@ -7,16 +7,19 @@ export default function Notifications({ navigation, route }) {
   const notifications = [
     { id: "1", message: "Your rent is due next week.", screen: "Profile" },
     { id: "2", message: "New message from Landlord.", screen: "Chat" },
-    { id: "3", message: "Maintenance request approved." },
+    { id: "3", message: "Rent request approved.", screen:"CurrentRentalScreen" },
   ];
 
   const filteredNotifications = notifications.filter(
     (item) => !(isPaid && item.id === "1")
   );
 
-  const handlePress = (screen) => {
-    if (screen) {
-      navigation.navigate(screen);
+  const handlePress = (item) => {
+    if (item.id === "3") {
+      // Rent request approved → navigate to CurrentRentingScreen
+      navigation.navigate("CurrentRentalScreen");
+    } else if (item.screen) {
+      navigation.navigate(item.screen);
     } else {
       alert("No screen linked!");
     }
@@ -40,7 +43,7 @@ export default function Notifications({ navigation, route }) {
             renderItem={({ item }) => (
               <TouchableOpacity
                 style={styles.card}
-                onPress={() => handlePress(item.screen)}
+                onPress={() => handlePress(item)}
               >
                 <Text style={styles.text}>{item.message}</Text>
               </TouchableOpacity>
@@ -55,21 +58,15 @@ export default function Notifications({ navigation, route }) {
 
 const styles = StyleSheet.create({
   background: { flex: 1 },
-  container: {
-    flex: 1,
-    padding: 20,
-  },
+  container: { flex: 1, padding: 20 },
   header: {
     fontSize: 32,
     fontWeight: "700",
     color: "#fffffdff",
     marginBottom: 20,
-    textAlign: "center", // center header
+    textAlign: "center",
   },
-  listWrapper: {
-    flex: 1,
-    justifyContent: "center", // center vertically
-  },
+  listWrapper: { flex: 1, justifyContent: "center" },
   card: {
     backgroundColor: "#222222cc",
     borderRadius: 20,
@@ -80,12 +77,7 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 3 },
     shadowRadius: 4,
     elevation: 5,
-    alignItems: "center", // center text horizontally
+    alignItems: "center",
   },
-  text: {
-    color: "#fffffeff",
-    fontSize: 16,
-    fontWeight: "600",
-    textAlign: "center", // center text inside card
-  },
+  text: { color: "#fffffeff", fontSize: 16, fontWeight: "600", textAlign: "center" },
 });

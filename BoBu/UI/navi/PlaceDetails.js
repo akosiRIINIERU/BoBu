@@ -21,7 +21,7 @@ const COLORS = {
   TEXT_LIGHT: "#FFFFFF",
   SECONDARY: "#FFD700",
   CARD_BG: "rgba(0,0,0,0.7)",
-  BUTTON_PRIMARY: "#1E90FF",
+  BUTTON_PRIMARY: "#1d1d82",
   BUTTON_CHAT: "#32CD32",
   INPUT_BG: "rgba(255,255,255,0.15)",
   POPUP_BG: "rgba(0,0,0,0.9)",
@@ -35,12 +35,23 @@ export default function PlaceDetails({ route }) {
   const [showRentPopup, setShowRentPopup] = useState(false);
   const [renterName, setRenterName] = useState("");
   const [duration, setDuration] = useState("");
+  const [rentStatus, setRentStatus] = useState("Rent Now"); // Rent Now or Rent Request Sent
 
   // Chat states
   const [showChat, setShowChat] = useState(false);
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
+  const [typing, setTyping] = useState(false);
   const flatListRef = useRef(null);
+
+  // Quick message presets
+  const quickQueries = [
+    "Is this still available?",
+    "Can I schedule a visit?",
+    "What are the requirements?",
+    "Is the price negotiable?",
+    "When is the earliest move-in date?",
+  ];
 
   // Default reviews
   const reviews = place.reviews || [
@@ -49,11 +60,11 @@ export default function PlaceDetails({ route }) {
     { id: "3", tenant: "Pedro Reyes", rating: 4, text: "Affordable and safe." },
   ];
 
-  // Render stars helper
   const renderStars = (rating, size = 14) => {
     const stars = [];
     const fullStars = Math.floor(rating);
     const halfStar = rating - fullStars >= 0.5;
+
     for (let i = 0; i < fullStars; i++)
       stars.push(<FontAwesome key={`star-${i}`} name="star" size={size} color={COLORS.SECONDARY} />);
     if (halfStar)
@@ -63,61 +74,97 @@ export default function PlaceDetails({ route }) {
     return <View style={{ flexDirection: "row", marginTop: 3 }}>{stars}</View>;
   };
 
-  // Handle rent confirm
-  const handleRentNow = () => {
+  // Get timestamp for messages
+  const getCurrentTime = () => {
+    const timestamp = new Date();
+    const hours = timestamp.getHours() % 12 || 12;
+    const minutes = timestamp.getMinutes().toString().padStart(2, "0");
+    const ampm = timestamp.getHours() >= 12 ? "PM" : "AM";
+    return `${hours}:${minutes} ${ampm}`;
+  };
+
+  const handleRentRequest = () => {
     if (!renterName || !duration) {
       alert("Please fill all fields");
       return;
     }
-    alert(`Rent confirmed for ${renterName} for ${duration}`);
+
+    setShowRentPopup(false);
     setRenterName("");
     setDuration("");
-    setShowRentPopup(false);
+    setRentStatus("Rent Request Sent");
+
+    const systemMessage = {
+      id: Date.now().toString(),
+      sender: "System",
+      text: `Rent request for ${place.name} has been sent!`,
+      system: true,
+      time: getCurrentTime(),
+    };
+    setMessages((prev) => [...prev, systemMessage]);
+    if (!showChat) setShowChat(true);
+    setTimeout(() => flatListRef.current?.scrollToEnd({ animated: true }), 100);
   };
 
-  // Handle chat open
-  const handleChat = () => {
-    setShowChat(true);
-    setMessages([{ id: "0", sender: "You", text: `Hi ${place.landlordName}, I'm interested in renting ${place.name}.` }]);
-  };
+  const handleChat = () => setShowChat(true);
 
-  // Send chat message
-  const sendMessage = () => {
-    if (!input.trim()) return;
-    const newMessage = { id: Date.now().toString(), sender: "You", text: input };
-    setMessages((prev) => [...prev, newMessage]);
-    setInput("");
-
-    // Auto-reply simulation
+  const autoReply = () => {
+    setTyping(true);
     setTimeout(() => {
       const replies = [
         "Hello! Thank you for your interest.",
         "Please provide your move-in date.",
         "Currently unavailable, will reply soon.",
+        "Sure! Let me check that for you.",
       ];
       const reply = replies[Math.floor(Math.random() * replies.length)];
-      setMessages((prev) => [...prev, { id: (Date.now() + 1).toString(), sender: place.landlordName, text: reply }]);
-    }, 1000);
 
+      setMessages((prev) => [
+        ...prev,
+        { id: (Date.now() + 1).toString(), sender: place.landlordName, text: reply, time: getCurrentTime() },
+      ]);
+      setTyping(false);
+      setTimeout(() => flatListRef.current?.scrollToEnd({ animated: true }), 100);
+    }, 1200);
+  };
+
+  const sendMessage = () => {
+    if (!input.trim()) return;
+    const newMessage = { id: Date.now().toString(), sender: "You", text: input, time: getCurrentTime() };
+    setMessages((prev) => [...prev, newMessage]);
+    setInput("");
+    autoReply();
     setTimeout(() => flatListRef.current?.scrollToEnd({ animated: true }), 100);
   };
 
-  const renderMessage = ({ item }) => (
-    <TouchableOpacity
-      onPress={() => {
-        if (item.sender === "You") return; // Don't remove tenant's own message
-        setMessages((prev) => prev.filter((m) => m.id !== item.id)); // Remove landlord's message on click
-      }}
-      style={[
-        styles.messageBubble,
-        item.sender === "You" ? styles.sent : styles.received,
-      ]}
-    >
-      <Text style={[styles.messageText, { color: item.sender === "You" ? "#fff" : "#000" }]}>
-        {item.text}
-      </Text>
-    </TouchableOpacity>
-  );
+  const sendQuickMessage = (text) => {
+    const newMessage = { id: Date.now().toString(), sender: "You", text, time: getCurrentTime() };
+    setMessages((prev) => [...prev, newMessage]);
+    autoReply();
+    setTimeout(() => flatListRef.current?.scrollToEnd({ animated: true }), 100);
+  };
+
+  const renderMessage = ({ item }) => {
+    if (item.system)
+      return (
+        <View style={styles.systemMessage}>
+          <Text style={styles.systemText}>{item.text}</Text>
+          {item.time && <Text style={styles.systemTime}>{item.time}</Text>}
+        </View>
+      );
+
+    return (
+      <TouchableOpacity
+        onPress={() => item.sender !== "You" && setMessages((prev) => prev.filter((m) => m.id !== item.id))}
+        style={[styles.messageBubble, item.sender === "You" ? styles.sent : styles.received]}
+      >
+        <Text style={[styles.messageText, { color: item.sender === "You" ? "#fff" : "#000" }]}>{item.text}</Text>
+        {item.time && (
+          <Text style={[styles.messageTime, { color: item.sender === "You" ? "#fffcc0" : "#555" }]}>{item.time}</Text>
+        )}
+      </TouchableOpacity>
+    );
+  };
 
   return (
     <ImageBackground source={BG_IMAGE} style={styles.background}>
@@ -128,8 +175,6 @@ export default function PlaceDetails({ route }) {
 
       <ScrollView contentContainerStyle={styles.container}>
         <Image source={place.images[0]} style={styles.image} />
-
-        {/* Place Details */}
         <View style={styles.detailsCard}>
           <Text style={styles.name}>{place.name}</Text>
           {renderStars(place.rating || 4, 18)}
@@ -142,7 +187,6 @@ export default function PlaceDetails({ route }) {
           <Text style={styles.details}>{place.rules}</Text>
         </View>
 
-        {/* Reviews */}
         <View style={styles.reviewContainer}>
           <Text style={styles.subTitle}>Recent Reviews:</Text>
           {reviews.map((review) => (
@@ -157,49 +201,64 @@ export default function PlaceDetails({ route }) {
         </View>
       </ScrollView>
 
-      {/* Bottom Buttons */}
+      {/* Bottom buttons */}
       {!showChat && (
         <View style={styles.bottomButtons}>
           <TouchableOpacity style={styles.chatButton} onPress={handleChat}>
             <FontAwesome name="comments" size={18} color="#fff" style={{ marginRight: 5 }} />
             <Text style={styles.buttonText}>Chat</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.rentButton} onPress={() => setShowRentPopup(true)}>
+
+          <TouchableOpacity
+            style={[styles.rentButton, rentStatus === "Rent Request Sent" && { backgroundColor: "gray" }]}
+            onPress={() => {
+              if (rentStatus === "Rent Now") {
+                setShowRentPopup(true);
+              } else {
+                navigation.navigate("Notifications", {
+                  message: `Your rent request for ${place.name} has been sent!`,
+                });
+              }
+            }}
+          >
             <FontAwesome name="money" size={18} color="#fff" style={{ marginRight: 5 }} />
-            <Text style={styles.buttonText}>Rent Now</Text>
+            <Text style={styles.buttonText}>{rentStatus}</Text>
           </TouchableOpacity>
         </View>
       )}
 
       {/* Rent Popup */}
       {showRentPopup && (
-        <KeyboardAvoidingView
-          behavior={Platform.OS === "ios" ? "padding" : "height"}
-          style={styles.rentPopup}
-        >
-          <ScrollView contentContainerStyle={styles.popupScrollContainer} keyboardShouldPersistTaps="handled">
-            <View style={styles.popupCard}>
-              <Text style={[styles.subTitle, { marginBottom: 10 }]}>Rent This Place</Text>
-              <TextInput placeholder="Your Name" placeholderTextColor="#ccc" style={styles.input} value={renterName} onChangeText={setRenterName} />
-              <TextInput placeholder="Duration (e.g., 3 months)" placeholderTextColor="#ccc" style={styles.input} value={duration} onChangeText={setDuration} />
-              <TouchableOpacity style={styles.confirmRentButton} onPress={handleRentNow}>
-                <Text style={styles.buttonText}>Confirm Rent</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.cancelButton} onPress={() => setShowRentPopup(false)}>
-                <Text style={styles.buttonText}>Cancel</Text>
-              </TouchableOpacity>
-            </View>
-          </ScrollView>
+        <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"} style={styles.rentPopup}>
+          <View style={styles.popupCardEnhanced}>
+            <Text style={[styles.subTitle, { marginBottom: 15 }]}>Rent This Place</Text>
+            <TextInput
+              placeholder="Your Name"
+              placeholderTextColor="#ccc"
+              style={styles.inputEnhanced}
+              value={renterName}
+              onChangeText={setRenterName}
+            />
+            <TextInput
+              placeholder="Duration (e.g., 3 months)"
+              placeholderTextColor="#ccc"
+              style={styles.inputEnhanced}
+              value={duration}
+              onChangeText={setDuration}
+            />
+            <TouchableOpacity style={styles.confirmRentButtonEnhanced} onPress={handleRentRequest}>
+              <Text style={styles.buttonText}>Send Rent Request</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.cancelButton} onPress={() => setShowRentPopup(false)}>
+              <Text style={styles.buttonText}>Cancel</Text>
+            </TouchableOpacity>
+          </View>
         </KeyboardAvoidingView>
       )}
 
       {/* Chat Overlay */}
       {showChat && (
-        <KeyboardAvoidingView
-          behavior={Platform.OS === "ios" ? "padding" : "height"}
-          style={styles.chatOverlay}
-        >
-          {/* Chat Header */}
+        <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"} style={styles.chatOverlay}>
           <View style={styles.chatHeader}>
             <Text style={styles.chatHeaderText}>{place.landlordName}</Text>
             <TouchableOpacity onPress={() => setShowChat(false)}>
@@ -207,7 +266,6 @@ export default function PlaceDetails({ route }) {
             </TouchableOpacity>
           </View>
 
-          {/* Messages */}
           <FlatList
             ref={flatListRef}
             data={messages}
@@ -218,7 +276,20 @@ export default function PlaceDetails({ route }) {
             onContentSizeChange={() => flatListRef.current?.scrollToEnd({ animated: true })}
           />
 
-          {/* Input */}
+          {typing && (
+            <View style={styles.typingIndicator}>
+              <Text style={{ color: "#fff", fontStyle: "italic" }}>{place.landlordName} is typing...</Text>
+            </View>
+          )}
+
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.quickQueryBar} contentContainerStyle={{ paddingHorizontal: 10 }}>
+            {quickQueries.map((query, index) => (
+              <TouchableOpacity key={index} style={styles.quickQueryButton} onPress={() => sendQuickMessage(query)}>
+                <Text style={styles.quickQueryText}>{query}</Text>
+              </TouchableOpacity>
+            ))}
+          </ScrollView>
+
           <View style={styles.chatInputRow}>
             <TextInput
               style={styles.chatInput}
@@ -262,74 +333,28 @@ const styles = StyleSheet.create({
   rentButton: { flex: 1, flexDirection: "row", backgroundColor: COLORS.BUTTON_PRIMARY, padding: 15, borderRadius: 10, marginLeft: 10, justifyContent: "center", alignItems: "center" },
   buttonText: { color: COLORS.TEXT_LIGHT, fontWeight: "bold", fontSize: 16 },
   rentPopup: { ...StyleSheet.absoluteFillObject, backgroundColor: COLORS.POPUP_BG, justifyContent: "center", alignItems: "center", zIndex: 20, flex: 1 },
-  popupScrollContainer: { flexGrow: 1, justifyContent: "center", alignItems: "center", padding: 20 },
-  popupCard: { width: "85%", backgroundColor: COLORS.CARD_BG, borderRadius: 15, padding: 20 },
-  input: { backgroundColor: COLORS.INPUT_BG, padding: 12, borderRadius: 10, color: COLORS.TEXT_LIGHT, marginBottom: 12 },
-  confirmRentButton: { backgroundColor: COLORS.BUTTON_PRIMARY, padding: 15, borderRadius: 10, alignItems: "center", marginBottom: 10 },
+  popupCardEnhanced: { width: "90%", backgroundColor: "#1C1C1C", borderRadius: 20, padding: 25, shadowColor: "#000", shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.5, shadowRadius: 10, elevation: 10 },
+  inputEnhanced: { backgroundColor: "rgba(255,255,255,0.1)", padding: 14, borderRadius: 15, color: "#fff", marginBottom: 15, fontSize: 16 },
+  confirmRentButtonEnhanced: { backgroundColor: COLORS.BUTTON_PRIMARY, padding: 16, borderRadius: 15, alignItems: "center", marginBottom: 10 },
   cancelButton: { backgroundColor: "#FF6347", padding: 12, borderRadius: 10, alignItems: "center" },
-
-  // Chat styles
-  chatOverlay: {
-    ...StyleSheet.absoluteFillObject,
-    backgroundColor: "rgba(0,0,0,0.95)",
-    zIndex: 20,
-    paddingTop: Platform.OS === "ios" ? 50 : 30,
-    flex: 1,
-  },
-  chatHeader: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    paddingHorizontal: 15,
-    paddingBottom: 10,
-    borderBottomWidth: 1,
-    borderBottomColor: "#444",
-  },
+  chatOverlay: { ...StyleSheet.absoluteFillObject, backgroundColor: "rgba(0,0,0,0.95)", zIndex: 20, paddingTop: Platform.OS === "ios" ? 50 : 30, flex: 1 },
+  chatHeader: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", paddingHorizontal: 15, paddingBottom: 10, borderBottomWidth: 1, borderBottomColor: "#444" },
   chatHeaderText: { fontSize: 20, fontWeight: "bold", color: COLORS.SECONDARY },
   chatClose: { fontSize: 24, color: "#fff" },
   chatList: { paddingHorizontal: 15, paddingBottom: 10 },
-  messageBubble: {
-    maxWidth: "75%",
-    padding: 12,
-    borderRadius: 20,
-    marginVertical: 5,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.3,
-    shadowRadius: 3,
-    elevation: 3,
-  },
+  quickQueryBar: { maxHeight: 50, backgroundColor: "rgba(255,255,255,0.05)", paddingVertical: 8 },
+  quickQueryButton: { backgroundColor: "rgba(255,255,255,0.15)", paddingVertical: 8, paddingHorizontal: 14, borderRadius: 20, marginRight: 10, borderWidth: 1, borderColor: "rgba(255,255,255,0.2)" },
+  quickQueryText: { color: "#fff", fontSize: 14 },
+  messageBubble: { maxWidth: "75%", padding: 12, borderRadius: 20, marginVertical: 5, shadowColor: "#000", shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.2, shadowRadius: 3, elevation: 2 },
   sent: { alignSelf: "flex-end", backgroundColor: COLORS.BUTTON_PRIMARY, borderTopRightRadius: 0 },
-  received: { alignSelf: "flex-start", backgroundColor: "#E6E6E6", borderTopLeftRadius: 0 },
+  received: { alignSelf: "flex-start", backgroundColor: "#f5f2f2d5", borderTopLeftRadius: 0 },
   messageText: { fontSize: 16, lineHeight: 20 },
-  chatInputRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    paddingHorizontal: 15,
-    paddingVertical: 10,
-    borderTopWidth: 1,
-    borderTopColor: "#444",
-    backgroundColor: "rgba(0,0,0,0.9)",
-  },
-  chatInput: {
-    flex: 1,
-    backgroundColor: "rgba(255,255,255,0.15)",
-    borderRadius: 25,
-    paddingHorizontal: 15,
-    height: 45,
-    color: "#fff",
-  },
-  chatSendButton: {
-    backgroundColor: COLORS.BUTTON_CHAT,
-    borderRadius: 25,
-    padding: 10,
-    marginLeft: 10,
-    justifyContent: "center",
-    alignItems: "center",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.3,
-    shadowRadius: 3,
-    elevation: 3,
-  },
+  messageTime: { fontSize: 10, marginTop: 3, alignSelf: "flex-end" },
+  systemMessage: { alignSelf: "center", backgroundColor: "rgba(112, 110, 110, 0.2)", padding: 10, borderRadius: 15, marginVertical: 5 },
+  systemText: { color: "#f8f8f8ff", fontStyle: "italic", fontSize: 16 },
+  systemTime: { fontSize: 10, color: "#ccc", marginTop: 3, textAlign: "center" },
+  chatInputRow: { flexDirection: "row", alignItems: "center", paddingHorizontal: 15, paddingVertical: 10, borderTopWidth: 1, borderTopColor: "#444", backgroundColor: "rgba(0,0,0,0.9)" },
+  chatInput: { flex: 1, backgroundColor: "rgba(255,255,255,0.15)", borderRadius: 25, paddingHorizontal: 15, height: 45, color: "#fff", fontSize: 16 },
+  chatSendButton: { marginLeft: 10, backgroundColor: COLORS.BUTTON_PRIMARY, padding: 10, borderRadius: 25 },
+  typingIndicator: { paddingHorizontal: 15, paddingVertical: 5 },
 });

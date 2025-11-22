@@ -9,12 +9,13 @@ import Dashboard from "./UI/Dashboard";
 import Landlord from "./UI/Landlord";
 import AboutUs from "./UI/AboutUs";
 
-// Navi screens
+// Tenant Navigation screens
 import Chat from "./UI/navi/Chat";
 import Notifications from "./UI/navi/notification";
 import Profile from "./UI/navi/Profile";
 
-// New landlord sub-screens
+
+// Landlord sub-screens
 import Listings from "./UI/navi/Listings";
 import Tenants from "./UI/navi/Tenants";
 import Payments from "./UI/navi/Payments";
@@ -23,11 +24,11 @@ import TenantProfile from "./UI/TenantProfile";
 import LandlordChat from "./UI/navi/LandlordChat";
 import LandlordProfile from "./UI/navi/LandlordProfile";
 
-// tenats 
+// Tenant details
 import PlaceDetails from "./UI/navi/PlaceDetails";
 
-
-
+// New Current Rental Screen
+import CurrentRentalScreen from "./UI/navi/CurrentRentalScreen";
 
 const Stack = createStackNavigator();
 
@@ -36,9 +37,7 @@ export default function App() {
     <NavigationContainer>
       <Stack.Navigator
         initialRouteName="Login"
-        screenOptions={{
-          headerShown: false,
-        }}
+        screenOptions={{ headerShown: false }}
       >
         {/* Auth Screens */}
         <Stack.Screen name="Login" component={Login} />
@@ -50,6 +49,8 @@ export default function App() {
         <Stack.Screen name="Notifications" component={Notifications} />
         <Stack.Screen name="PlaceDetails" component={PlaceDetails} />
 
+        {/* Current Rental Screen */}
+        <Stack.Screen name="CurrentRentalScreen" component={CurrentRentalScreen} />
 
         {/* Landlord Screens */}
         <Stack.Screen name="Landlord" component={Landlord} />
@@ -59,14 +60,11 @@ export default function App() {
         <Stack.Screen name="Notificationll" component={Notificationll} />
         <Stack.Screen name="TenantProfile" component={TenantProfile} />
         <Stack.Screen name="LandlordChat" component={LandlordChat} />
-        <Stack.Screen name="LandlordProfile" component={LandlordProfile}/>
-
-        
+        <Stack.Screen name="LandlordProfile" component={LandlordProfile} />
 
         {/* Navigation Screens */}
         <Stack.Screen name="Chat" component={Chat} />
         <Stack.Screen name="Profile" component={Profile} />
-        
       </Stack.Navigator>
     </NavigationContainer>
   );
