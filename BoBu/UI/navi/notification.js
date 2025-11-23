@@ -6,7 +6,7 @@ export default function Notifications({ navigation, route }) {
 
   const notifications = [
     { id: "1", message: "Your rent is due next week.", screen: "Profile" },
-    { id: "2", message: "New message from Landlord.", screen: "Chat" },
+    { id: "2", message: "New message from Landlord.", screen: "chat" },
     { id: "3", message: "Rent request approved.", screen:"CurrentRentalScreen" },
   ];
 

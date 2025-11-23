@@ -10,7 +10,7 @@ import Landlord from "./UI/Landlord";
 import AboutUs from "./UI/AboutUs";
 
 // Tenant Navigation screens
-import Chat from "./UI/navi/Chat";
+import chat from "./UI/navi/chat";
 import Notifications from "./UI/navi/notification";
 import Profile from "./UI/navi/Profile";
 
@@ -63,7 +63,7 @@ export default function App() {
         <Stack.Screen name="LandlordProfile" component={LandlordProfile} />
 
         {/* Navigation Screens */}
-        <Stack.Screen name="Chat" component={Chat} />
+        <Stack.Screen name="chat" component={chat} />
         <Stack.Screen name="Profile" component={Profile} />
       </Stack.Navigator>
     </NavigationContainer>

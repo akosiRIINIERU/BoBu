@@ -12,7 +12,7 @@ import {
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 
-export default function ChatScreen() {
+export default function chat() {
   const navigation = useNavigation();
   const [messages, setMessages] = useState([
     { id: "1", sender: "Landlord Marhean", text: "Bayri Imong Utang", time: "10:00 AM" },
