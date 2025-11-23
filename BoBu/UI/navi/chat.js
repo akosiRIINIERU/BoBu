@@ -52,7 +52,8 @@ export default function chat() {
         "Pagtarong diha, ipablater tika ron waa ka.",
         "You can't reply to this conversation.",
         "Hello, sorry but the landlord is currently unavailable. Please leave a message.",
-        "k.",
+        "hAlooo tEnAntzz 😒✌️ kAyasa nimo ui HAHAHA. next next year jud? 😭 unsa mn ka, time traveler? 😭💀 pAsEnxa pero dli ko mka-sabot nimo rn 😤 kay akong calculator nangaluya na sa imong utang, sige’g compute pero wa gihapoy bayad 😭💸 pEro finee na bitaw 😩 di tika pa-layason karon… KARON lang ha 😤 kay basin mobiya ka unya maghilak imong electric fan nasad kay walay mangyakap nimo 😭❄️ bUt plsss tEnAntzz 😒 ayaw ko’g next next next next next year na pud sunod ha 😭 ikaw ra jud akong tenant nga makahatag nako ug migraine with feelings 😩✨ charrrr.",
+        "nuh uh",
       ];
       const reply = replies[Math.floor(Math.random() * replies.length)];
       const replyTime = new Date();

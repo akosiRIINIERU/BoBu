@@ -25,7 +25,7 @@ export default function LandlordChat() {
     {
       id: "1",
       sender: tenant.name,
-      text: "Hello Landlord, I hope you are doing well. I just wanted to confirm my rent payment status.",
+      text: "HhEllowww lAndlurdzz 😚✨ gUd aFtirnUn pohh 🥺🙏 btw lodss pwede pa ba mahimz nga next next yeAr nalang ko mubayad sa abAng 😭👉👈 plsss po 😩 kay murag ga lowbatt pa akong wallet rn 🥺💸 HAHAHA pero swear lods, dli ko manglimbong 😭 if makadaog ko sa raffle sa tindahan, ikaw una nako bayran 😭🤣 promise on pinky toes 😤💅 charrr HAHAHA. ayaw lng ko pa-layas ha 😭 kay naa pa koy utang sa cr nga wala nako na-flush 😭😭.",
     },
   ]);
   const [input, setInput] = useState("");
@@ -52,6 +52,11 @@ export default function LandlordChat() {
     setTimeout(() => {
       const autoReplies = [
         `Thank you so much landlord.`,
+        `gUd eVe poh lAndLurDzz 😚✌️ uhhhmm pAsEnxa na poh ha, lahi2 najud ang vibes sa kwrto rn 😭 mura mang naay multo gahapon, nagTiktok mn gud ko, kalit lng nig-off ang ilawz 😭😭 nAhadlok ko so ako g-yakapan ang electric fan 😩❄️ bwahahah. btw lAndlurdzz, kanus-a btaw nimu ma-ayo ang cr? ky murag g-emo2x na ang flush 😭😭 dli na kasabot sa life 😭. ehehe char lang lods 😚, ayaw lng ko pa-layas ha ky ma-miss tika charrr 🤭.`,
+        `OhEy lAndlUrdzz 🥺👉👈 gUd eVe poHzz 😚✨ ahhh btw poh, naa lang koy gamayng prOblemaH 🥺😩 ang gripo sa kusina murag naay rabies 😭 kay pirmi magwanta ug tagaktak 😭💦 HAHAHA pero ayaw kabalaka lodss ky ako rang gi-tapalan ug bubblegum 😎✌️ innovat!ve tenant ni 😎🔥 charrr HAHAHA. btw basin naa ka’y extra wifi password 🥺 ky akong ML gahapon nag lag ug kalit 😭 gipatay kos Franco 😭😭. ayaw lng ko bayri og penalty ha lAndlurdzz ky wa koy kwarta rn 😩 pero naa koy love 😚 (jk charrrr) 🤣🤣.`,
+        `I love you, you love me, we are happy family`,
+        `k`,
+
       ];
       const reply =
         autoReplies[Math.floor(Math.random() * autoReplies.length)];
