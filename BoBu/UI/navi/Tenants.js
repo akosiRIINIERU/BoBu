@@ -1,4 +1,3 @@
-// screens/Tenants.js
 import React, { useState } from "react";
 import {
   View,
@@ -21,7 +20,7 @@ export default function Tenants() {
   const [currentTenant, setCurrentTenant] = useState(null);
   const [selectedRating, setSelectedRating] = useState(0);
   const [ratingNote, setRatingNote] = useState("");
-  const [tenantRatings, setTenantRatings] = useState({}); // store rating + note per tenant
+  const [tenantRatings, setTenantRatings] = useState({});
 
   const tenants = [
     {
@@ -72,7 +71,6 @@ export default function Tenants() {
     setExpandedTenantId(expandedTenantId === id ? null : id);
   };
 
-  // Open rating modal
   const openRatingModal = (tenant) => {
     setCurrentTenant(tenant);
     const existingRating = tenantRatings[tenant.id] || { stars: 0, note: "" };
@@ -89,14 +87,12 @@ export default function Tenants() {
     setRatingModalVisible(false);
   };
 
-  const renderStars = (count) => {
-    return (
-      <Text style={styles.ratingStars}>
-        {"★".repeat(count)}
-        {"☆".repeat(5 - count)}
-      </Text>
-    );
-  };
+  const renderStars = (count) => (
+    <Text style={styles.ratingStars}>
+      {"★".repeat(count)}
+      {"☆".repeat(5 - count)}
+    </Text>
+  );
 
   const renderTenant = ({ item }) => {
     const isExpanded = expandedTenantId === item.id;
@@ -104,67 +100,69 @@ export default function Tenants() {
     const tenantNote = tenantRatings[item.id]?.note || "";
 
     return (
-      <TouchableOpacity
-        style={[
-          styles.card,
-          item.status === "Paid" ? styles.paidCard : styles.unpaidCard,
-          Platform.OS === "ios" ? styles.cardShadowIOS : styles.cardShadowAndroid,
-        ]}
-        onPress={() => toggleExpand(item.id)}
-        activeOpacity={0.9}
-      >
-        <View style={styles.cardHeader}>
-          <View style={styles.nameSection}>
-            <Image source={item.avatar} style={styles.avatar} />
-            <View>
-              <Text style={styles.name}>{item.name}</Text>
-              <Text style={styles.details}>{item.room}</Text>
-              {tenantRating > 0 && renderStars(tenantRating)}
+      <View style={styles.cardWrapper}>
+        <TouchableOpacity
+          style={[
+            styles.card,
+            item.status === "Paid" ? styles.paidCard : styles.unpaidCard,
+            Platform.OS === "ios" ? styles.cardShadowIOS : styles.cardShadowAndroid,
+          ]}
+          onPress={() => toggleExpand(item.id)}
+          activeOpacity={0.9}
+        >
+          <View style={styles.cardHeader}>
+            <View style={styles.nameSection}>
+              <Image source={item.avatar} style={styles.avatar} />
+              <View>
+                <Text style={styles.name}>{item.name}</Text>
+                <Text style={styles.details}>{item.room}</Text>
+                {tenantRating > 0 && renderStars(tenantRating)}
+              </View>
+            </View>
+            <View
+              style={[
+                styles.statusBadge,
+                item.status === "Paid" ? styles.paidBadge : styles.unpaidBadge,
+              ]}
+            >
+              <Text style={styles.statusText}>{item.status}</Text>
             </View>
           </View>
-          <View
-            style={[
-              styles.statusBadge,
-              item.status === "Paid" ? styles.paidBadge : styles.unpaidBadge,
-            ]}
-          >
-            <Text style={styles.statusText}>{item.status}</Text>
-          </View>
-        </View>
 
-        {isExpanded && (
-          <View style={styles.detailBlock}>
-            <Text style={styles.details}>Email: {item.email}</Text>
-            <Text style={styles.details}>Phone: {item.phone}</Text>
-            <Text style={styles.details}>Rent: {item.rent}</Text>
-            <Text style={styles.details}>
-              Lease: {item.leaseStart} - {item.leaseEnd}
-            </Text>
-            <Text style={styles.details}>Notes: {item.notes}</Text>
-            {tenantNote ? (
-              <Text style={styles.details}>Rating Note: {tenantNote}</Text>
-            ) : null}
+          {isExpanded && (
+            <View style={styles.detailBlock}>
+              <Text style={styles.details}>Email: {item.email}</Text>
+              <Text style={styles.details}>Phone: {item.phone}</Text>
+              <Text style={styles.details}>Rent: {item.rent}</Text>
+              <Text style={styles.details}>
+                Lease: {item.leaseStart} - {item.leaseEnd}
+              </Text>
+              <Text style={styles.details}>Notes: {item.notes}</Text>
+              {tenantNote ? (
+                <Text style={styles.details}>Rating Note: {tenantNote}</Text>
+              ) : null}
 
-            <View style={styles.buttonRow}>
-              {/* CHAT BUTTON */}
-              <TouchableOpacity
-                style={styles.chatButton}
-                onPress={() => navigation.navigate("LandlordChat", { tenant: item })}
-              >
-                <Text style={styles.chatText}>Chat with Tenant</Text>
-              </TouchableOpacity>
+              <View style={styles.buttonRow}>
+                <TouchableOpacity
+                  style={styles.chatButton}
+                  onPress={() =>
+                    navigation.navigate("LandlordChat", { tenant: item })
+                  }
+                >
+                  <Text style={styles.chatText}>Chat with Tenant</Text>
+                </TouchableOpacity>
 
-              {/* RATE BUTTON */}
-              <TouchableOpacity
-                style={styles.rateButton}
-                onPress={() => openRatingModal(item)}
-              >
-                <Text style={styles.rateText}>Rate Tenant</Text>
-              </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.rateButton}
+                  onPress={() => openRatingModal(item)}
+                >
+                  <Text style={styles.rateText}>Rate Tenant</Text>
+                </TouchableOpacity>
+              </View>
             </View>
-          </View>
-        )}
-      </TouchableOpacity>
+          )}
+        </TouchableOpacity>
+      </View>
     );
   };
 
@@ -183,11 +181,11 @@ export default function Tenants() {
           </View>
           <View style={styles.summaryRow}>
             <Text style={styles.summaryLabel}>Paid:</Text>
-            <Text style={[styles.summaryValue, { color: "#28a745" }]}>{paidCount}</Text>
+            <Text style={[styles.summaryValue, { color: "#2ed573" }]}>{paidCount}</Text>
           </View>
           <View style={styles.summaryRow}>
             <Text style={styles.summaryLabel}>Unpaid:</Text>
-            <Text style={[styles.summaryValue, { color: "#dc3545" }]}>{unpaidCount}</Text>
+            <Text style={[styles.summaryValue, { color: "#ff6b6b" }]}>{unpaidCount}</Text>
           </View>
         </View>
 
@@ -195,11 +193,10 @@ export default function Tenants() {
           data={tenants}
           keyExtractor={(item) => item.id.toString()}
           renderItem={renderTenant}
-          contentContainerStyle={{ paddingBottom: 40 }}
+          contentContainerStyle={{ paddingBottom: 30 }}
           showsVerticalScrollIndicator={false}
         />
 
-        {/* RATING MODAL */}
         <Modal visible={ratingModalVisible} transparent animationType="slide">
           <View style={styles.modalOverlay}>
             <View style={styles.modalContainer}>
@@ -207,7 +204,9 @@ export default function Tenants() {
               <View style={styles.ratingRow}>
                 {[1, 2, 3, 4, 5].map((star) => (
                   <TouchableOpacity key={star} onPress={() => setSelectedRating(star)}>
-                    <Text style={[styles.star, selectedRating >= star && styles.selectedStar]}>★</Text>
+                    <Text style={[styles.star, selectedRating >= star && styles.selectedStar]}>
+                      ★
+                    </Text>
                   </TouchableOpacity>
                 ))}
               </View>
@@ -218,7 +217,10 @@ export default function Tenants() {
                 value={ratingNote}
                 onChangeText={setRatingNote}
               />
-              <TouchableOpacity style={[styles.noticeButton, { marginTop: 10 }]} onPress={submitRating}>
+              <TouchableOpacity
+                style={[styles.noticeButton, { marginTop: 10 }]}
+                onPress={submitRating}
+              >
                 <Text style={styles.noticeText}>Submit Rating</Text>
               </TouchableOpacity>
               <TouchableOpacity
@@ -230,7 +232,6 @@ export default function Tenants() {
             </View>
           </View>
         </Modal>
-
       </View>
     </ImageBackground>
   );
@@ -238,51 +239,42 @@ export default function Tenants() {
 
 const styles = StyleSheet.create({
   background: { flex: 1 },
-  overlay: { flex: 1, padding: 20, backgroundColor: "rgba(255,255,255,0.1)" },
+  overlay: { flex: 1, padding: 16, backgroundColor: "rgba(0,0,0,0.25)" },
 
   summaryBox: {
-    backgroundColor: "rgba(0, 0, 0, 0.81)",
-    padding: 14,
-    borderRadius: 12,
-    marginBottom: 12,
-  },
-  summaryTitle: { fontSize: 16, fontWeight: "600", marginBottom: 8, color: "#fffefeaa" },
-  summaryRow: { flexDirection: "row", justifyContent: "space-between", marginBottom: 4 },
-  summaryLabel: { fontSize: 14, color: "#ffffffaa" },
-  summaryValue: { fontSize: 14, fontWeight: "600", color: "#ffffffe0" },
-
-  card: {
+    backgroundColor: "rgba(255,255,255,0.1)",
+    padding: 16,
     borderRadius: 16,
-    padding: 18,
     marginBottom: 16,
-    backgroundColor: "#f7eeeeff",
   },
-  cardShadowIOS: {
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.25,
-    shadowRadius: 6,
+  summaryTitle: { fontSize: 18, fontWeight: "700", color: "#fff", marginBottom: 10 },
+  summaryRow: { flexDirection: "row", justifyContent: "space-between", marginBottom: 6 },
+  summaryLabel: { fontSize: 14, color: "#ddd" },
+  summaryValue: { fontSize: 14, fontWeight: "600", color: "#fff" },
+
+  cardWrapper: { marginBottom: 16 },
+  card: {
+    backgroundColor: "#fff",
+    borderRadius: 16,
+    padding: 14,
+    overflow: "hidden",
   },
-  cardShadowAndroid: { elevation: 6 },
+  cardShadowIOS: { shadowColor: "#000", shadowOpacity: 0.15, shadowRadius: 8, shadowOffset: { width: 0, height: 4 } },
+  cardShadowAndroid: { elevation: 5 },
   paidCard: { backgroundColor: "#f0faff" },
   unpaidCard: { backgroundColor: "#fff0f0" },
 
-  cardHeader: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: 14,
-  },
+  cardHeader: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 12 },
   nameSection: { flexDirection: "row", alignItems: "center" },
   avatar: { width: 50, height: 50, borderRadius: 25, marginRight: 12 },
-  name: { fontSize: 18, fontWeight: "700", color: "#1D1D82" },
-  details: { fontSize: 14, color: "#444", marginTop: 2 },
+  name: { fontSize: 16, fontWeight: "700", color: "#1D1D82" },
+  details: { fontSize: 13, color: "#444", marginTop: 2 },
 
   ratingStars: { fontSize: 16, color: "#ffcc00", marginTop: 2 },
 
-  statusBadge: { paddingVertical: 4, paddingHorizontal: 14, borderRadius: 12 },
-  paidBadge: { backgroundColor: "#28a745cc" },
-  unpaidBadge: { backgroundColor: "#dc3545cc" },
+  statusBadge: { paddingVertical: 4, paddingHorizontal: 12, borderRadius: 12 },
+  paidBadge: { backgroundColor: "#2ed573" },
+  unpaidBadge: { backgroundColor: "#ff6b6b" },
   statusText: { color: "#fff", fontWeight: "700", fontSize: 12 },
 
   detailBlock: { marginTop: 8 },
@@ -291,7 +283,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#1d1d82",
     paddingVertical: 6,
     paddingHorizontal: 12,
-    borderRadius: 8,
+    borderRadius: 10,
     marginRight: 10,
   },
   chatText: { color: "#fff", fontWeight: "700" },
@@ -300,48 +292,24 @@ const styles = StyleSheet.create({
     backgroundColor: "#ff8c00",
     paddingVertical: 6,
     paddingHorizontal: 12,
-    borderRadius: 8,
+    borderRadius: 10,
   },
   rateText: { color: "#fff", fontWeight: "700" },
 
   noticeButton: {
     backgroundColor: "#ff8c00",
-    paddingVertical: 6,
-    paddingHorizontal: 12,
-    borderRadius: 8,
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    borderRadius: 10,
     alignSelf: "flex-start",
     marginTop: 8,
   },
   noticeText: { color: "#fff", fontWeight: "700" },
 
-  // Modal styles
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: "rgba(0,0,0,0.5)",
-    justifyContent: "center",
-    alignItems: "center",
-    padding: 20,
-  },
-  modalContainer: {
-    backgroundColor: "#fff",
-    width: "100%",
-    borderRadius: 12,
-    padding: 16,
-    alignItems: "center",
-  },
-  modalTitle: { fontSize: 16, fontWeight: "700", marginBottom: 10 },
-  modalInput: {
-    borderWidth: 1,
-    borderColor: "#ccc",
-    borderRadius: 8,
-    padding: 10,
-    height: 120,
-    textAlignVertical: "top",
-    marginBottom: 12,
-    width: "100%",
-  },
-  modalButtons: { flexDirection: "row", justifyContent: "space-between" },
-
+  modalOverlay: { flex: 1, justifyContent: "center", alignItems: "center", backgroundColor: "rgba(0,0,0,0.5)", padding: 20 },
+  modalContainer: { backgroundColor: "#fff", width: "100%", borderRadius: 16, padding: 16, alignItems: "center" },
+  modalTitle: { fontSize: 18, fontWeight: "700", marginBottom: 10, color: "#1D1D82" },
+  modalInput: { borderWidth: 1, borderColor: "#ccc", borderRadius: 10, padding: 12, width: "100%", textAlignVertical: "top", marginBottom: 12 },
   ratingRow: { flexDirection: "row", justifyContent: "center", marginVertical: 10 },
   star: { fontSize: 30, color: "#ccc", marginHorizontal: 5 },
   selectedStar: { color: "#ffcc00" },
