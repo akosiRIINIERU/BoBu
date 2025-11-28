@@ -44,6 +44,13 @@ export default function PlaceDetails({ route }) {
   const [typing, setTyping] = useState(false);
   const flatListRef = useRef(null);
 
+  // Premium Payment Modal state
+  const [showPremiumModal, setShowPremiumModal] = useState(false);
+  const [cardName, setCardName] = useState("");
+  const [cardNumber, setCardNumber] = useState("");
+  const [expiry, setExpiry] = useState("");
+  const [cvv, setCvv] = useState("");
+
   // Quick message presets
   const quickQueries = [
     "Is this still available?",
@@ -74,7 +81,6 @@ export default function PlaceDetails({ route }) {
     return <View style={{ flexDirection: "row", marginTop: 3 }}>{stars}</View>;
   };
 
-  // Get timestamp for messages
   const getCurrentTime = () => {
     const timestamp = new Date();
     const hours = timestamp.getHours() % 12 || 12;
@@ -164,6 +170,17 @@ export default function PlaceDetails({ route }) {
         )}
       </TouchableOpacity>
     );
+  };
+
+  const handlePremiumPayment = () => {
+    if (!cardName || !cardNumber || !expiry || !cvv) {
+      alert("Please fill all payment details");
+      return;
+    }
+
+    alert("Payment successful! Premium features unlocked.");
+    setShowPremiumModal(false);
+    setCardName(""); setCardNumber(""); setExpiry(""); setCvv("");
   };
 
   return (
@@ -291,16 +308,79 @@ export default function PlaceDetails({ route }) {
           </ScrollView>
 
           <View style={styles.chatInputRow}>
-            <TextInput
-              style={styles.chatInput}
+            {/* Chat input */}
+            
+        {/*  <TextInput
               placeholder="Type a message..."
-              placeholderTextColor="#aaa"
+              placeholderTextColor="#ccc"
+              style={styles.chatInput}
               value={input}
               onChangeText={setInput}
-              onSubmitEditing={sendMessage}
-            />
+            />*/}
+
+            {/* Premium Feature Banner */}
+            <View style={styles.premiumBanner}>
+              <Text style={styles.premiumTitle}>Unlock Premium Features</Text>
+              <Text style={styles.premiumSubtitle}>
+                Access priority landlord responses, early notifications, and exclusive listings!
+              </Text>
+              <TouchableOpacity
+                style={styles.premiumButton}
+                onPress={() => setShowPremiumModal(true)}
+              >
+                <Text style={styles.premiumButtonText}>Upgrade Now</Text>
+              </TouchableOpacity>
+            </View>
+
             <TouchableOpacity style={styles.chatSendButton} onPress={sendMessage}>
               <FontAwesome name="paper-plane" size={20} color="#fff" />
+            </TouchableOpacity>
+          </View>
+        </KeyboardAvoidingView>
+      )}
+
+      {/* Premium Payment Modal */}
+      {showPremiumModal && (
+        <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"} style={styles.rentPopup}>
+          <View style={styles.popupCardEnhanced}>
+            <Text style={[styles.subTitle, { marginBottom: 15 }]}>Premium Payment</Text>
+            <TextInput
+              placeholder="Cardholder Name"
+              placeholderTextColor="#ccc"
+              style={styles.inputEnhanced}
+              value={cardName}
+              onChangeText={setCardName}
+            />
+            <TextInput
+              placeholder="Card Number"
+              placeholderTextColor="#ccc"
+              style={styles.inputEnhanced}
+              keyboardType="numeric"
+              value={cardNumber}
+              onChangeText={setCardNumber}
+            />
+            <TextInput
+              placeholder="Expiry (MM/YY)"
+              placeholderTextColor="#ccc"
+              style={styles.inputEnhanced}
+              value={expiry}
+              onChangeText={setExpiry}
+            />
+            <TextInput
+              placeholder="CVV"
+              placeholderTextColor="#ccc"
+              style={styles.inputEnhanced}
+              keyboardType="numeric"
+              secureTextEntry
+              value={cvv}
+              onChangeText={setCvv}
+            />
+
+            <TouchableOpacity style={styles.confirmRentButtonEnhanced} onPress={handlePremiumPayment}>
+              <Text style={styles.buttonText}>Pay & Unlock</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.cancelButton} onPress={() => setShowPremiumModal(false)}>
+              <Text style={styles.buttonText}>Cancel</Text>
             </TouchableOpacity>
           </View>
         </KeyboardAvoidingView>
@@ -357,4 +437,35 @@ const styles = StyleSheet.create({
   chatInput: { flex: 1, backgroundColor: "rgba(255,255,255,0.15)", borderRadius: 25, paddingHorizontal: 15, height: 45, color: "#fff", fontSize: 16 },
   chatSendButton: { marginLeft: 10, backgroundColor: COLORS.BUTTON_PRIMARY, padding: 10, borderRadius: 25 },
   typingIndicator: { paddingHorizontal: 15, paddingVertical: 5 },
+  premiumBanner: {
+  backgroundColor: "#FFD700",
+  borderRadius: 15,
+  padding: 15,
+  margin: 15,
+  alignItems: "center",
+},
+premiumTitle: {
+  fontSize: 18,
+  fontWeight: "bold",
+  color: "#1d1d82",
+  marginBottom: 5,
+},
+premiumSubtitle: {
+  fontSize: 14,
+  color: "#1d1d82",
+  textAlign: "center",
+  marginBottom: 10,
+},
+premiumButton: {
+  backgroundColor: "#1d1d82",
+  paddingVertical: 10,
+  paddingHorizontal: 25,
+  borderRadius: 12,
+},
+premiumButtonText: {
+  color: "#FFD700",
+  fontWeight: "bold",
+  fontSize: 16,
+},
+
 });

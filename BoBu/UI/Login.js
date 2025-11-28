@@ -7,13 +7,13 @@ import {
   TextInput,
   Image,
   Keyboard,
-  Alert,
   Linking,
   ScrollView,
   KeyboardAvoidingView,
   Platform,
   Animated,
   Easing,
+  Modal,
 } from "react-native";
 
 function Login({ navigation }) {
@@ -25,6 +25,11 @@ function Login({ navigation }) {
   // ✨ Animation states
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const slideAnim = useRef(new Animated.Value(50)).current;
+
+  // Modal states
+  const [modalVisible, setModalVisible] = useState(false);
+  const [modalTitle, setModalTitle] = useState("");
+  const [modalMessage, setModalMessage] = useState("");
 
   useEffect(() => {
     Animated.timing(fadeAnim, {
@@ -42,46 +47,60 @@ function Login({ navigation }) {
     }).start();
   }, []);
 
- const handleLogin = () => {
-  if (!username.trim() || !password.trim()) {
-    Alert.alert("Login Error", "Please enter both username and password.");
-    return;
-  }
+  // Show modal function
+  const showAlert = (title, message) => {
+    setModalTitle(title);
+    setModalMessage(message);
+    setModalVisible(true);
+  };
 
-  const user = username.toLowerCase();
-  const pass = password.trim();
+  // Login handler
+  const handleLogin = () => {
+    if (!username.trim() || !password.trim()) {
+      showAlert(
+        "Login Failed",
+        "Both username and password are required. Please fill in all fields and try again."
+      );
+      return;
+    }
 
-  if (pass !== "admin") {
-    Alert.alert("Invalid Password", "Please check your password and try again.");
-    return;
-  }
+    const user = username.toLowerCase();
+    const pass = password.trim();
 
-  // Role-based navigation
-  switch (user) {
-    case "landlord":
-      navigation.navigate("Landlord");
-      break;
-    case "admin":
-      navigation.navigate("Dashboard");
-      break;
-    case "tenant":
-      navigation.navigate("Dashboard");
-      break;
-    default:
-      Alert.alert("Invalid Username", "Username not recognized.");
-      break;
-  }
-};
+    if (pass !== "admin") {
+      showAlert(
+        "Authentication Error",
+        "The password you entered is incorrect. Please verify and try again."
+      );
+      return;
+    }
 
-
+    // Role-based navigation
+    switch (user) {
+      case "landlord":
+        navigation.navigate("Landlord");
+        break;
+      case "admin":
+      case "tenant":
+        navigation.navigate("Dashboard");
+        break;
+      default:
+        showAlert(
+          "User Not Found",
+          "The username entered does not match any account in our system. Please check your username and try again."
+        );
+        break;
+    }
+  };
 
   const openLink = async (url) => {
     try {
       const supported = await Linking.canOpenURL(url);
       if (supported) await Linking.openURL(url);
-      else Alert.alert("Error", "Cannot open the provided link.");
+      else showAlert("Error", "Cannot open the provided link.");
     } catch (err) {
       console.error("Failed to open link:", err);
+      showAlert("Error", "An unexpected error occurred while opening the link.");
     }
   };
 
@@ -133,38 +152,38 @@ function Login({ navigation }) {
               autoCapitalize="none"
             />
 
-                      {/* Password Input */}
-          <View style={styles.passwordContainer}>
-            <TextInput
-              style={styles.passwordInput}
-              placeholder="Password"
-              placeholderTextColor="#999"
-              value={password}
-              onChangeText={setPassword}
-              secureTextEntry={!showPassword}
-              returnKeyType="done"
-              ref={passwordInputRef}
-              onSubmitEditing={() => {
-                Keyboard.dismiss();
-                handleLogin();
-              }}
-              autoCapitalize="none"
-            />
-            <TouchableOpacity
-              onPress={() => setShowPassword(!showPassword)}
-              style={styles.eyeButton}
-              activeOpacity={0.6}
-            >
-              <Image
-                source={
-                  showPassword
-                    ? require("../assets/eye-open.png")
-                    : require("../assets/eye-closed.png")
-                }
-                style={styles.eyeIcon}
+            {/* Password Input */}
+            <View style={styles.passwordContainer}>
+              <TextInput
+                style={styles.passwordInput}
+                placeholder="Password"
+                placeholderTextColor="#999"
+                value={password}
+                onChangeText={setPassword}
+                secureTextEntry={!showPassword}
+                returnKeyType="done"
+                ref={passwordInputRef}
+                onSubmitEditing={() => {
+                  Keyboard.dismiss();
+                  handleLogin();
+                }}
+                autoCapitalize="none"
               />
-            </TouchableOpacity>
-          </View>
+              <TouchableOpacity
+                onPress={() => setShowPassword(!showPassword)}
+                style={styles.eyeButton}
+                activeOpacity={0.6}
+              >
+                <Image
+                  source={
+                    showPassword
+                      ? require("../assets/eye-open.png")
+                      : require("../assets/eye-closed.png")
+                  }
+                  style={styles.eyeIcon}
+                />
+              </TouchableOpacity>
+            </View>
 
             {/* Login Button */}
             <TouchableOpacity
@@ -172,7 +191,7 @@ function Login({ navigation }) {
               onPress={handleLogin}
               activeOpacity={0.8}
             >
-              <Text style={styles.btnText}>Login</Text> 
+              <Text style={styles.btnText}>Login</Text>
             </TouchableOpacity>
 
             <Text style={styles.or}>or</Text>
@@ -229,6 +248,27 @@ function Login({ navigation }) {
           </Animated.View>
         </View>
       </ScrollView>
+
+      {/* Custom Modal */}
+      <Modal
+        animationType="fade"
+        transparent={true}
+        visible={modalVisible}
+        onRequestClose={() => setModalVisible(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <Animated.View style={styles.modalContainer}>
+            <Text style={styles.modalTitle}>{modalTitle}</Text>
+            <Text style={styles.modalMessage}>{modalMessage}</Text>
+            <TouchableOpacity
+              style={styles.modalButton}
+              onPress={() => setModalVisible(false)}
+            >
+              <Text style={styles.modalButtonText}>OK</Text>
+            </TouchableOpacity>
+          </Animated.View>
+        </View>
+      </Modal>
     </KeyboardAvoidingView>
   );
 }
@@ -252,7 +292,6 @@ const styles = StyleSheet.create({
   logoContainer: {
     width: 300,
     height: 200,
-    
   },
   image: {
     width: "100%",
@@ -293,40 +332,37 @@ const styles = StyleSheet.create({
     backgroundColor: "#E6E6E6",
     borderRadius: 25,
     paddingHorizontal: 18,
-    flexDirection: "row",
-    alignItems: "center",
     fontSize: 16,
     color: "#1D1D82",
     marginBottom: 15,
   },
- passwordContainer: {
-  width: "100%",
-  position: "relative",
-  marginBottom: 15,
-},
-passwordInput: {
-  width: "100%",
-  height: 48,
-  backgroundColor: "#E6E6E6",
-  borderRadius: 25,
-  paddingHorizontal: 18,
-  fontSize: 16,
-  color: "#1D1D82",
-  paddingRight: 35, // space for the eye icon
-},
-eyeButton: {
-  position: "absolute",
-  right: 10,
-  top: "40%",
-  transform: [{ translateY: -12 }],
-  padding: 4,
-},
-eyeIcon: {
-  width: 24,
-  height: 24,
-  resizeMode: "contain",
-},
-
+  passwordContainer: {
+    width: "100%",
+    position: "relative",
+    marginBottom: 15,
+  },
+  passwordInput: {
+    width: "100%",
+    height: 48,
+    backgroundColor: "#E6E6E6",
+    borderRadius: 25,
+    paddingHorizontal: 18,
+    fontSize: 16,
+    color: "#1D1D82",
+    paddingRight: 35,
+  },
+  eyeButton: {
+    position: "absolute",
+    right: 10,
+    top: "40%",
+    transform: [{ translateY: -12 }],
+    padding: 4,
+  },
+  eyeIcon: {
+    width: 24,
+    height: 24,
+    resizeMode: "contain",
+  },
   button: {
     width: 120,
     height: 45,
@@ -384,6 +420,51 @@ eyeIcon: {
     color: "#1D1D82",
     fontWeight: "bold",
     fontSize: 14,
+  },
+  // Modal Styles
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: "rgba(0,0,0,0.5)",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  modalContainer: {
+    width: "80%",
+    backgroundColor: "#1D1D82",
+    borderRadius: 25,
+    padding: 30,
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOpacity: 0.25,
+    shadowOffset: { width: 0, height: 3 },
+    shadowRadius: 6,
+    elevation: 6,
+  },
+  modalTitle: {
+    fontSize: 22,
+    fontWeight: "bold",
+    color: "#fff",
+    marginBottom: 15,
+    textAlign: "center",
+  },
+  modalMessage: {
+    fontSize: 16,
+    color: "#f9f9f9",
+    marginBottom: 25,
+    textAlign: "center",
+  },
+  modalButton: {
+    width: 100,
+    height: 40,
+    backgroundColor: "#E6E6E6",
+    borderRadius: 20,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  modalButtonText: {
+    color: "#1D1D82",
+    fontWeight: "bold",
+    fontSize: 16,
   },
 });
 

@@ -9,14 +9,15 @@ import {
   ImageBackground,
   Image,
   Platform,
-  Dimensions,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { BarChart } from "react-native-chart-kit";
+import { Dimensions } from "react-native";
+
 
 export default function Listings() {
   const navigation = useNavigation();
-  const [isPremium, setIsPremium] = useState(false); // toggle for premium users
+  const [isPremium, setIsPremium] = useState(false);
   const [expandedPropertyId, setExpandedPropertyId] = useState(null);
   const [showPremiumModal, setShowPremiumModal] = useState(false);
   const [selectedProperty, setSelectedProperty] = useState(null);
@@ -83,21 +84,13 @@ export default function Listings() {
 
     return (
       <View style={styles.ratingContainer}>
-        {Array(fullStars)
-          .fill("★")
-          .map((_, i) => (
-            <Text key={`full-${i}`} style={styles.fullStar}>
-              ★
-            </Text>
-          ))}
+        {Array(fullStars).fill("★").map((_, i) => (
+          <Text key={`full-${i}`} style={styles.fullStar}>★</Text>
+        ))}
         {halfStar && <Text style={styles.halfStar}>★</Text>}
-        {Array(emptyStars)
-          .fill("★")
-          .map((_, i) => (
-            <Text key={`empty-${i}`} style={styles.emptyStar}>
-              ★
-            </Text>
-          ))}
+        {Array(emptyStars).fill("★").map((_, i) => (
+          <Text key={`empty-${i}`} style={styles.emptyStar}>★</Text>
+        ))}
         <Text style={styles.ratingText}>{rating.toFixed(1)}</Text>
       </View>
     );
@@ -132,77 +125,32 @@ export default function Listings() {
           {renderStars(item.rating)}
 
           {/* Floating Eye Button */}
-          <TouchableOpacity style={styles.eyeButton} onPress={() => openPremiumVisitors(item)}>
+          <TouchableOpacity
+            style={styles.eyeButton}
+            onPress={() => openPremiumVisitors(item)}
+          >
             <Image source={require("../../assets/eye.gif")} style={styles.eyeIcon} />
           </TouchableOpacity>
 
           {/* Expanded Tenant Info */}
-          {isExpanded && (
-            <View>
-              {isOccupied && (
-                <View style={styles.tenantInfo}>
-                  <Text style={styles.tenantTitle}>Tenant Info</Text>
-                  <View style={styles.tenantRow}>
-                    <Image source={item.tenants[0].avatar} style={styles.tenantAvatar} />
-                    <View style={{ marginLeft: 12 }}>
-                      <Text style={styles.tenantName}>{item.tenants[0].name}</Text>
-                      <Text style={styles.tenantDetails}>Unit: {item.tenants[0].unit}</Text>
-                      <Text style={styles.tenantDetails}>Phone: {item.tenants[0].phone}</Text>
-                      <Text style={styles.tenantDetails}>Rent: {item.tenants[0].rent}</Text>
-                    </View>
-                  </View>
-                  <TouchableOpacity
-                    style={styles.chatButton}
-                    onPress={() => navigation.navigate("Tenants", { tenant: item.tenants[0] })}
-                  >
-                    <Text style={styles.chatText}>See Tenant</Text>
-                  </TouchableOpacity>
+          {isExpanded && isOccupied && (
+            <View style={styles.tenantInfo}>
+              <Text style={styles.tenantTitle}>Tenant Info</Text>
+              <View style={styles.tenantRow}>
+                <Image source={item.tenants[0].avatar} style={styles.tenantAvatar} />
+                <View style={{ marginLeft: 12 }}>
+                  <Text style={styles.tenantName}>{item.tenants[0].name}</Text>
+                  <Text style={styles.tenantDetails}>Unit: {item.tenants[0].unit}</Text>
+                  <Text style={styles.tenantDetails}>Phone: {item.tenants[0].phone}</Text>
+                  <Text style={styles.tenantDetails}>Rent: {item.tenants[0].rent}</Text>
                 </View>
-              )}
-
-              {/* Analytics Graph for Premium */}
-              <View style={styles.analyticsContainer}>
-                {isPremium ? (
-                  <View>
-                    <Text style={styles.analyticsTitle}>Property Analytics</Text>
-                    <BarChart
-                      data={{
-                        labels: ["Vacant", "Occupied"],
-                        datasets: [
-                          {
-                            data: [item.tenants.length === 0 ? 1 : 0, item.tenants.length > 0 ? 1 : 0],
-                          },
-                        ],
-                      }}
-                      width={Dimensions.get("window").width - 64}
-                      height={200}
-                      fromZero
-                      chartConfig={{
-                        backgroundColor: "#1d1d82",
-                        backgroundGradientFrom: "#1d1d82",
-                        backgroundGradientTo: "#1d1d82",
-                        decimalPlaces: 0,
-                        color: (opacity = 1) => `rgba(255, 215, 0, ${opacity})`,
-                        labelColor: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
-                        style: { borderRadius: 12 },
-                      }}
-                      style={{ borderRadius: 12, marginTop: 12 }}
-                    />
-                  </View>
-                ) : (
-                  <TouchableOpacity
-                    style={styles.upgradeAnalyticsButton}
-                    onPress={() => {
-                      setSelectedProperty(item);
-                      setShowPremiumModal(true);
-                    }}
-                  >
-                    <Text style={styles.upgradeAnalyticsText}>
-                      Upgrade to Premium to see analytics
-                    </Text>
-                  </TouchableOpacity>
-                )}
               </View>
+              <TouchableOpacity
+                style={styles.chatButton}
+                onPress={() => navigation.navigate("Tenants", { tenant: item.tenants[0] })}
+              >
+                <Text style={styles.chatText}>See Tenant</Text>
+              </TouchableOpacity>
             </View>
           )}
         </TouchableOpacity>
@@ -213,40 +161,36 @@ export default function Listings() {
   return (
     <ImageBackground source={require("../../assets/bg2.jpg")} style={styles.background}>
       <View style={styles.overlay}>
+        <View style={styles.summaryBox}>
+          <Text style={styles.summaryTitle}>Boarding House Overview</Text>
+          <View style={styles.summaryRow}>
+            <Text style={styles.summaryLabel}>Total:</Text>
+            <Text style={styles.summaryValue}>{properties.length}</Text>
+          </View>
+          <View style={styles.summaryRow}>
+            <Text style={styles.summaryLabel}>Vacant:</Text>
+            <Text style={[styles.summaryValue, { color: "#2ed573" }]}>{vacantCount}</Text>
+          </View>
+          <View style={styles.summaryRow}>
+            <Text style={styles.summaryLabel}>Occupied:</Text>
+            <Text style={[styles.summaryValue, { color: "#ff6b6b" }]}>{occupiedCount}</Text>
+          </View>
+        </View>
+
         <FlatList
           data={properties}
           keyExtractor={(item) => item.id}
           renderItem={renderProperty}
           contentContainerStyle={{ paddingBottom: 30 }}
-          ListHeaderComponent={
-            <View>
-              {/* Summary Box */}
-              <View style={styles.summaryBox}>
-                <Text style={styles.summaryTitle}>Boarding House Overview</Text>
-                <View style={styles.summaryRow}>
-                  <Text style={styles.summaryLabel}>Total:</Text>
-                  <Text style={styles.summaryValue}>{properties.length}</Text>
-                </View>
-                <View style={styles.summaryRow}>
-                  <Text style={styles.summaryLabel}>Vacant:</Text>
-                  <Text style={[styles.summaryValue, { color: "#2ed573" }]}>{vacantCount}</Text>
-                </View>
-                <View style={styles.summaryRow}>
-                  <Text style={styles.summaryLabel}>Occupied:</Text>
-                  <Text style={[styles.summaryValue, { color: "#ff6b6b" }]}>{occupiedCount}</Text>
-                </View>
-              </View>
-            </View>
-          }
         />
 
-        {/* Premium Modal */}
+        {/* Premium Modal for Non-Premium Users */}
         {showPremiumModal && selectedProperty && (
           <View style={styles.modalOverlay}>
             <View style={styles.modalBox}>
               <Text style={styles.modalTitle}>Premium Feature</Text>
               <Text style={styles.modalMessage}>
-                Upgrade to Premium to view visitors & analytics of {selectedProperty.name}.
+                Upgrade to Premium to view visitors of {selectedProperty.name}.
               </Text>
               <TouchableOpacity
                 style={styles.upgradeButton}
@@ -278,7 +222,7 @@ const styles = StyleSheet.create({
   summaryLabel: { fontSize: 14, color: "#ddd" },
   summaryValue: { fontSize: 14, fontWeight: "600", color: "#fff" },
   cardWrapper: { marginBottom: 16 },
-  card: { backgroundColor: "#fff", borderRadius: 16, padding: 12, overflow: "hidden", ...Platform.select({ ios: { shadowColor: "#000", shadowOpacity: 0.15, shadowRadius: 8, shadowOffset: { width: 0, height: 4 } }, android: { elevation: 5 } }) },
+  card: { backgroundColor: "#fff", borderRadius: 16, padding: 12, overflow: "hidden", ...Platform.select({ ios: { shadowColor: "#000", shadowOpacity: 0.15, shadowRadius: 8, shadowOffset: { width: 0, height: 4 } }, android: { elevation: 5 }, }) },
   propertyImage: { width: "100%", height: 140, borderRadius: 12, marginBottom: 12 },
   cardHeader: { flexDirection: "row", justifyContent: "space-between", alignItems: "center" },
   propertyName: { fontSize: 16, fontWeight: "700", flex: 1, flexWrap: "wrap" },
@@ -307,8 +251,4 @@ const styles = StyleSheet.create({
   modalMessage: { color: "#ddd", fontSize: 14, marginBottom: 20, textAlign: "center" },
   upgradeButton: { backgroundColor: "#ffc107", paddingVertical: 10, borderRadius: 10 },
   upgradeButtonText: { textAlign: "center", color: "#000", fontWeight: "700", fontSize: 16 },
-  analyticsContainer: { marginTop: 12 },
-  analyticsTitle: { fontWeight: "700", fontSize: 14, color: "#333", marginBottom: 8 },
-  upgradeAnalyticsButton: { marginTop: 12, backgroundColor: "#ff6b6b", padding: 8, borderRadius: 10 },
-  upgradeAnalyticsText: { color: "#fff", fontWeight: "600", textAlign: "center" },
 });
