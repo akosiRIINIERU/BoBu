@@ -1,43 +1,69 @@
-// screens/Landlord.js
+// screens/LandlordHome.js
 import React, { useState } from "react";
 import {
   View,
   Text,
   StyleSheet,
   TouchableOpacity,
-  ScrollView,
+  FlatList,
   Image,
-  Modal,
-  Platform,
-  Pressable,
   ImageBackground,
+  Modal,
+  Pressable,
+  Platform,
 } from "react-native";
+import { useNavigation } from "@react-navigation/native";
 
-export default function Landlord({ navigation }) {
-  const [activeTab, setActiveTab] = useState("Dashboard");
+export default function LandlordHome() {
+  const navigation = useNavigation();
+  const [activeTab, setActiveTab] = useState("Home");
   const [logoutVisible, setLogoutVisible] = useState(false);
 
-  // Sample payments data
-  const payments = [
-    { id: 1, name: "Renhiel Maghanoy", amount: 12500, status: "Paid" },
-    { id: 2, name: "Janna Baby", amount: 12000, status: "Unpaid" },
-    { id: 3, name: "Kylie Jenner", amount: 12000, status: "Paid" },
+  // Sample tenants data
+  const tenants = [
+    { id: 1, name: "Renhiel Maghanoy", room: "Room 505", phone: "0917-123-4567", rent: 12500 },
+    { id: 2, name: "Janna Baby", room: "Room 102", phone: "0918-987-6543", rent: 12000 },
+    { id: 3, name: "Kylie Jenner", room: "Room 103", phone: "0920-555-1212", rent: 12000 },
   ];
 
-  // Calculate total rent from paid payments
-  const totalPaid = payments
-    .filter((p) => p.status === "Paid")
-    .reduce((sum, p) => sum + p.amount, 0);
+  // Notifications
+  const notifications = [
+    { id: "1", text: "New rent request from Room 505", type: "info" },
+    { id: "2", text: "Payment received from Renhiel", type: "payment", tenantId: 1 },
+    { id: "3", text: "New message from Renhiel", type: "chat", tenantId: 1 },
+  ];
+
+  const handlePress = (notification) => {
+    const tenant = tenants.find((t) => t.id === notification.tenantId);
+    switch (notification.type) {
+      case "chat":
+        tenant ? navigation.navigate("LandlordChat", { tenant }) : alert("Tenant not found");
+        break;
+      case "payment":
+        tenant ? navigation.navigate("Payments", { tenantId: tenant.id }) : alert("Tenant not found");
+        break;
+      default:
+        alert(notification.text);
+    }
+  };
 
   const handleLogout = () => {
     setLogoutVisible(false);
     navigation.navigate("Login");
   };
 
+  const renderNotification = ({ item }) => (
+    <TouchableOpacity style={styles.card} onPress={() => handlePress(item)}>
+      <Text style={styles.cardText}>🔔 {item.text}</Text>
+    </TouchableOpacity>
+  );
+
+  // Bottom Navigation
   const navTabs = [
-    { img: require("../assets/bh.png"), screen: "Listings", label: "Listings" },
-    { img: require("../assets/payment.png"), screen: "Payments", label: "Payments" },
-    { img: require("../assets/bell.png"), screen: "Notificationll", label: "Notifications" },
+    { label: "Home", screen: "Home", img: require("../assets/bell.png") },
+    { label: "Tenants", screen: "Tenants", img: require("../assets/tenants.png") },
+    { label: "Payments", screen: "Payments", img: require("../assets/money.png") },
+    { label: "Listings", screen: "Listings", img: require("../assets/bh.png") },
   ];
 
   return (
@@ -46,59 +72,40 @@ export default function Landlord({ navigation }) {
       style={styles.background}
       resizeMode="cover"
     >
-      <ScrollView contentContainerStyle={styles.scrollContainer}>
-        {/* Header */}
-        <View style={styles.header}>
-          <Pressable
-            onPress={() => navigation.navigate("LandlordProfile")}
-            android_ripple={{ color: "#FFD700" }}
-            style={({ pressed }) => [
-              styles.avatarWrapper,
-              pressed && styles.avatarPressed,
-            ]}
-          >
-            <Image
-              source={require("../assets/marhean.png")}
-              style={styles.avatar}
-            />
-          </Pressable>
+      <FlatList
+        data={notifications}
+        keyExtractor={(item) => item.id}
+        renderItem={renderNotification}
+        ListHeaderComponent={
+          <View style={styles.headerContainer}>
+            <View style={styles.headerRow}>
+              <Pressable
+                onPress={() => navigation.navigate("LandlordProfile")}
+                android_ripple={{ color: "#FFD700" }}
+                style={({ pressed }) => [styles.avatarWrapper, pressed && styles.avatarPressed]}
+              >
+                <Image source={require("../assets/marhean.png")} style={styles.avatar} />
+              </Pressable>
 
-          <View style={{ flex: 1 }}>
-            <Text style={styles.welcome}>Welcome back,</Text>
-            <Text style={styles.name}>Marhean!</Text>
+              <View style={styles.welcomeContainer}>
+                <Text style={styles.welcome}>Welcome back,</Text>
+                <Text style={styles.name}>Marhean!</Text>
+              </View>
+
+              <TouchableOpacity
+                style={styles.logoutButton}
+                onPress={() => setLogoutVisible(true)}
+              >
+                <Text style={styles.logoutText}>⎋</Text>
+              </TouchableOpacity>
+            </View>
+
+            <Text style={styles.sectionTitle}>Notifications</Text>
           </View>
-
-          <TouchableOpacity
-            style={styles.logoutButton}
-            onPress={() => setLogoutVisible(true)}
-            activeOpacity={0.7}
-          >
-            <Text style={styles.logoutIcon}>⎋</Text>
-          </TouchableOpacity>
-        </View>
-
-        {/* Dashboard Cards */}
-        <View style={styles.cardRow}>
-          <TouchableOpacity
-            style={styles.infoCard}
-            onPress={() => navigation.navigate("Tenants")}
-            activeOpacity={0.8}
-          >
-            <Text style={styles.cardNumber}>3</Text>
-            <Text style={styles.cardLabel}>Tenants</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={styles.infoCard}
-            onPress={() => navigation.navigate("Payments")}
-            activeOpacity={0.8}
-          >
-            {/* Dynamic total rent */}
-            <Text style={styles.cardNumber}>₱{totalPaid.toLocaleString()}</Text>
-            <Text style={styles.cardLabel}>Total Rent</Text>
-          </TouchableOpacity>
-        </View>
-      </ScrollView>
+        }
+        contentContainerStyle={{ paddingBottom: 150 }}
+        showsVerticalScrollIndicator={false}
+      />
 
       {/* Bottom Navigation */}
       <View style={styles.navBar}>
@@ -108,23 +115,14 @@ export default function Landlord({ navigation }) {
             style={styles.navItem}
             onPress={() => {
               setActiveTab(tab.label);
-              navigation.navigate(tab.screen);
+              if (tab.screen !== "Home") navigation.navigate(tab.screen);
             }}
-            activeOpacity={0.7}
           >
             <Image
               source={tab.img}
-              style={[
-                styles.navImg,
-                activeTab === tab.label && styles.navImgActive,
-              ]}
+              style={[styles.navImg, activeTab === tab.label && styles.navImgActive]}
             />
-            <Text
-              style={[
-                styles.navLabel,
-                activeTab === tab.label && styles.navLabelActive,
-              ]}
-            >
+            <Text style={[styles.navLabel, activeTab === tab.label && styles.navLabelActive]}>
               {tab.label}
             </Text>
           </TouchableOpacity>
@@ -136,9 +134,7 @@ export default function Landlord({ navigation }) {
         <View style={styles.modalOverlay}>
           <View style={styles.modalBox}>
             <Text style={styles.modalTitle}>Confirm Logout</Text>
-            <Text style={styles.modalText}>
-              Are you sure you want to log out?
-            </Text>
+            <Text style={styles.modalText}>Are you sure you want to log out?</Text>
             <View style={styles.modalButtons}>
               <TouchableOpacity
                 style={[styles.modalButton, styles.cancelButton]}
@@ -163,63 +159,66 @@ export default function Landlord({ navigation }) {
 
 const styles = StyleSheet.create({
   background: { flex: 1 },
-  scrollContainer: { flexGrow: 1, alignItems: "center", padding: 20 },
 
-  header: {
-    flexDirection: "row",
-    width: "100%",
-    backgroundColor: "#000000aa",
-    borderRadius: 25,
-    marginBottom: 25,
-    alignItems: "center",
-    padding: 15,
+  headerContainer: {
+    paddingHorizontal: 20,
+    paddingTop: 20,
+    paddingBottom: 10,
   },
-  avatarWrapper: { borderRadius: 35, overflow: "hidden", marginRight: 15 },
+  headerRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+  },
+  welcomeContainer: {
+    flex: 1,
+    marginHorizontal: 15,
+  },
+  avatarWrapper: {
+    borderRadius: 35,
+    overflow: "hidden",
+  },
   avatarPressed: {
     shadowColor: "#FFD700",
-    shadowOffset: { width: 0, height: 0 },
     shadowOpacity: 0.6,
     shadowRadius: 10,
     elevation: 10,
   },
   avatar: { width: 70, height: 70, borderRadius: 35 },
-  welcome: { color: "#ffffff", fontSize: 16, opacity: 0.9 },
+  welcome: { color: "#ffffffcc", fontSize: 14 },
   name: { color: "#ffffff", fontSize: 22, fontWeight: "700" },
   logoutButton: {
     backgroundColor: "#FFD700",
-    padding: 8,
+    padding: 10,
     borderRadius: 15,
     justifyContent: "center",
-  },
-  logoutIcon: { fontSize: 20, fontWeight: "bold", color: "#1D1D82" },
-
-  cardRow: {
-    flexDirection: "row",
-    justifyContent: "center",
-    width: "100%",
-    marginBottom: 20,
-  },
-  infoCard: {
-    width: 150,
-    backgroundColor: "#222222cc",
-    borderRadius: 25,
-    paddingVertical: 25,
-    marginHorizontal: 10,
     alignItems: "center",
+  },
+  logoutText: { fontSize: 20, fontWeight: "bold", color: "#1D1D82" },
+  sectionTitle: {
+    fontSize: 20,
+    fontWeight: "700",
+    color: "#FFD700",
+    marginTop: 15,
+  },
+
+  card: {
+    backgroundColor: "#ffffffee",
+    borderRadius: 20,
+    padding: 18,
+    marginHorizontal: 20,
+    marginBottom: 12,
     ...Platform.select({
-      ios: {
-        shadowColor: "#000",
-        shadowOffset: { width: 0, height: 3 },
-        shadowOpacity: 0.3,
-        shadowRadius: 4,
-      },
-      android: { elevation: 6 },
+      ios: { shadowColor: "#000", shadowOffset: { width: 0, height: 5 }, shadowOpacity: 0.2, shadowRadius: 6 },
+      android: { elevation: 5 },
     }),
   },
-  cardNumber: { color: "#faf9f5ff", fontSize: 28, fontWeight: "700" },
-  cardLabel: { color: "#ffffff", fontSize: 14, marginTop: 6 },
+  cardText: { color: "#1D1D82", fontSize: 16, fontWeight: "600" },
 
   navBar: {
+    position: "absolute",
+    bottom: 0,
+    width: "100%",
     flexDirection: "row",
     justifyContent: "space-around",
     backgroundColor: "#000000aa",
@@ -230,9 +229,9 @@ const styles = StyleSheet.create({
   },
   navItem: { alignItems: "center" },
   navImg: { width: 28, height: 28, tintColor: "#E6E6E6" },
-  navImgActive: { tintColor: "#ffffffff" },
+  navImgActive: { tintColor: "#FFD700" },
   navLabel: { fontSize: 10, color: "#E6E6E6" },
-  navLabelActive: { color: "#ffffffff" },
+  navLabelActive: { color: "#FFD700" },
 
   modalOverlay: {
     flex: 1,

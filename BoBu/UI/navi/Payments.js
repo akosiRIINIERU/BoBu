@@ -58,7 +58,6 @@ export default function Payments() {
     setExpandedPaymentId(expandedPaymentId === id ? null : id);
   };
 
-  // Open professional notice modal
   const openNoticeModal = (tenant) => {
     setCurrentTenant(tenant);
     setNoticeText(
@@ -67,9 +66,7 @@ export default function Payments() {
     setNoticeModalVisible(true);
   };
 
-  // Send notice handler
   const sendProfessionalNotice = () => {
-    // Here you could add API call / backend integration
     setNoticeModalVisible(false);
     setCurrentTenant(null);
     setNoticeText("");
@@ -79,52 +76,53 @@ export default function Payments() {
     const isExpanded = expandedPaymentId === item.id;
 
     return (
-      <TouchableOpacity
-        style={[
-          styles.card,
-          item.status === "Paid" ? styles.paidCard : styles.unpaidCard,
-          Platform.OS === "ios" ? styles.cardShadowIOS : styles.cardShadowAndroid,
-        ]}
-        activeOpacity={0.9}
-        onPress={() => toggleExpand(item.id)}
-      >
-        <View style={styles.cardHeader}>
-          <View style={styles.nameSection}>
-            <Image source={item.avatar} style={styles.avatar} />
-            <View>
-              <Text style={styles.name}>{item.name}</Text>
-              <Text style={styles.details}>
-                {item.unit} • {item.date}
-              </Text>
+      <View style={styles.cardWrapper}>
+        <TouchableOpacity
+          style={[
+            styles.card,
+            item.status === "Paid" ? styles.paidCard : styles.unpaidCard,
+            Platform.OS === "ios" ? styles.cardShadowIOS : styles.cardShadowAndroid,
+          ]}
+          activeOpacity={0.9}
+          onPress={() => toggleExpand(item.id)}
+        >
+          <View style={styles.cardHeader}>
+            <View style={styles.nameSection}>
+              <Image source={item.avatar} style={styles.avatar} />
+              <View>
+                <Text style={styles.name}>{item.name}</Text>
+                <Text style={styles.details}>
+                  {item.unit} • {item.date}
+                </Text>
+              </View>
+            </View>
+            <View
+              style={[
+                styles.statusBadge,
+                item.status === "Paid" ? styles.paidBadge : styles.unpaidBadge,
+              ]}
+            >
+              <Text style={styles.statusText}>{item.status}</Text>
             </View>
           </View>
-          <View
-            style={[
-              styles.statusBadge,
-              item.status === "Paid" ? styles.paidBadge : styles.unpaidBadge,
-            ]}
-          >
-            <Text style={styles.statusText}>{item.status}</Text>
-          </View>
-        </View>
 
-        {isExpanded && (
-          <View style={styles.paymentDetails}>
-            <Text style={styles.amount}>₱{item.amount.toLocaleString()}</Text>
-            <Text style={styles.method}>Method: {item.method}</Text>
+          {isExpanded && (
+            <View style={styles.paymentDetails}>
+              <Text style={styles.amount}>₱{item.amount.toLocaleString()}</Text>
+              <Text style={styles.method}>Method: {item.method}</Text>
 
-            {/* Show Send Notice button for unpaid */}
-            {item.status === "Unpaid" && (
-              <TouchableOpacity
-                style={styles.noticeButton}
-                onPress={() => openNoticeModal(item)}
-              >
-                <Text style={styles.noticeText}>Send Notice</Text>
-              </TouchableOpacity>
-            )}
-          </View>
-        )}
-      </TouchableOpacity>
+              {item.status === "Unpaid" && (
+                <TouchableOpacity
+                  style={styles.noticeButton}
+                  onPress={() => openNoticeModal(item)}
+                >
+                  <Text style={styles.noticeText}>Send Notice</Text>
+                </TouchableOpacity>
+              )}
+            </View>
+          )}
+        </TouchableOpacity>
+      </View>
     );
   };
 
@@ -143,11 +141,11 @@ export default function Payments() {
           </View>
           <View style={styles.summaryRow}>
             <Text style={styles.summaryLabel}>Paid:</Text>
-            <Text style={[styles.summaryValue, { color: "#28a745" }]}>{paidCount}</Text>
+            <Text style={[styles.summaryValue, { color: "#2ed573" }]}>{paidCount}</Text>
           </View>
           <View style={styles.summaryRow}>
             <Text style={styles.summaryLabel}>Unpaid:</Text>
-            <Text style={[styles.summaryValue, { color: "#dc3545" }]}>{unpaidCount}</Text>
+            <Text style={[styles.summaryValue, { color: "#ff6b6b" }]}>{unpaidCount}</Text>
           </View>
         </View>
 
@@ -155,11 +153,10 @@ export default function Payments() {
           data={payments}
           keyExtractor={(item) => item.id.toString()}
           renderItem={renderItem}
-          contentContainerStyle={{ paddingBottom: 40 }}
+          contentContainerStyle={{ paddingBottom: 30 }}
           showsVerticalScrollIndicator={false}
         />
 
-        {/* Professional Notice Modal */}
         <Modal visible={noticeModalVisible} transparent animationType="slide">
           <View style={styles.modalOverlay}>
             <View style={styles.modalContainer}>
@@ -192,93 +189,53 @@ export default function Payments() {
 
 const styles = StyleSheet.create({
   background: { flex: 1 },
-  overlay: { flex: 1, padding: 20, backgroundColor: "rgba(255,255,255,0.1)" },
+  overlay: { flex: 1, padding: 16, backgroundColor: "rgba(0,0,0,0.25)" },
 
   summaryBox: {
-    backgroundColor: "rgba(0, 0, 0, 0.81)",
-    padding: 14,
-    borderRadius: 12,
-    marginBottom: 12,
-  },
-  summaryTitle: { fontSize: 16, fontWeight: "600", marginBottom: 8, color: "#fffefeaa" },
-  summaryRow: { flexDirection: "row", justifyContent: "space-between", marginBottom: 4 },
-  summaryLabel: { fontSize: 14, color: "#ffffffaa" },
-  summaryValue: { fontSize: 14, fontWeight: "600", color: "#ffffffe0" },
-
-  card: {
+    backgroundColor: "rgba(255,255,255,0.1)",
+    padding: 16,
     borderRadius: 16,
-    padding: 18,
     marginBottom: 16,
-    backgroundColor: "#f7eeeeff",
   },
-  cardShadowIOS: {
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.25,
-    shadowRadius: 6,
+  summaryTitle: { fontSize: 18, fontWeight: "700", color: "#fff", marginBottom: 10 },
+  summaryRow: { flexDirection: "row", justifyContent: "space-between", marginBottom: 6 },
+  summaryLabel: { fontSize: 14, color: "#ddd" },
+  summaryValue: { fontSize: 14, fontWeight: "600", color: "#fff" },
+
+  cardWrapper: { marginBottom: 16 },
+  card: {
+    backgroundColor: "#fff",
+    borderRadius: 16,
+    padding: 14,
+    overflow: "hidden",
   },
-  cardShadowAndroid: { elevation: 6 },
+  cardShadowIOS: { shadowColor: "#000", shadowOpacity: 0.15, shadowRadius: 8, shadowOffset: { width: 0, height: 4 } },
+  cardShadowAndroid: { elevation: 5 },
   paidCard: { backgroundColor: "#f0faff" },
   unpaidCard: { backgroundColor: "#fff0f0" },
 
-  cardHeader: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: 14,
-  },
+  cardHeader: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 12 },
   nameSection: { flexDirection: "row", alignItems: "center" },
   avatar: { width: 50, height: 50, borderRadius: 25, marginRight: 12 },
-  name: { fontSize: 18, fontWeight: "700", color: "#1D1D82" },
-  details: { fontSize: 14, color: "#666", marginTop: 2 },
+  name: { fontSize: 16, fontWeight: "700", color: "#1D1D82" },
+  details: { fontSize: 13, color: "#666", marginTop: 2 },
 
-  statusBadge: { paddingVertical: 4, paddingHorizontal: 14, borderRadius: 12 },
-  paidBadge: { backgroundColor: "#ff8c00" },
-  unpaidBadge: { backgroundColor: "#dc3545cc" },
+  statusBadge: { paddingVertical: 4, paddingHorizontal: 12, borderRadius: 12 },
+  paidBadge: { backgroundColor: "#2ed573" },
+  unpaidBadge: { backgroundColor: "#ff6b6b" },
   statusText: { color: "#fff", fontWeight: "700", fontSize: 12 },
 
   paymentDetails: { marginTop: 6, alignItems: "flex-start" },
   amount: { fontSize: 16, fontWeight: "700", color: "#1D1D82" },
   method: { fontSize: 14, color: "#444", marginTop: 2 },
 
-  noticeButton: {
-    backgroundColor: "#ff8c00",
-    paddingVertical: 8,
-    paddingHorizontal: 16,
-    borderRadius: 8,
-    marginTop: 10,
-  },
+  noticeButton: { marginTop: 10, backgroundColor: "#ff8c00", paddingVertical: 8, paddingHorizontal: 16, borderRadius: 10 },
   noticeText: { fontSize: 14, fontWeight: "700", color: "#fff" },
 
-  // Modal
-  modalOverlay: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "rgba(0,0,0,0.5)",
-    padding: 20,
-  },
-  modalContainer: {
-    backgroundColor: "#fff",
-    width: "100%",
-    borderRadius: 12,
-    padding: 16,
-  },
+  modalOverlay: { flex: 1, justifyContent: "center", alignItems: "center", backgroundColor: "rgba(0,0,0,0.5)", padding: 20 },
+  modalContainer: { backgroundColor: "#fff", width: "100%", borderRadius: 16, padding: 16 },
   modalTitle: { fontSize: 18, fontWeight: "700", marginBottom: 10, color: "#1D1D82" },
-  modalInput: {
-    borderWidth: 1,
-    borderColor: "#ccc",
-    borderRadius: 8,
-    padding: 10,
-    height: 120,
-    textAlignVertical: "top",
-    marginBottom: 12,
-  },
-  sendButton: {
-    backgroundColor: "#28a745",
-    paddingVertical: 10,
-    borderRadius: 8,
-    alignItems: "center",
-  },
+  modalInput: { borderWidth: 1, borderColor: "#ccc", borderRadius: 10, padding: 12, height: 120, textAlignVertical: "top", marginBottom: 12 },
+  sendButton: { backgroundColor: "#1D1D82", paddingVertical: 10, borderRadius: 10, alignItems: "center" },
   sendButtonText: { color: "#fff", fontWeight: "700", fontSize: 16 },
 });

@@ -20,9 +20,7 @@ export default function Profile({ navigation, route }) {
   const [isPaid, setIsPaid] = useState(false);
 
   useEffect(() => {
-    if (route.params?.isPaid) {
-      setIsPaid(route.params.isPaid);
-    }
+    if (route.params?.isPaid) setIsPaid(route.params.isPaid);
   }, [route.params?.isPaid]);
 
   const handlePayment = () => {
@@ -30,22 +28,17 @@ export default function Profile({ navigation, route }) {
       Alert.alert("Error", "Please enter an amount to pay");
       return;
     }
-
     if (!payName.trim()) {
       Alert.alert("Error", "Please enter your landlord's name");
       return;
     }
-
     setIsPaid(true);
     setModalVisible(false);
-
     navigation.navigate("Notifications", { isPaid: true });
-
     Alert.alert(
       "Payment Successful",
       `You paid ₱${payAmount} to ${payName} via ${paymentMethod}`
     );
-
     setPayAmount("");
   };
 
@@ -108,9 +101,10 @@ export default function Profile({ navigation, route }) {
           <Text style={styles.logoutText}>Log Out</Text>
         </TouchableOpacity>
 
+        {/* PAYMENT MODAL */}
         <Modal
           animationType="slide"
-          transparent={true}
+          transparent
           visible={modalVisible}
           onRequestClose={() => setModalVisible(false)}
         >
@@ -148,7 +142,7 @@ export default function Profile({ navigation, route }) {
                 style={[styles.modalButton, styles.cancelButton]}
                 onPress={() => setModalVisible(false)}
               >
-                <Text style={styles.modalButtonText}>Cancel</Text>
+                <Text style={[styles.modalButtonText, { color: "#000" }]}>Cancel</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -174,79 +168,44 @@ const styles = StyleSheet.create({
     marginBottom: 15,
     marginTop: 20,
   },
-  name: {
-    fontSize: 24,
-    color: "#fff",
-    fontWeight: "bold",
-  },
-  role: {
-    fontSize: 16,
-    color: "#f0f0f0",
-    marginBottom: 20,
-  },
+  name: { fontSize: 24, color: "#fff", fontWeight: "bold" },
+  role: { fontSize: 16, color: "#f0f0f0", marginBottom: 20 },
   infoCard: {
     width: "90%",
-    backgroundColor: "#222222cc", // slight transparency to show bg
-    borderRadius: 25,
+    backgroundColor: "rgba(0,0,0,0.7)",
+    borderRadius: 20,
     padding: 20,
     marginBottom: 20,
   },
-  sectionTitle: {
-    color: "#fff",
-    fontSize: 18,
-    fontWeight: "bold",
-    marginBottom: 10,
-  },
-  infoTitle: {
-    color: "#aaa",
-    fontSize: 14,
-    marginTop: 10,
-  },
-  infoValue: {
-    color: "#fff",
-    fontSize: 16,
-    fontWeight: "500",
-  },
-  payNotice: {
-    color: "#FFD700",
-    fontSize: 14,
-    marginTop: 5,
-    fontStyle: "italic",
-  },
-  paidText: {
-    color: "#00FF00",
-    fontSize: 16,
-    marginTop: 5,
-    fontWeight: "bold",
-  },
+  sectionTitle: { color: "#fff", fontSize: 18, fontWeight: "700", marginBottom: 10 },
+  infoTitle: { color: "#ccc", fontSize: 14, marginTop: 10 },
+  infoValue: { color: "#fff", fontSize: 16, fontWeight: "500" },
+  payNotice: { color: "#FFD700", fontSize: 14, marginTop: 5, fontStyle: "italic" },
+  paidText: { color: "#2ed573", fontSize: 16, marginTop: 5, fontWeight: "700" },
   payButton: {
     backgroundColor: "#FFD700",
     borderRadius: 20,
-    paddingVertical: 10,
+    paddingVertical: 12,
     paddingHorizontal: 30,
     marginTop: 10,
     alignItems: "center",
   },
-  payButtonText: {
-    color: "#1d1d82",
-    fontWeight: "bold",
-  },
+  payButtonText: { color: "#1d1d82", fontWeight: "700" },
   logoutButton: {
-    backgroundColor: "#E6E6E6",
+    backgroundColor: "#fff",
     borderRadius: 20,
-    paddingVertical: 10,
+    paddingVertical: 12,
     paddingHorizontal: 30,
     marginTop: 10,
+    alignItems: "center",
   },
-  logoutText: {
-    color: "#1d1d82",
-    fontWeight: "bold",
-  },
+  logoutText: { color: "#1d1d82", fontWeight: "700" },
   modalOverlay: {
     flex: 1,
-    backgroundColor: "rgba(0,0,0,0.5)",
     justifyContent: "center",
     alignItems: "center",
+    backgroundColor: "rgba(0,0,0,0.5)",
+    padding: 20,
   },
   modalContainer: {
     width: "85%",
@@ -254,32 +213,21 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     padding: 20,
   },
-  modalTitle: {
-    fontSize: 20,
-    fontWeight: "bold",
-    marginBottom: 15,
-    color: "#1d1d82",
-    textAlign: "center",
-  },
+  modalTitle: { fontSize: 20, fontWeight: "700", marginBottom: 15, color: "#1d1d82", textAlign: "center" },
   input: {
     borderWidth: 1,
-    borderColor: "#aaa",
-    borderRadius: 10,
-    padding: 10,
+    borderColor: "#ccc",
+    borderRadius: 12,
+    padding: 12,
     marginBottom: 15,
   },
   modalButton: {
     backgroundColor: "#1d1d82",
-    paddingVertical: 10,
-    borderRadius: 10,
+    paddingVertical: 12,
+    borderRadius: 12,
     marginBottom: 10,
     alignItems: "center",
   },
-  cancelButton: {
-    backgroundColor: "#888",
-  },
-  modalButtonText: {
-    color: "#fff",
-    fontWeight: "bold",
-  },
+  cancelButton: { backgroundColor: "#ccc" },
+  modalButtonText: { color: "#fff", fontWeight: "700" },
 });
