@@ -21,10 +21,10 @@ export default function Premium({ route, navigation }) {
 
     // Generate random visitors for demo
     const randomVisitors = [
-      { id: "v1", name: "John Doe", email: "john@example.com", phone: "0917-111-2222", interest: `Viewing ${property.name}`, avatar: require("../../assets/visitor1.jpg") },
-      { id: "v2", name: "Jane Smith", email: "jane@example.com", phone: "0918-333-4444", interest: `Viewing ${property.name}`, avatar: require("../../assets/visitor2.jpg") },
-      { id: "v3", name: "Mark Johnson", email: "mark@example.com", phone: "0920-555-6666", interest: `Viewing ${property.name}`, avatar: require("../../assets/visitor3.jpg") },
-      { id: "v4", name: "Emily Davis", email: "emily@example.com", phone: "0917-777-8888", interest: `Viewing ${property.name}`, avatar: require("../../assets/visitor4.jpg") },
+      { id: "v1", name: "Johnro Soy co.", email: "pertingOTuga@gmail.com", phone: "0917-111-2222", interest: `Viewing ${property.name}`, avatar: require("../../assets/visitor1.jpg") },
+      { id: "v2", name: "Maryan Nabahala", email: "MarsJupiter@gmail.com", phone: "0918-333-4444", interest: `Viewing ${property.name}`, avatar: require("../../assets/visitor2.jpg") },
+      { id: "v3", name: "Ryunn Mahogany", email: "Remember.Me@gmail.com", phone: "0920-555-6666", interest: `Viewing ${property.name}`, avatar: require("../../assets/visitor3.jpg") },
+      { id: "v4", name: "Kaylie Jumela", email: "nannonaha@gmail.com", phone: "0917-777-8888", interest: `Viewing ${property.name}`, avatar: require("../../assets/visitor4.jpg") },
     ];
 
     const shuffled = randomVisitors.sort(() => 0.5 - Math.random());

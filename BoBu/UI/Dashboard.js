@@ -174,7 +174,7 @@ export default function Dashboard() {
         {/* Floating Chat Button */}
         <TouchableOpacity
           style={styles.floatingChatBtn}
-          onPress={() => navigation.navigate("Chat")}
+          onPress={() => navigation.navigate("chat")}
         >
           <FontAwesome name="comments" size={24} color="#fff" />
         </TouchableOpacity>
