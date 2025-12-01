@@ -11,7 +11,7 @@ export default function Notifications({ navigation, route }) {
 
   const notifications = [
     { id: "1", message: "Your rent is due next week.", screen: "Profile", icon: RENT_ICON },
-    { id: "2", message: "New message from Landlord.", screen: "Chat", icon: MESSAGE_ICON },
+    { id: "2", message: "New message from Landlord.", screen: "chat", icon: MESSAGE_ICON },
     { id: "3", message: "Rent request approved.", screen:"CurrentRentalScreen", icon: APPROVED_ICON },
   ];
 
