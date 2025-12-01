@@ -13,7 +13,7 @@ import {
 import { LineChart } from "react-native-chart-kit";
 
 export default function Premium({ route, navigation }) {
-  const { property, isPremium } = route.params || {};
+  const { property, isPremium } = route.params;
   const [visitors, setVisitors] = useState([]);
 
   useEffect(() => {
@@ -45,29 +45,16 @@ export default function Premium({ route, navigation }) {
 
   const ListHeader = () => (
     <View>
-      <Text style={styles.title}>
-        Premium Analytics & Visitors for {property?.name || "Property"}
-      </Text>
+      <Text style={styles.title}>Premium Analytics & Visitors for {property.name}</Text>
 
-      {/* Premium Info Box */}
-      {isPremium && property && (
-        <View style={styles.premiumBox}>
-          <Text style={styles.premiumTitle}>Premium Property Info</Text>
-          <Text style={styles.premiumText}>Location: {property.location || "Unknown"}</Text>
-          <Text style={styles.premiumText}>Monthly Rent: {property.rent || "N/A"}</Text>
-          <Text style={styles.premiumText}>Rating: {property.rating?.toFixed(1) || "N/A"} ⭐</Text>
-          <Text style={styles.premiumText}>Total Visitors: {visitors.length}</Text>
-        </View>
-      )}
-
-      {/* Analytics Chart */}
-      {isPremium && property?.analytics && (
+      {/* Analytics Graph */}
+      {isPremium && property.analytics && (
         <View style={styles.graphBox}>
           <Text style={styles.graphTitle}>Occupancy Analytics (Past 6 Months)</Text>
           <LineChart
             data={{
-              labels: property.analytics.months || [],
-              datasets: [{ data: property.analytics.occupancy?.map(v => v * 100) || [] }],
+              labels: property.analytics.months,
+              datasets: [{ data: property.analytics.occupancy.map(v => v * 100) }],
             }}
             width={Dimensions.get("window").width - 40}
             height={220}
@@ -92,17 +79,13 @@ export default function Premium({ route, navigation }) {
   );
 
   return (
-    <ImageBackground
-      source={require("../../assets/bg2.jpg")}
-      style={styles.background}
-      resizeMode="cover"
-    >
+    <ImageBackground source={require("../../assets/bg2.jpg")} style={styles.background}>
       <FlatList
         data={visitors}
         keyExtractor={(item) => item.id}
         renderItem={renderVisitor}
         ListHeaderComponent={ListHeader}
-        contentContainerStyle={{ padding: 16, paddingBottom: 80 }}
+        contentContainerStyle={{ padding: 16, paddingBottom: 30 }}
       />
 
       <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
@@ -115,9 +98,6 @@ export default function Premium({ route, navigation }) {
 const styles = StyleSheet.create({
   background: { flex: 1 },
   title: { fontSize: 20, fontWeight: "700", color: "#FFD700", textAlign: "center", marginBottom: 12 },
-  premiumBox: { marginVertical: 10, backgroundColor: "#2a2a9a", borderRadius: 12, padding: 12 },
-  premiumTitle: { fontSize: 16, fontWeight: "700", color: "#ffc107", marginBottom: 6, textAlign: "center" },
-  premiumText: { fontSize: 14, color: "#fff", marginBottom: 4 },
   graphBox: { marginVertical: 10, backgroundColor: "#2c2c9c", borderRadius: 12, padding: 12 },
   graphTitle: { color: "#fff", fontWeight: "600", textAlign: "center", marginBottom: 8 },
   visitorCard: { flexDirection: "row", alignItems: "center", backgroundColor: "#fff", padding: 12, marginBottom: 12, borderRadius: 12 },

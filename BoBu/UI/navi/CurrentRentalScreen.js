@@ -1,297 +1,433 @@
-import React, { useRef, useEffect, useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
-  Image,
   StyleSheet,
   ScrollView,
-  TouchableOpacity,
-  Animated,
+  Image,
   ImageBackground,
+  TouchableOpacity,
   Modal,
+  Alert,
   TextInput,
-  Platform,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { FontAwesome } from "@expo/vector-icons";
-import { BlurView } from "expo-blur";
+import { Picker } from "@react-native-picker/picker";
 
 const COLORS = {
-  TEXT_LIGHT: "#FFFFFF",
-  SECONDARY: "#FFD700",
-  BUTTON_PRIMARY: "#1E90FF",
-  BUTTON_SECONDARY: "#FFA500",
+  ACCENT: "#1E88E5",
+  TEXT_PRIMARY: "#222",
+  TEXT_SECONDARY: "#555",
+  CARD_BG: "rgba(255,255,255,0.92)",
+  BORDER: "#DADADA",
+  BUTTON_PRIMARY: "#1E88E5",
+  BUTTON_SECONDARY: "#E0E0E0",
+  BUTTON_TEXT_LIGHT: "#fff",
+  BUTTON_TEXT_DARK: "#222",
+  BUTTON_THIRD: "#ffee00ff",
 };
 
 const PLACEHOLDER_IMAGE = require("../../assets/listing1.jpeg");
 const BG_IMAGE = require("../../assets/bg2.jpg");
 
-export default function CurrentRentalScreen({ navigation }) {
-  const [modalVisible, setModalVisible] = useState(false);
-  const [thankYouVisible, setThankYouVisible] = useState(false);
-  const [selectedRating, setSelectedRating] = useState(0);
-  const [feedbackText, setFeedbackText] = useState("");
-
-  const pulseAnim = useRef(new Animated.Value(1)).current;
-  const thankYouAnim = useRef(new Animated.Value(0)).current;
-
-  useEffect(() => {
-    Animated.loop(
-      Animated.sequence([
-        Animated.timing(pulseAnim, { toValue: 1.1, duration: 800, useNativeDriver: true }),
-        Animated.timing(pulseAnim, { toValue: 1, duration: 800, useNativeDriver: true }),
-      ])
-    ).start();
-  }, []);
-
-  useEffect(() => {
-    if (thankYouVisible) {
-      Animated.spring(thankYouAnim, {
-        toValue: 1,
-        friction: 6,
-        useNativeDriver: true,
-      }).start();
-    } else {
-      thankYouAnim.setValue(0);
-    }
-  }, [thankYouVisible]);
-
-  const currentRental = {
+export default function CurrentRentalScreen({ route, navigation }) {
+  const initialRental = {
     id: "1",
-    name: "Lapas sa San Boarding House",
-    rent: 15000,
-    details: "Private room with shared bathroom. Free Wi-Fi, clean linens included.",
-    amenities: ["Wi-Fi", "AC", "Hot Water"],
+    rent: 12500,
+    details:
+      "Private room with shared bathroom. Free Wi-Fi, clean linens included.",
     rules: "No pets, No smoking.",
     leaseStart: "2025-11-01",
     leaseEnd: "2026-10-31",
     paymentFrequency: "Monthly",
-    rating: 4.5,
-    type: "Private Room",
-    location: "Lapas sa San",
-    landlordName: "Landlord Marhean",
-    Gcash: "0123456789",
     images: [PLACEHOLDER_IMAGE],
+    landlord: "Juan Luna",
+    landlordContact: "0917 123 4567",
+    location: "Brgy. San Vicente, Lapasan.",
+    gcash: "09171234567",
+    bank: "1234-5678-9012-3456",
   };
 
-  const renderStars = (rating, size = 20, interactive = false) => {
-    const stars = [];
-    for (let i = 1; i <= 5; i++) {
-      const name = i <= rating ? "star" : "star-o";
-      stars.push(
-        <TouchableOpacity
-          key={`star-${i}`}
-          disabled={!interactive}
-          onPress={() => interactive && setSelectedRating(i)}
-          style={{ marginHorizontal: 2 }}
-        >
-          <FontAwesome name={name} size={size} color={COLORS.SECONDARY} />
-        </TouchableOpacity>
-      );
+  const [currentRental, setCurrentRental] = useState(initialRental);
+  const [remainingRent, setRemainingRent] = useState(initialRental.rent);
+  const [paymentHistory, setPaymentHistory] = useState([]);
+
+  const [renewVisible, setRenewVisible] = useState(false);
+  const [acceptedContract, setAcceptedContract] = useState(false);
+  const [showPayment, setShowPayment] = useState(false);
+  const [paymentMethod, setPaymentMethod] = useState("");
+  const [renewDuration, setRenewDuration] = useState("1");
+  const [summaryVisible, setSummaryVisible] = useState(false);
+  const [summaryData, setSummaryData] = useState({});
+
+  // New state for Rating modal
+  const [ratingVisible, setRatingVisible] = useState(false);
+  const [starRating, setStarRating] = useState(0);
+  const [reviewText, setReviewText] = useState("");
+
+  useEffect(() => {
+    if (route.params?.updatedRemaining !== undefined) {
+      setRemainingRent(route.params.updatedRemaining);
     }
-    return <View style={{ flexDirection: "row", alignItems: "center" }}>{stars}</View>;
+    if (route.params?.paymentHistory) {
+      setPaymentHistory(route.params.paymentHistory);
+    }
+  }, [route.params]);
+
+  const calculateNewLeaseEnd = (startDate, monthsToAdd) => {
+    const start = new Date(startDate);
+    start.setMonth(start.getMonth() + monthsToAdd);
+    const yyyy = start.getFullYear();
+    const mm = String(start.getMonth() + 1).padStart(2, "0");
+    const dd = String(start.getDate()).padStart(2, "0");
+    return `${yyyy}-${mm}-${dd}`;
   };
 
-  const handleSubmitRating = () => {
-    if (selectedRating === 0) {
-      alert("Please select a star rating before submitting!");
-      return;
-    }
-    setModalVisible(false);
-    setThankYouVisible(true);
-    setTimeout(() => {
-      setThankYouVisible(false);
-      setSelectedRating(0);
-      setFeedbackText("");
-      navigation.navigate("Dashboard", {
-        newRating: selectedRating,
-        feedback: feedbackText,
-        rentalId: currentRental.id,
-      });
-    }, 2000);
+  const handleRenewLease = () => {
+    if (!paymentMethod) return alert("Select payment method");
+
+    const months = parseInt(renewDuration);
+    const newEndDate = calculateNewLeaseEnd(currentRental.leaseEnd, months);
+    const total = currentRental.rent * months + currentRental.rent * 2;
+
+    setSummaryData({
+      months,
+      rent: currentRental.rent,
+      deposit: currentRental.rent * 2,
+      total,
+      paymentMethod,
+      newEndDate,
+    });
+
+    setCurrentRental((prev) => ({
+      ...prev,
+      leaseEnd: newEndDate,
+    }));
+
+    setRenewVisible(false);
+    setAcceptedContract(false);
+    setShowPayment(false);
+    setPaymentMethod("");
+    setSummaryVisible(true);
   };
+
+  // Inside your rating modal submission handler:
+const handleSubmitRating = () => {
+  if (starRating === 0) {
+    Alert.alert("Rating Required", "Please select a star rating before submitting.");
+    return;
+  }
+
+  // Navigate back to Dashboard and pass rating info
+  navigation.navigate("Dashboard", {
+    newRating: starRating,
+    feedback: reviewText,
+    rentalId: currentRental.id, // Make sure this matches Dashboard's rental id
+  });
+
+  // Show a professional alert
+  Alert.alert(
+    "Thank You!",
+    "Your rating has been submitted successfully.",
+    [
+      {
+        text: "OK",
+        onPress: () => {
+          setRatingVisible(false);
+          setStarRating(0);
+          setReviewText("");
+        },
+      },
+    ],
+    { cancelable: false }
+  );
+};
 
   return (
-    <ImageBackground source={BG_IMAGE} style={styles.background} resizeMode="cover">
-      <SafeAreaView style={styles.safeArea}>
-        {/* Floating Chat Circle */}
-        <Animated.View style={[styles.chatCircle, { transform: [{ scale: pulseAnim }] }]}>
-          <TouchableOpacity onPress={() => navigation.navigate("Chat")}>
-            <FontAwesome name="comments" size={28} color="#fff" />
-          </TouchableOpacity>
-        </Animated.View>
+    <ImageBackground source={BG_IMAGE} style={{ flex: 1 }} blurRadius={1}>
+      <SafeAreaView style={{ flex: 1 }}>
+        <ScrollView contentContainerStyle={{ paddingHorizontal: 20, paddingBottom: 70 }}>
+          <Image source={currentRental.images[0]} style={styles.propertyImage} />
+          
 
-        <ScrollView style={styles.container} contentContainerStyle={{ paddingBottom: 40 }}>
-          <Image source={currentRental.images[0]} style={styles.image} />
+          {/* LANDLORD INFO */}
+          <View style={styles.card}>
+            <Text style={styles.cardTitle}>Landlord & Location</Text>
+            <View style={styles.row}>
+              <Text style={styles.label}>Landlord:</Text>
+              <Text style={styles.accent}>{currentRental.landlord}</Text>
+            </View>
+            <View style={styles.row}>
+              <Text style={styles.label}>Contact:</Text>
+              <Text style={styles.text}>{currentRental.landlordContact}</Text>
+            </View>
+            <View style={styles.row}>
+              <Text style={styles.label}>Location:</Text>
+              <Text style={styles.text}>{currentRental.location}</Text>
+            </View>
+          </View>
 
-          {/* Lease Details Card */}
-          <BlurView
-            style={styles.card}
-            intensity={80}
-            tint={Platform.OS === "ios" ? "dark" : undefined}
-            fallbackColor={Platform.OS === "android" ? "rgba(0,0,0,0.5)" : undefined}
-          >
-            <Text style={styles.cardTitle}>Lease Details</Text>
-            <Text style={styles.cardText}>
-              <Text style={styles.label}>Lease Start: </Text>
-              {currentRental.leaseStart}
-            </Text>
-            <Text style={styles.cardText}>
-              <Text style={styles.label}>Lease End: </Text>
-              {currentRental.leaseEnd}
-            </Text>
-            <Text style={styles.cardText}>
-              <Text style={styles.label}>Payment: </Text>
-              {currentRental.paymentFrequency}
-            </Text>
-            <Text style={styles.cardText}>
-              <Text style={styles.label}>Rent: </Text>₱{currentRental.rent.toLocaleString()}
-            </Text>
-            <Text style={styles.cardText}>
-              <Text style={styles.label}>Landlord: </Text>
-              {currentRental.landlordName}
-            </Text>
-            <Text style={styles.cardText}>
-              <Text style={styles.label}>Gcash: </Text>
-              {currentRental.Gcash}
-            </Text>
-          </BlurView>
+          {/* LEASE INFO */}
+          <View style={styles.card}>
+            <Text style={styles.cardTitle}>Lease Information</Text>
+            <View style={styles.row}>
+              <Text style={styles.label}>Rent:</Text>
+              <Text style={styles.text}>₱{currentRental.rent.toLocaleString()}</Text>
+            </View>
+            <View style={styles.row}>
+              <Text style={styles.label}>Lease Start:</Text>
+              <Text style={styles.text}>{currentRental.leaseStart}</Text>
+            </View>
+            <View style={styles.row}>
+              <Text style={styles.label}>Lease End:</Text>
+              <Text style={styles.text}>{currentRental.leaseEnd}</Text>
+            </View>
+            <View style={styles.row}>
+              <Text style={styles.label}>Remaining Rent:</Text>
+              <Text style={{ fontWeight: "700", color: COLORS.ACCENT }}>
+                ₱{remainingRent.toLocaleString()}
+              </Text>
+            </View>
+            <View style={styles.row}>
+              <Text style={styles.label}>Payment:</Text>
+              <Text style={styles.text}>{currentRental.paymentFrequency}</Text>
+            </View>
+          </View>
 
-          {/* Details & Rules Card */}
-          <BlurView
-            style={styles.card}
-            intensity={80}
-            tint={Platform.OS === "ios" ? "dark" : undefined}
-            fallbackColor={Platform.OS === "android" ? "rgba(0,0,0,0.5)" : undefined}
-          >
-            <Text style={styles.cardTitle}>Details & Rules</Text>
-            <Text style={styles.cardText}>{currentRental.details}</Text>
-            <Text style={styles.cardText}>{currentRental.rules}</Text>
-          </BlurView>
+          {/* PROPERTY DETAILS */}
+          <View style={styles.card}>
+            <Text style={styles.cardTitle}>Property Details</Text>
+            <Text style={styles.description}>{currentRental.details}</Text>
+            <Text style={[styles.cardTitle, { marginTop: 15 }]}>Rules</Text>
+            <Text style={styles.description}>{currentRental.rules}</Text>
+          </View>
 
-          {/* Action Buttons */}
-          <View style={styles.buttonsWrapper}>
+          {/* PAYMENT HISTORY */}
+          <View style={styles.card}>
+            <Text style={styles.cardTitle}>Payment History</Text>
+            {paymentHistory.length === 0 ? (
+              <Text>No payments yet</Text>
+            ) : (
+              paymentHistory.map((p, index) => (
+                <View key={index} style={{ flexDirection: "row", justifyContent: "space-between", marginVertical: 4 }}>
+                  <Text>{p.date}</Text>
+                  <Text>₱{p.amount.toLocaleString()} via {p.method}</Text>
+                </View>
+              ))
+            )}
+          </View>
+
+          {/* BUTTONS */}
+          <View style={{ marginTop: 10 }}>
             <TouchableOpacity
-              style={[styles.button, { backgroundColor: COLORS.BUTTON_PRIMARY }]}
-              onPress={() => alert("Renew clicked!")}
+              style={styles.primaryButton}
+              onPress={() => setRenewVisible(true)}
             >
-              <Text style={styles.buttonText}>Renew</Text>
+              <Text style={styles.primaryButtonText}>Renew Lease</Text>
             </TouchableOpacity>
-
             <TouchableOpacity
-              style={[styles.button, { backgroundColor: COLORS.BUTTON_SECONDARY }]}
-              onPress={() => setModalVisible(true)}
+              style={styles.secondaryButton}
+              onPress={() => setRatingVisible(true)}
             >
-              <Text style={styles.buttonText}>Rate</Text>
+              <Text style={styles.secondaryButtonText}>Rate Stay</Text>
             </TouchableOpacity>
-
             <TouchableOpacity
-              style={[styles.button, { backgroundColor: "#080808ff" }]}
+              style={styles.closeButton}
               onPress={() => navigation.goBack()}
             >
-              <Text style={styles.buttonText}>Close</Text>
+              <Text style={styles.secondaryButtonText}>Close</Text>
             </TouchableOpacity>
           </View>
+
         </ScrollView>
 
-        {/* Rate Modal */}
-        <Modal animationType="slide" transparent visible={modalVisible} onRequestClose={() => setModalVisible(false)}>
-          <View style={styles.modalOverlay}>
-            <View style={styles.modalContent}>
-              <Text style={styles.modalTitle}>Rate this Rental</Text>
-              {renderStars(selectedRating, 36, true)}
+        {/* RENEW MODAL */}
+        <Modal transparent visible={renewVisible} animationType="fade">
+          <View style={styles.renewOverlay}>
+            <View style={styles.renewBox}>
+              <Text style={styles.modalTitle}>Renew Lease</Text>
+              <Text style={{ fontWeight: "600", marginBottom: 6 }}>Current Rent:</Text>
+              <Text style={{ marginBottom: 12 }}>₱{currentRental.rent.toLocaleString()} / month</Text>
 
-              <TextInput
-                placeholder="Write your feedback..."
-                placeholderTextColor="#ccc"
-                style={styles.input}
-                value={feedbackText}
-                onChangeText={setFeedbackText}
-                multiline
-              />
-
-              <View style={styles.modalButtons}>
-                <TouchableOpacity
-                  style={[styles.modalButton, { backgroundColor: COLORS.BUTTON_PRIMARY }]}
-                  onPress={handleSubmitRating}
+              <TouchableOpacity
+                style={styles.contractRow}
+                onPress={() => {
+                  setAcceptedContract(!acceptedContract);
+                  setShowPayment(!acceptedContract);
+                  setPaymentMethod("");
+                }}
+              >
+                <View
+                  style={[styles.checkbox, acceptedContract && { backgroundColor: COLORS.BUTTON_PRIMARY }]}
                 >
-                  <Text style={styles.buttonText}>Submit</Text>
+                  {acceptedContract && <FontAwesome name="check" size={16} color="#fff" />}
+                </View>
+                <Text style={{ marginLeft: 10 }}>I have read and accept the contract terms</Text>
+              </TouchableOpacity>
+
+              {showPayment && (
+                <>
+                  <Text style={{ fontWeight: "600", marginBottom: 6 }}>Months to Renew:</Text>
+                  <View style={styles.pickerContainer}>
+                    <Picker
+                      selectedValue={renewDuration}
+                      onValueChange={(itemValue) => setRenewDuration(itemValue)}
+                    >
+                      {[1, 2, 3, 6, 12].map((months) => (
+                        <Picker.Item key={months} label={`${months} month(s)`} value={String(months)} />
+                      ))}
+                    </Picker>
+                  </View>
+
+                  <Text style={{ fontWeight: "600", marginBottom: 6 }}>Payment Method:</Text>
+                  <View style={{ flexDirection: "row", marginBottom: 15 }}>
+                    {["Gcash", "Bank"].map((method) => (
+                      <TouchableOpacity
+                        key={method}
+                        onPress={() => setPaymentMethod(method)}
+                        style={{
+                          flex: 1,
+                          padding: 10,
+                          marginHorizontal: 5,
+                          borderRadius: 10,
+                          backgroundColor: paymentMethod === method ? COLORS.BUTTON_PRIMARY : COLORS.BUTTON_SECONDARY,
+                          alignItems: "center",
+                        }}
+                      >
+                        <Text style={{
+                          color: paymentMethod === method ? COLORS.BUTTON_TEXT_LIGHT : COLORS.BUTTON_TEXT_DARK,
+                          fontWeight: "700"
+                        }}>{method}</Text>
+                      </TouchableOpacity>
+                    ))}
+                  </View>
+
+                  {paymentMethod && (
+                    <View style={{ width: "100%", marginBottom: 15 }}>
+                      <Text style={{ fontWeight: "600" }}>Send Payment To:</Text>
+                      <Text style={{ marginTop: 4 }}>{paymentMethod === "Gcash" ? currentRental.gcash : currentRental.bank}</Text>
+                    </View>
+                  )}
+                </>
+              )}
+
+              <View style={{ flexDirection: "row", justifyContent: "space-between", width: "100%", marginTop: 10 }}>
+                <TouchableOpacity
+                  style={{ backgroundColor: COLORS.BUTTON_PRIMARY, paddingVertical: 13, borderRadius: 12, width: "48%", alignItems: "center" }}
+                  onPress={handleRenewLease}
+                >
+                  <Text style={{ color: COLORS.BUTTON_TEXT_LIGHT, fontWeight: "700" }}>Send Payment</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
-                  style={[styles.modalButton, { backgroundColor: "#888" }]}
-                  onPress={() => setModalVisible(false)}
+                  style={{ backgroundColor: COLORS.BUTTON_SECONDARY, paddingVertical: 13, borderRadius: 12, width: "48%", alignItems: "center" }}
+                  onPress={() => setRenewVisible(false)}
                 >
-                  <Text style={styles.buttonText}>Cancel</Text>
+                  <Text style={{ color: COLORS.BUTTON_TEXT_DARK, fontWeight: "700" }}>Cancel</Text>
                 </TouchableOpacity>
               </View>
             </View>
           </View>
         </Modal>
 
-        {/* Thank You Modal */}
-        <Modal transparent visible={thankYouVisible} animationType="fade">
-          <View style={styles.thankYouOverlay}>
-            <Animated.View style={[styles.thankYouContent, { transform: [{ scale: thankYouAnim }] }]}>
-              <BlurView
-                style={styles.thankYouBlur}
-                intensity={100}
-                tint={Platform.OS === "ios" ? "dark" : undefined}
-                fallbackColor={Platform.OS === "android" ? "rgba(0,0,0,0.7)" : undefined}
+        {/* SUMMARY MODAL */}
+        <Modal transparent visible={summaryVisible} animationType="fade">
+          <View style={styles.modalOverlay}>
+            <View style={[styles.renewBox, { padding: 20 }]}>
+              <Text style={styles.modalTitle}>Lease Renewal Summary</Text>
+              {Object.entries(summaryData).map(([key, value]) => (
+                <View style={styles.summaryRow} key={key}>
+                  <Text style={{ fontWeight: "600", textTransform: "capitalize" }}>
+                    {key.replace(/([A-Z])/g, " $1")}:
+                  </Text>
+                  <Text>
+                    {["rent", "deposit", "total"].includes(key) ? `₱${value.toLocaleString()}` : value}
+                  </Text>
+                </View>
+              ))}
+              <TouchableOpacity
+                style={[styles.modalPrimary, { marginTop: 20, width: "100%" }]}
+                onPress={() => setSummaryVisible(false)}
               >
-                <Text style={styles.thankYouText}>Thank you for staying!</Text>
-                <FontAwesome name="smile-o" size={36} color={COLORS.SECONDARY} style={{ marginTop: 10 }} />
-              </BlurView>
-            </Animated.View>
+                <Text style={styles.primaryButtonText}>Close</Text>
+              </TouchableOpacity>
+            </View>
           </View>
         </Modal>
+
+        {/* RATING MODAL */}
+        <Modal transparent visible={ratingVisible} animationType="fade">
+          <View style={styles.modalOverlay}>
+            <View style={[styles.renewBox, { padding: 20 }]}>
+              <Text style={styles.modalTitle}>Rate Your Stay</Text>
+
+              <View style={{ flexDirection: "row", justifyContent: "center", marginBottom: 15 }}>
+                {[1, 2, 3, 4, 5].map((star) => (
+                  <TouchableOpacity key={star} onPress={() => setStarRating(star)}>
+                    <FontAwesome
+                      name={star <= starRating ? "star" : "star-o"}
+                      size={30}
+                      color={COLORS.BUTTON_THIRD}
+                      style={{ marginHorizontal: 5 }}
+                    />
+                  </TouchableOpacity>
+                ))}
+              </View>
+
+              <TextInput
+                style={styles.input}
+                placeholder="Write a review (optional)"
+                multiline
+                value={reviewText}
+                onChangeText={setReviewText}
+              />
+
+              <TouchableOpacity
+                style={[styles.modalPrimary, { marginTop: 15, width: "100%" }]}
+                onPress={handleSubmitRating}
+              >
+                <Text style={styles.primaryButtonText}>Submit Rating</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.modalCancel, { marginTop: 10, width: "100%" }]}
+                onPress={() => setRatingVisible(false)}
+              >
+                <Text style={{ fontWeight: "700" }}>Cancel</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </Modal>
+
       </SafeAreaView>
     </ImageBackground>
   );
 }
 
+// --- STYLES ---
 const styles = StyleSheet.create({
-  background: { flex: 1 },
-  safeArea: { flex: 1 },
-  container: { flex: 1, paddingHorizontal: 20, paddingTop: 20 },
-  chatCircle: {
-    position: "absolute",
-    top: 25,
-    right: 25,
-    backgroundColor: COLORS.BUTTON_PRIMARY,
-    width: 70,
-    height: 70,
-    borderRadius: 35,
-    justifyContent: "center",
-    alignItems: "center",
-    zIndex: 999,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 5 },
-    shadowOpacity: 0.4,
-    shadowRadius: 6,
-    elevation: 8,
-  },
-  image: { width: "100%", height: 240, borderRadius: 15, marginBottom: 20 },
-  card: {
-    borderRadius: 20,
-    padding: 18,
-    marginBottom: 20,
-    overflow: "hidden",
-    backgroundColor: Platform.OS === "android" ? "rgba(0, 0, 0, 0.99)" : "transparent",
-  },
-  cardTitle: { fontSize: 20, fontWeight: "700", color: COLORS.TEXT_LIGHT, marginBottom: 10 },
-  cardText: { fontSize: 16, color: COLORS.TEXT_LIGHT, lineHeight: 24 },
-  label: { fontWeight: "700" },
-  buttonsWrapper: { marginTop: 10 },
-  button: { marginBottom: 15, paddingVertical: 14, borderRadius: 18, alignItems: "center" },
-  buttonText: { fontSize: 17, fontWeight: "bold", color: COLORS.TEXT_LIGHT },
-  modalOverlay: { flex: 1, backgroundColor: "rgba(0,0,0,0.6)", justifyContent: "center", alignItems: "center" },
-  modalContent: { width: "85%", backgroundColor: "rgba(0,0,0,0.7)", borderRadius: 20, padding: 20, alignItems: "center" },
-  modalTitle: { fontSize: 20, fontWeight: "700", color: COLORS.TEXT_LIGHT, marginBottom: 15 },
-  input: { backgroundColor: "rgba(255,255,255,0.1)", color: COLORS.TEXT_LIGHT, borderRadius: 12, padding: 12, fontSize: 16, marginTop: 15, marginBottom: 20, minHeight: 80, textAlignVertical: "top", width: "100%" },
-  modalButtons: { flexDirection: "row", justifyContent: "space-between", width: "100%" },
-  modalButton: { flex: 0.48, paddingVertical: 12, borderRadius: 15, alignItems: "center" },
-  thankYouOverlay: { flex: 1, backgroundColor: "rgba(0,0,0,0.6)", justifyContent: "center", alignItems: "center" },
-  thankYouContent: { borderRadius: 25, overflow: "hidden" },
-  thankYouBlur: { padding: 30, alignItems: "center", borderRadius: 25 },
-  thankYouText: { fontSize: 24, fontWeight: "700", color: COLORS.TEXT_LIGHT },
+  propertyImage: { width: "100%", height: 240, borderRadius: 16, marginBottom: 15 },
+  propertyName: { fontSize: 26, fontWeight: "700", color: COLORS.TEXT_PRIMARY, marginBottom: 15 },
+  card: { backgroundColor: COLORS.CARD_BG, borderRadius: 16, padding: 18, marginBottom: 20, borderWidth: 1, borderColor: COLORS.BORDER },
+  cardTitle: { fontSize: 18, fontWeight: "700", color: COLORS.TEXT_PRIMARY, marginBottom: 10 },
+  row: { flexDirection: "row", justifyContent: "space-between", marginBottom: 6 },
+  label: { color: COLORS.TEXT_SECONDARY, fontSize: 15 },
+  text: { color: COLORS.TEXT_PRIMARY, fontSize: 15 },
+  accent: { color: COLORS.ACCENT, fontSize: 15, fontWeight: "700" },
+  description: { fontSize: 15, color: COLORS.TEXT_PRIMARY },
+  primaryButton: { backgroundColor: COLORS.BUTTON_PRIMARY, paddingVertical: 15, borderRadius: 14, alignItems: "center", marginBottom: 12 },
+  primaryButtonText: { color: COLORS.BUTTON_TEXT_LIGHT, fontWeight: "700", fontSize: 16 },
+  secondaryButton: { backgroundColor: COLORS.BUTTON_THIRD, paddingVertical: 15, borderRadius: 14, alignItems: "center", marginBottom: 12 },
+  secondaryButtonText: { color: COLORS.BUTTON_TEXT_DARK, fontWeight: "700", fontSize: 16 },
+  closeButton: { backgroundColor: COLORS.BUTTON_SECONDARY, paddingVertical: 15, borderRadius: 14, alignItems: "center", marginBottom: 12 },
+  modalOverlay: { flex: 1, backgroundColor: "rgba(0,0,0,0.45)", justifyContent: "center", alignItems: "center" },
+  modalTitle: { fontSize: 20, fontWeight: "700", color: COLORS.TEXT_PRIMARY, textAlign: "center", marginBottom: 15 },
+  modalPrimary: { backgroundColor: COLORS.BUTTON_PRIMARY, paddingVertical: 13, borderRadius: 12, width: "48%", alignItems: "center" },
+  modalCancel: { backgroundColor: COLORS.BUTTON_SECONDARY, paddingVertical: 13, borderRadius: 12, width: "48%", alignItems: "center", marginBottom: 0 },
+  renewOverlay: { flex:1, backgroundColor:"#00000073", justifyContent:"center", alignItems:"center" },
+  renewBox: { width:"85%", backgroundColor:"#fff", borderRadius:18, padding:22, borderWidth:1, borderColor:COLORS.BORDER, alignItems:"center" },
+  pickerContainer: { backgroundColor:"#f5f5f5", borderRadius:12, borderWidth:1, borderColor:COLORS.BORDER, marginBottom:12, width:"100%" },
+  contractRow: { flexDirection:"row", alignItems:"center", marginBottom:20, width:"100%" },
+  checkbox: { width:24, height:24, borderWidth:1, borderColor:COLORS.BORDER, borderRadius:6, justifyContent:"center", alignItems:"center", backgroundColor:"#fff" },
+  summaryRow: { flexDirection:"row", justifyContent:"space-between", marginVertical:6, width:"100%" },
+  input: { width: "100%", borderWidth: 1, borderColor: COLORS.BORDER, borderRadius: 12, padding: 10, minHeight: 80, textAlignVertical: "top" },
 });

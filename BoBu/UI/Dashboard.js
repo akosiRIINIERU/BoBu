@@ -24,11 +24,15 @@ const USER_ICON = require("../assets/user.png");
 // Colors
 const COLORS = {
   BACKGROUND: "#121212",
-  CARD_BG: "rgba(0,0,0,0.7)",
+  CARD_BG: "#1A1A1A",
   TEXT_LIGHT: "#FFFFFF",
+  TEXT_SECONDARY: "#BBBBBB",
   SECONDARY: "#FFD700",
   BUTTON_PRIMARY: "#1E90FF",
-  BUTTON_CHAT: "#1E90FF",
+  BUTTON_CHAT: "#FF6F61",
+  SEARCH_BG: "rgba(255,255,255,0.1)",
+  NAV_ACTIVE: "#1E90FF",
+  NAV_INACTIVE: "#888",
 };
 
 export default function Dashboard() {
@@ -37,12 +41,11 @@ export default function Dashboard() {
   const flatListRef = useRef(null);
   const [search, setSearch] = useState("");
 
-  // Boarding Places
   const [places, setPlaces] = useState([
     {
       id: "1",
       name: "Lapas sa San Boarding House",
-      rent: 15000,
+      rent: 12500,
       details: "Private room with shared bathroom. Free Wi-Fi, clean linens included.",
       amenities: ["Wi-Fi", "AC", "Hot Water"],
       images: [PLACEHOLDER_IMAGE],
@@ -132,28 +135,35 @@ export default function Dashboard() {
       );
     while (stars.length < 5)
       stars.push(
-        <FontAwesome key={`star-empty-${stars.length}`} name="star-o" size={size} color={COLORS.SECONDARY} />
+        <FontAwesome key={`star-empty-${stars.length}`} name="star-o" size={size} color={COLORS.TEXT_SECONDARY} />
       );
 
-    return <View style={{ flexDirection: "row", marginTop: 3 }}>{stars}</View>;
+    return <View style={{ flexDirection: "row", marginTop: 4 }}>{stars}</View>;
   };
 
   const renderPlaceItem = ({ item }) => (
-    <View style={styles.card}>
+    <TouchableOpacity
+      style={styles.card}
+      activeOpacity={0.85}
+      onPress={() => navigation.navigate("PlaceDetails", { place: item })}
+    >
       <Image source={item.images[0]} style={styles.placeImage} />
       <View style={styles.cardDetails}>
         <Text style={styles.placeName}>{item.name}</Text>
         <Text style={styles.placeRent}>₱{item.rent.toLocaleString()}</Text>
-        {renderStars(item.rating)}
-        {item.feedback ? <Text style={{ color: "#ccc", marginTop: 4 }}>Feedback: {item.feedback}</Text> : null}
-        <TouchableOpacity
-          style={styles.viewDetailsBtn}
-          onPress={() => navigation.navigate("PlaceDetails", { place: item })}
-        >
-          <Text style={styles.viewDetailsText}>View Details</Text>
-        </TouchableOpacity>
+        {renderStars(item.rating, 16)}
+        {item.feedback ? (
+          <Text style={styles.feedbackText}>Feedback: {item.feedback}</Text>
+        ) : null}
+        <View style={styles.amenitiesWrapper}>
+          {item.amenities.map((a, i) => (
+            <Text key={i} style={styles.amenityText}>
+              {a}
+            </Text>
+          ))}
+        </View>
       </View>
-    </View>
+    </TouchableOpacity>
   );
 
   const navTabs = [
@@ -182,7 +192,7 @@ export default function Dashboard() {
         {/* Search */}
         <View style={styles.searchWrapper}>
           <TextInput
-            placeholder="Search..."
+            placeholder="Search for boarding houses..."
             placeholderTextColor="#bbb"
             style={styles.search}
             value={search}
@@ -196,7 +206,8 @@ export default function Dashboard() {
           data={filteredPlaces}
           keyExtractor={(item) => item.id}
           renderItem={renderPlaceItem}
-          contentContainerStyle={{ paddingBottom: 120, paddingHorizontal: 15 }}
+          contentContainerStyle={{ paddingBottom: 120, paddingHorizontal: 20 }}
+          showsVerticalScrollIndicator={false}
         />
 
         {/* Bottom Nav */}
@@ -208,7 +219,14 @@ export default function Dashboard() {
               onPress={() => navigation.navigate(tab.screen)}
             >
               <Image source={tab.img} style={styles.navImg} />
-              <Text style={styles.navLabel}>{tab.label}</Text>
+              <Text
+                style={[
+                  styles.navLabel,
+                  tab.screen === "Dashboard" && { color: COLORS.NAV_ACTIVE },
+                ]}
+              >
+                {tab.label}
+              </Text>
             </TouchableOpacity>
           ))}
         </View>
@@ -220,43 +238,84 @@ export default function Dashboard() {
 const styles = StyleSheet.create({
   safeArea: { flex: 1 },
   background: { flex: 1 },
-  header: { padding: 30, alignItems: "flex-start", marginBottom: 0, borderRadius: 30 },
-  headerTitle: { fontSize: 28, fontWeight: "700", color: COLORS.TEXT_LIGHT },
+  header: {
+    padding: 25,
+    paddingBottom: 15,
+  },
+  headerTitle: {
+    fontSize: 28,
+    fontWeight: "700",
+    color: COLORS.TEXT_LIGHT,
+  },
   searchWrapper: {
     marginHorizontal: 20,
     marginBottom: 15,
-    backgroundColor: "rgba(0,0,0,0.7)",
-    borderRadius: 30,
+    backgroundColor: COLORS.SEARCH_BG,
+    borderRadius: 25,
     paddingHorizontal: 15,
     paddingVertical: 10,
   },
-  search: { color: COLORS.TEXT_LIGHT },
+  search: {
+    color: COLORS.TEXT_LIGHT,
+    fontSize: 16,
+  },
   card: {
     flexDirection: "row",
     backgroundColor: COLORS.CARD_BG,
+    borderRadius: 20,
     padding: 15,
     marginBottom: 15,
-    borderRadius: 20,
-    alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 6,
+    elevation: 6,
   },
-  placeImage: { width: 90, height: 90, borderRadius: 15 },
-  cardDetails: { flex: 1, marginLeft: 15 },
-  placeName: { color: COLORS.TEXT_LIGHT, fontSize: 16, fontWeight: "700" },
-  placeRent: { color: COLORS.TEXT_LIGHT, fontWeight: "bold", marginTop: 2 },
-  viewDetailsBtn: {
-    marginTop: 10,
-    backgroundColor: COLORS.BUTTON_PRIMARY,
-    paddingVertical: 6,
-    paddingHorizontal: 12,
+  placeImage: {
+    width: 100,
+    height: 100,
     borderRadius: 15,
-    alignSelf: "flex-start",
   },
-  viewDetailsText: { color: COLORS.TEXT_LIGHT, fontWeight: "bold", fontSize: 14 },
+  cardDetails: {
+    flex: 1,
+    marginLeft: 15,
+  },
+  placeName: {
+    color: COLORS.TEXT_LIGHT,
+    fontSize: 18,
+    fontWeight: "700",
+  },
+  placeRent: {
+    color: COLORS.TEXT_LIGHT,
+    fontSize: 15,
+    fontWeight: "600",
+    marginTop: 4,
+  },
+  feedbackText: {
+    color: COLORS.TEXT_SECONDARY,
+    fontSize: 12,
+    marginTop: 4,
+  },
+  amenitiesWrapper: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    marginTop: 6,
+  },
+  amenityText: {
+    backgroundColor: COLORS.BUTTON_PRIMARY,
+    color: "#fff",
+    fontSize: 11,
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 12,
+    marginRight: 6,
+    marginTop: 4,
+  },
   navBar: {
     flexDirection: "row",
     justifyContent: "space-around",
     paddingVertical: 12,
-    backgroundColor: "rgba(0,0,0,0.7)",
+    backgroundColor: "rgba(0,0,0,0.85)",
     borderTopLeftRadius: 25,
     borderTopRightRadius: 25,
     position: "absolute",
@@ -265,8 +324,8 @@ const styles = StyleSheet.create({
     right: 0,
   },
   navItem: { alignItems: "center" },
-  navImg: { width: 28, height: 28, tintColor: "#aaa" },
-  navLabel: { fontSize: 10, color: "#aaa" },
+  navImg: { width: 28, height: 28, tintColor: COLORS.NAV_INACTIVE },
+  navLabel: { fontSize: 10, color: COLORS.NAV_INACTIVE, marginTop: 2 },
   floatingChatBtn: {
     position: "absolute",
     top: 50,
@@ -278,10 +337,10 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     zIndex: 10,
-    elevation: 5,
+    elevation: 6,
     shadowColor: "#000",
-    shadowOffset: { width: 0, height: 3 },
+    shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
-    shadowRadius: 4,
+    shadowRadius: 5,
   },
 });
