@@ -16,7 +16,7 @@ import { BarChart } from "react-native-chart-kit";
 
 export default function Listings() {
   const navigation = useNavigation();
-  const [isPremium, setIsPremium] = useState(false); // toggle for premium users
+  const [isPremium, setIsPremium] = useState(false); 
   const [expandedPropertyId, setExpandedPropertyId] = useState(null);
   const [showPremiumModal, setShowPremiumModal] = useState(false);
   const [selectedProperty, setSelectedProperty] = useState(null);
