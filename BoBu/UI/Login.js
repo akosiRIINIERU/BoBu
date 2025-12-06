@@ -20,6 +20,7 @@ import api from "./http.js";
 
 
 function Login({ navigation }) {
+  // Moved here ✔ FIXED
   const [data, setData] = useState({
     id_number: "",
     password: ""
@@ -180,7 +181,7 @@ function Login({ navigation }) {
             />
 
             <Button title="Login" onPress={onPressLogin} />
-            <Button title="Get Profile" onPress={onGetProfile} />
+            <Button title="Get Profile" onPress={console.log(data)} />
           </View>
           
           <View>
