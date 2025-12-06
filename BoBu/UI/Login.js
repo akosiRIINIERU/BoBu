@@ -5,6 +5,7 @@ import {
   Text,
   TouchableOpacity,
   TextInput,
+  Button,
   Image,
   Keyboard,
   Linking,
@@ -15,11 +16,49 @@ import {
   Easing,
   Modal,
 } from "react-native";
+import api from "./http.js";
+
 
 function Login({ navigation }) {
+  // Moved here ✔ FIXED
+  const [data, setData] = useState({
+    id_number: "",
+    password: ""
+  })
+
+  const [profile, setProfile] = useState({
+    'first_name' : '',
+    'last_name' : ''
+  })
+
+  const[Token, setToken] = useState("")
+
+  const onPressLogin = () => {
+    api.post('auth/token/login/', data).then(response => {
+      setToken(response.data?.auth_token)
+    }).catch(error => {
+      console.error(error);
+    })
+  }
+
+  const onGetProfile = () => {
+    api.get('auth/users/me/', {
+      headers: {
+        'Authorization': 'Token ' + Token
+      }
+    }).then(response => {
+      let datum = response.data
+      setProfile({
+        first_name: datum.first_name,
+        last_name: datum.last_name
+      })
+    })
+  }
+
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+
   const passwordInputRef = useRef(null);
 
   // ✨ Animation states
@@ -124,6 +163,30 @@ function Login({ navigation }) {
             />
           </View>
 
+          {/* Your custom ID + Password Fields */}
+          <View>
+            <TextInput
+              value={data.id_number}
+              onChangeText={(val) => setData({ ...data, id_number: val })}
+              placeholder="ID Number"
+              style={styles.input}
+            />
+
+            <TextInput
+              value={data.password}
+              onChangeText={(val) => setData({ ...data, password: val })}
+              placeholder="Password"
+              secureTextEntry={true}
+              style={styles.input}
+            />
+
+            <Button title="Login" onPress={onPressLogin} />
+            <Button title="Get Profile" onPress={onGetProfile} />
+          </View>
+          
+          <View>
+            <Text>{ profile.first_name } { profile.last_name }</Text>
+          </View>
           {/* Animated Card */}
           <Animated.View
             style={[
@@ -249,7 +312,7 @@ function Login({ navigation }) {
         </View>
       </ScrollView>
 
-      {/* Custom Modal */}
+      {/* Modal */}
       <Modal
         animationType="fade"
         transparent={true}
@@ -304,10 +367,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 36,
     paddingVertical: 40,
     alignItems: "center",
-    shadowColor: "#000",
-    shadowOpacity: 0.25,
-    shadowOffset: { width: 0, height: 3 },
-    shadowRadius: 6,
     elevation: 6,
   },
   title: {
@@ -361,7 +420,6 @@ const styles = StyleSheet.create({
   eyeIcon: {
     width: 24,
     height: 24,
-    resizeMode: "contain",
   },
   button: {
     width: 120,
@@ -421,7 +479,8 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     fontSize: 14,
   },
-  // Modal Styles
+
+  // Modal
   modalOverlay: {
     flex: 1,
     backgroundColor: "rgba(0,0,0,0.5)",
@@ -434,11 +493,6 @@ const styles = StyleSheet.create({
     borderRadius: 25,
     padding: 30,
     alignItems: "center",
-    shadowColor: "#000",
-    shadowOpacity: 0.25,
-    shadowOffset: { width: 0, height: 3 },
-    shadowRadius: 6,
-    elevation: 6,
   },
   modalTitle: {
     fontSize: 22,
