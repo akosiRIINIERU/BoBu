@@ -181,7 +181,7 @@ function Login({ navigation }) {
             />
 
             <Button title="Login" onPress={onPressLogin} />
-            <Button title="Get Profile" onPress={console.log(data)} />
+            <Button title="Get Profile" onPress={onGetProfile} />
           </View>
           
           <View>
