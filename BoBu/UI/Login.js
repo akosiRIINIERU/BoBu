@@ -20,7 +20,6 @@ import api from "./http.js";
 
 
 function Login({ navigation }) {
-  // Moved here ✔ FIXED
   const [data, setData] = useState({
     id_number: "",
     password: ""
