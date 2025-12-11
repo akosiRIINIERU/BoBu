@@ -21,10 +21,15 @@
         "backgroundColor": "#ffffff"
       },
       "edgeToEdgeEnabled": true,
-      "package": "com.anonymous.BoBu"
+      "package": "com.BoardBuddy.BoBu"
     },
     "web": {
       "favicon": "./assets/favicon.png"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "c6c53af2-e983-4c39-a49c-49ace043eb45"
+      }
     }
   }
 }
